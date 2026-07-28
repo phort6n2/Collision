@@ -545,6 +545,39 @@ function proseHtml(page) {
      and callouts use <h3>, so this cannot catch a nested heading. */
   const parts = page.body.trim().split(/\n(?=<h2>)/);
 
+  /* Fill every chapter that has no explicit figure from the bodyPhotos pool.
+   *
+   * A chapter block comes in two shapes — with a photo and without — and they
+   * are different widths. A page that mixes them shows two different block
+   * edges, which is what a client sees and reports as "some full width and some
+   * in the centre". Rather than force the two shapes to agree, this removes the
+   * second shape: illustrate everything and every block is the same by
+   * construction.
+   *
+   * Photos repeat ACROSS pages, which is fine and always has been — nobody
+   * reads two city pages side by side, and a real photograph reused beats a
+   * stock one that is not this business. What must not happen is a repeat
+   * WITHIN a page, so anything already used here is excluded from the pool.
+   *
+   * If the pool runs out the chapter stays unillustrated, and the CSS fallback
+   * keeps it at the same block width and the same text column rather than
+   * re-centring it. That path is for a client with fewer photos than chapters,
+   * not for this one. */
+  const used = new Set([...byChapter.values()].map((f) => f.src));
+  const pool = (cfg.bodyPhotos || []).filter((b) => !used.has(b.src));
+  let nextPhoto = 0;
+  for (let i = 0; i < parts.length; i++) {
+    if (byChapter.has(i) || nextPhoto >= pool.length) continue;
+    byChapter.set(i, { chapter: i, src: pool[nextPhoto++].src });
+  }
+
+  /* Alternation is back, and it is only defensible because every chapter is now
+     illustrated. Alternating the photo moves the prose between two positions
+     inside the block; when some chapters had no photo that read as text which
+     would not sit still, but when all of them do it reads as rhythm. If a future
+     client's pool runs short, revisit this before revisiting the CSS. */
+  let illustrated = 0;
+
   const chapters = parts.map((part, i) => {
     const m = /^<h2>([\s\S]*?)<\/h2>\s*/.exec(part);
     const heading = m ? '<h2>' + m[1] + '</h2>' : '';
@@ -554,13 +587,14 @@ function proseHtml(page) {
     if (!fig) {
       return '<div class="pchap">' + heading + '<div class="prose">' + rest + '</div></div>';
     }
+    const alt = illustrated++ % 2 === 1 ? ' pchap-alt' : '';
     /* Heading, figure and prose as three siblings rather than a figure beside a
        wrapped heading+prose. Source order is what a phone gets, and heading ->
        photo -> text is the readable order there; on desktop grid-template-areas
        lifts the figure into its own column spanning both rows. Wrapping the text
        instead delivered the photo before its own heading on mobile. */
     return (
-      '<div class="pchap pchap-fig">' +
+      '<div class="pchap pchap-fig' + alt + '">' +
       heading +
       figureHtml(galleryEntry(fig.src)) +
       '<div class="prose">' + rest + '</div>' +

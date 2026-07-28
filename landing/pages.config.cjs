@@ -329,46 +329,46 @@ module.exports = {
   ],
 
   gallery: [
-    { src: 'storefront-portland.webp', w: 1600, h: 1069,
+    { src: 'storefront-portland.webp', w: 1000, h: 668,
       alt: 'The Cedar Mill shop from the parking lot, with the red Collision Auto Glass sign above the roller door',
       caption: 'The Cedar Mill shop on NW Science Park Drive — a Portland postal address, but Washington County.' },
-    { src: 'storefront-tualatin.webp', w: 1600, h: 1069,
+    { src: 'storefront-tualatin.webp', w: 1000, h: 668,
       alt: 'Two staff outside the Tualatin shop, the window behind them listing the services offered',
       caption: 'Tualatin. The service list on the glass is the same one on this page, and it has been there longer.' },
-    { src: 'van-mobile-install.webp', w: 1069, h: 1600,
+    { src: 'van-mobile-install.webp', w: 668, h: 1000,
       alt: 'A technician setting glass on a car parked beside the branded mobile van',
       caption: 'The van carries the glass, the urethane and the primer. Most jobs never see a shop.' },
-    { src: 'windshield-set-bmw.webp', w: 1600, h: 1068,
+    { src: 'windshield-set-bmw.webp', w: 1000, h: 668,
       alt: 'Two technicians lowering a windshield onto a car with suction cup setting tools',
       caption: 'Two people set the glass. One person and a windshield of this size is how you get a leak.' },
-    { src: 'shop-glass-prep.webp', w: 1069, h: 1600,
+    { src: 'shop-glass-prep.webp', w: 668, h: 1000,
       alt: 'A technician priming the edge of a windshield on a glass stand inside the shop',
       caption: 'The black band gets primed before anything touches the car. Skip it and the bond fails in a year.' },
-    { src: 'front-office.webp', w: 1600, h: 1069,
+    { src: 'front-office.webp', w: 1000, h: 668,
       alt: 'Two staff at the front counter of the shop with framed certificates on the wall behind',
       caption: 'The counter at Cedar Mill. Someone here can tell you repair or replace before you book.' }
   ],
 
   bodyPhotos: [
-    { src: 'van-door-decal.webp', w: 935, h: 1400,
+    { src: 'van-door-decal.webp', w: 668, h: 1000,
       alt: 'The side of the branded van listing windshield, door glass, rock chip, mobile service and the lifetime guarantee',
       caption: 'The guarantee has been painted on the van since before it was on a website.' },
-    { src: 'tualatin-bay-install.webp', w: 1600, h: 1069,
+    { src: 'tualatin-bay-install.webp', w: 1000, h: 668,
       alt: 'A technician working on a windshield in front of the Tualatin shop window',
       caption: 'In-shop work at Tualatin, where the controlled temperature matters in a wet month.' },
-    { src: 'inspection-clipboard.webp', w: 935, h: 1400,
+    { src: 'inspection-clipboard.webp', w: 668, h: 1000,
       alt: 'A gloved hand filling in a printed vehicle inspection diagram on a clipboard beside a car',
       caption: 'The damage gets recorded before the job starts, not after.' },
-    { src: 'cabin-header-trim.webp', w: 1600, h: 1069,
+    { src: 'cabin-header-trim.webp', w: 1000, h: 668,
       alt: 'A technician reaching up to the top of the windshield from inside the vehicle cabin',
       caption: 'The header trim comes off from inside. Levering it from outside is how the paint gets scratched.' },
-    { src: 'cowl-wiper-detail.webp', w: 935, h: 1400,
+    { src: 'cowl-wiper-detail.webp', w: 668, h: 1000,
       alt: 'A technician working at the base of the windshield where the wiper cowl meets the glass',
       caption: 'The cowl and wipers come off every time. It is the step that gets skipped when someone is rushing.' },
-    { src: 'two-tech-set-glass.webp', w: 1600, h: 1069,
+    { src: 'two-tech-set-glass.webp', w: 1000, h: 668,
       alt: 'Two technicians positioning a windshield onto a car with the mobile van parked behind',
       caption: 'A driveway in the metro, not a bay. This is what most of the work actually looks like.' },
-    { src: 'adas-calibration-scan.webp', w: 935, h: 1400,
+    { src: 'adas-calibration-scan.webp', w: 668, h: 1000,
       alt: 'A technician operating a calibration tablet plugged into a vehicle at the dashboard',
       caption: 'The camera behind the new glass is aimed and confirmed before the car leaves.' }
   ],
@@ -1064,12 +1064,10 @@ tell us at booking. Mobile jobs lose more time to access than to the work.</p>
 
     {
       slug: 'insurance-claims',
-      card: {
-        icon: 'doc',
-        title: 'Insurance claims',
-        blurb: 'Who chooses the shop, what Oregon law actually says, and what we bill directly.',
-        cta: 'Insurance claims'
-      },
+      /* No `card` deliberately — six cards fill a three-column grid exactly and
+         seven strands one. This is the page to leave out of the grid: it is a
+         claims explainer, not a service someone shops for, and every footer on
+         the site links it, so nothing is orphaned by dropping the tile. */
       figures: [
         { chapter: 0, src: 'inspection-clipboard.webp' },
         { chapter: 2, src: 'van-door-decal.webp' }

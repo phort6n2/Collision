@@ -239,6 +239,18 @@ function bodyText(html) {
   const h = html.match(/<!--PAGE:H1-->([\s\S]*?)<!--\/PAGE:H1-->/);
   const sub = html.match(/<!--PAGE:SUB-->([\s\S]*?)<!--\/PAGE:SUB-->/);
   s = (h ? h[1] : '') + ' ' + (sub ? sub[1] : '') + ' ' + s;
+  /* Figure captions are stripped before measuring. They are GENERATED, written
+     once per photograph in the config, and the same photo carries the same
+     caption wherever it appears — so two pages that share photographs look like
+     duplicated prose purely for sharing photographs.
+     That is the opposite of what this check is for. It exists to catch one
+     authored page template with the city name swapped, which is what the site
+     this build replaced actually did. Leaving captions in it fails honest pages
+     and, worse, pressures whoever hits the failure into UN-illustrating pages to
+     get green — making the site worse to satisfy a check meant to make it
+     better. Measured here: including captions took the worst pair from 3.79% to
+     8.33% without a word of body copy changing. */
+  s = s.replace(/<figcaption[\s\S]*?<\/figcaption>/g, ' ');
   return s
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')

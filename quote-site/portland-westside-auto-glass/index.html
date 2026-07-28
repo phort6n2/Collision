@@ -1194,6 +1194,11 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
        bottom margin is the spacing that belongs there. */
     gap:0 56px; align-items:start;
   }
+  /* Alternate side. Only defensible because the generator now illustrates every
+     chapter — see proseHtml. With a mix of illustrated and bare chapters this
+     read as text that would not sit still. */
+  .pchap-alt{ grid-template-columns:380fr 498fr;
+              grid-template-areas:"fig head" "fig prose"; }
   .pchap-fig > h2{ grid-area:head; }
   .pchap-fig > figure{ grid-area:fig; align-self:center; margin:0; }
   .pchap-fig > .prose{ grid-area:prose; max-width:none; }
@@ -1214,8 +1219,13 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
      the two-column illustrated grid with a single column plus an implicit auto
      track. The exclusion says what is meant and cannot be undone by moving a
      block. */
-  .pchap:not(.pchap-fig){ display:grid; grid-template-columns:minmax(0,56ch);
-                          justify-content:center; }
+  /* Fallback for a client whose photo pool is smaller than its chapter count.
+     Same 934px block and same 56ch column as an illustrated chapter, so the
+     section keeps ONE outer edge either way — it just has empty rail instead of
+     a photo. It must not re-centre itself at a different width; that is the
+     mismatch this whole block exists to prevent. */
+  .pchap:not(.pchap-fig){ max-width:934px; margin-inline:auto;
+                          display:grid; grid-template-columns:minmax(0,56ch); }
   .pchap:not(.pchap-fig) > .prose{ max-width:none; }
 }
 /* Tablet: the card stretches to the full container because the rule pinning it
@@ -1482,7 +1492,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   <div class="wrap">
     <!-- No .prose wrapper here: the generator emits one .prose per chapter, and
          wrapping the chapter grid in a 56ch box crushes every column inside it. -->
-    <!--PAGE:BODY--><div class="chaps"><div class="pchap pchap-fig"><h2>The towns this side covers</h2><figure><span class="shot"><img src="/img/van-door-decal.51f7925a.webp" width="935" height="1400" alt="The side of the branded van listing windshield, door glass, rock chip, mobile service and the lifetime guarantee" loading="lazy" decoding="async"></span><figcaption>The guarantee has been painted on the van since before it was on a website.</figcaption></figure><div class="prose"><p>Cities with their own page: <a href="/auto-glass-repair-portland">Portland</a>,
+    <!--PAGE:BODY--><div class="chaps"><div class="pchap pchap-fig"><h2>The towns this side covers</h2><figure><span class="shot"><img src="/img/van-door-decal.2c73c1a8.webp" width="668" height="1000" alt="The side of the branded van listing windshield, door glass, rock chip, mobile service and the lifetime guarantee" loading="lazy" decoding="async"></span><figcaption>The guarantee has been painted on the van since before it was on a website.</figcaption></figure><div class="prose"><p>Cities with their own page: <a href="/auto-glass-repair-portland">Portland</a>,
 <a href="/auto-glass-repair-beaverton">Beaverton</a> and
 <a href="/auto-glass-repair-hillsboro">Hillsboro</a>.</p>
 <p>Worked regularly without a dedicated page: Aloha, Cornelius, Cedar Mill,
@@ -1491,7 +1501,7 @@ Bethany, Forest Grove and the unincorporated Washington County pockets in betwee
 <p>If your town is on neither list, call and ask. Sometimes the answer is no, and
 you should have it before you book.</p>
 </div></div>
-      <div class="pchap"><h2>US-26 is why this side generates the chip calls</h2><div class="prose"><p>The Sunset Highway is the spine of this territory, and it produces damage at a
+      <div class="pchap pchap-fig pchap-alt"><h2>US-26 is why this side generates the chip calls</h2><figure><span class="shot"><img src="/img/tualatin-bay-install.f72f593d.webp" width="1000" height="668" alt="A technician working on a windshield in front of the Tualatin shop window" loading="lazy" decoding="async"></span><figcaption>In-shop work at Tualatin, where the controlled temperature matters in a wet month.</figcaption></figure><div class="prose"><p>The Sunset Highway is the spine of this territory, and it produces damage at a
 rate the rest of the metro does not. It carries the daily commute between Portland
 and the Washington County tech campuses, it carries freight, and it climbs over
 the West Hills through a stretch that gets sanded in winter.</p>
@@ -1501,7 +1511,7 @@ highways alone — and you get a road surface that sheds aggregate for months.
 Chipped windshields on this side follow the calendar closely enough that we plan
 staffing around it.</p>
 </div></div>
-      <div class="pchap pchap-fig"><h2>Where the cars actually sit during the day</h2><figure><span class="shot"><img src="/img/cowl-wiper-detail.91b7ac71.webp" width="935" height="1400" alt="A technician working at the base of the windshield where the wiper cowl meets the glass" loading="lazy" decoding="async"></span><figcaption>The cowl and wipers come off every time. It is the step that gets skipped when someone is rushing.</figcaption></figure><div class="prose"><p>This is a commuter belt with very large single employers, which changes what a
+      <div class="pchap pchap-fig"><h2>Where the cars actually sit during the day</h2><figure><span class="shot"><img src="/img/cowl-wiper-detail.ac8cf8f5.webp" width="668" height="1000" alt="A technician working at the base of the windshield where the wiper cowl meets the glass" loading="lazy" decoding="async"></span><figcaption>The cowl and wipers come off every time. It is the step that gets skipped when someone is rushing.</figcaption></figure><div class="prose"><p>This is a commuter belt with very large single employers, which changes what a
 mobile job looks like. Intel is Oregon's largest for-profit employer with roughly
 20,000 people in the state, most of them in Washington County, and its Gordon
 Moore Park at Ronler Acres campus is in Hillsboro. Columbia Sportswear's
@@ -1531,8 +1541,7 @@ an evening.</p></div></div></div><!--/PAGE:BODY-->
       <a class="card" href="/adas-calibration"><div class="card-i"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3"/></svg></div><h3>ADAS calibration</h3><p>Autel MaxiSYS, in-house. The camera behind your glass gets aimed and confirmed.</p><span class="card-link">ADAS calibration →</span></a>
       <a class="card" href="/side-window-replacement"><div class="card-i"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></div><h3>Side and door glass</h3><p>Tempered glass, the pebbles inside the door, and the regulator that often broke with it.</p><span class="card-link">Side and door glass →</span></a>
       <a class="card" href="/back-window-replacement"><div class="card-i"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 19V10"/></svg></div><h3>Back glass</h3><p>Defroster grid, antenna, and several thousand pebbles in the load area.</p><span class="card-link">Back glass →</span></a>
-      <a class="card" href="/mobile-auto-glass"><div class="card-i"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8Z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><h3>Mobile service</h3><p>Free across the service area. What we need from the space, and when it is a bad idea.</p><span class="card-link">Mobile service →</span></a>
-      <a class="card" href="/insurance-claims"><div class="card-i"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/></svg></div><h3>Insurance claims</h3><p>Who chooses the shop, what Oregon law actually says, and what we bill directly.</p><span class="card-link">Insurance claims →</span></a><!--/PAGE:SERVICECARDS--></div>
+      <a class="card" href="/mobile-auto-glass"><div class="card-i"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8Z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><h3>Mobile service</h3><p>Free across the service area. What we need from the space, and when it is a bad idea.</p><span class="card-link">Mobile service →</span></a><!--/PAGE:SERVICECARDS--></div>
   </div>
 </section>
 
@@ -1613,12 +1622,12 @@ an evening.</p></div></div></div><!--/PAGE:BODY-->
       <span class="eyebrow">On the job</span>
       <h2>Real vehicles, real driveways</h2>
     </div>
-    <div class="gal"><!--PAGE:GALLERY--><figure><span class="shot"><img src="/img/storefront-portland.85d48277.webp" width="1600" height="1069" alt="The Cedar Mill shop from the parking lot, with the red Collision Auto Glass sign above the roller door" loading="lazy" decoding="async"></span><figcaption>The Cedar Mill shop on NW Science Park Drive — a Portland postal address, but Washington County.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/storefront-tualatin.0d70725c.webp" width="1600" height="1069" alt="Two staff outside the Tualatin shop, the window behind them listing the services offered" loading="lazy" decoding="async"></span><figcaption>Tualatin. The service list on the glass is the same one on this page, and it has been there longer.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/van-mobile-install.4ca6f754.webp" width="1069" height="1600" alt="A technician setting glass on a car parked beside the branded mobile van" loading="lazy" decoding="async"></span><figcaption>The van carries the glass, the urethane and the primer. Most jobs never see a shop.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/windshield-set-bmw.a6c028d5.webp" width="1600" height="1068" alt="Two technicians lowering a windshield onto a car with suction cup setting tools" loading="lazy" decoding="async"></span><figcaption>Two people set the glass. One person and a windshield of this size is how you get a leak.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/shop-glass-prep.15be3936.webp" width="1069" height="1600" alt="A technician priming the edge of a windshield on a glass stand inside the shop" loading="lazy" decoding="async"></span><figcaption>The black band gets primed before anything touches the car. Skip it and the bond fails in a year.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/front-office.d5e07efb.webp" width="1600" height="1069" alt="Two staff at the front counter of the shop with framed certificates on the wall behind" loading="lazy" decoding="async"></span><figcaption>The counter at Cedar Mill. Someone here can tell you repair or replace before you book.</figcaption></figure><!--/PAGE:GALLERY--></div>
+    <div class="gal"><!--PAGE:GALLERY--><figure><span class="shot"><img src="/img/storefront-portland.99f3c859.webp" width="1000" height="668" alt="The Cedar Mill shop from the parking lot, with the red Collision Auto Glass sign above the roller door" loading="lazy" decoding="async"></span><figcaption>The Cedar Mill shop on NW Science Park Drive — a Portland postal address, but Washington County.</figcaption></figure>
+        <figure><span class="shot"><img src="/img/storefront-tualatin.2ee95636.webp" width="1000" height="668" alt="Two staff outside the Tualatin shop, the window behind them listing the services offered" loading="lazy" decoding="async"></span><figcaption>Tualatin. The service list on the glass is the same one on this page, and it has been there longer.</figcaption></figure>
+        <figure><span class="shot"><img src="/img/van-mobile-install.26507141.webp" width="668" height="1000" alt="A technician setting glass on a car parked beside the branded mobile van" loading="lazy" decoding="async"></span><figcaption>The van carries the glass, the urethane and the primer. Most jobs never see a shop.</figcaption></figure>
+        <figure><span class="shot"><img src="/img/windshield-set-bmw.38868e15.webp" width="1000" height="668" alt="Two technicians lowering a windshield onto a car with suction cup setting tools" loading="lazy" decoding="async"></span><figcaption>Two people set the glass. One person and a windshield of this size is how you get a leak.</figcaption></figure>
+        <figure><span class="shot"><img src="/img/shop-glass-prep.ea843224.webp" width="668" height="1000" alt="A technician priming the edge of a windshield on a glass stand inside the shop" loading="lazy" decoding="async"></span><figcaption>The black band gets primed before anything touches the car. Skip it and the bond fails in a year.</figcaption></figure>
+        <figure><span class="shot"><img src="/img/front-office.4e517db1.webp" width="1000" height="668" alt="Two staff at the front counter of the shop with framed certificates on the wall behind" loading="lazy" decoding="async"></span><figcaption>The counter at Cedar Mill. Someone here can tell you repair or replace before you book.</figcaption></figure><!--/PAGE:GALLERY--></div>
   </div>
 </section>
 
