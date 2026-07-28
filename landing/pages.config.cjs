@@ -214,7 +214,7 @@ module.exports = {
     },
 
     ghl: {
-      webhook: 'REPLACE__https://services.leadconnectorhq.com/hooks/.../webhook-trigger/...',
+      webhook: 'https://services.leadconnectorhq.com/hooks/x7zUDmT8SJyJMQoyGE9p/webhook-trigger/8xbolhw6xFlfBZtbkcMD',
       locationId: 'x7zUDmT8SJyJMQoyGE9p',
       poolId: 'KxTryNob1lTv1nAFRiiv'
     },
