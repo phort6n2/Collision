@@ -200,10 +200,52 @@ without them reads as a wall of text beside pages that alternate text and image.
 Two per page at chapters 0 and 2 matches the rest of the site.
 
 Photos repeat across pages and that is correct. Nobody reads two city pages, and
-a real photograph reused beats a stock one that is not this business. A client
-will rarely supply enough for one photo per chapter — a site of this shape has
-around a hundred — so the layout is built so the chapters without one lose
-nothing.
+a real photograph reused beats a stock one that is not this business.
+
+### Every chapter gets one, and the generator does it for you
+
+The generator fills any chapter with no explicit `figures` entry from the next
+unused `bodyPhotos` entry, so **every chapter on the site ends up illustrated**.
+Nothing already used on that page is reused on it, so a photo never repeats
+within a page — the only constraint is that `bodyPhotos` must be at least as
+long as the longest page's chapter count.
+
+This is not decoration. It is what keeps the section one width. A chapter WITH a
+photo is a 934px two-column block; a chapter WITHOUT one is a 498px column. A
+page that mixes them has **two different outer edges**, and "some blocks are full
+width and some are centred" is what the client reports. The two shapes cannot be
+made to agree — so remove the second shape.
+
+There is still a CSS fallback for a client whose pool is shorter than its chapter
+count: an unillustrated chapter keeps the same block and the same text column
+rather than re-centring itself at a different width. Never "fix" that rule by
+letting it centre again.
+
+**Alternation depends on this.** Illustrated chapters alternate the photo left
+and right, which moves the prose between two positions inside the block. When
+every chapter is illustrated that reads as rhythm; when some are bare it reads as
+text that will not sit still, and the offsets zigzag. If a client's pool is too
+small to fill every chapter, drop the alternation rather than living with it.
+Note the reference build had exactly this bug for a long time and got away with
+it only because it had three chapters in an order where the offsets happened to
+descend.
+
+### Two things adding figures will break
+
+**The doorway-content check, via captions.** Captions are generated once per
+photograph in the config, so two pages that share photographs carry identical
+caption text. Measured on a real build: the worst city pair went from 3.79% to
+**8.33%** — through the 5% ceiling — without a word of body copy changing.
+`verify.cjs` strips `<figcaption>` before measuring for exactly this reason. If
+you ever see that check fail right after illustrating pages, do not go and
+un-illustrate them to get it green: that makes the site worse to satisfy a check
+meant to make it better.
+
+**Page weight.** Body figures render at roughly 365–378 CSS px. A client's
+originals are often 1600px wide, which is 4.4x oversized and took one home page
+to 1443KB. Cap the long edge at 1000px — still covers 2x — and then **re-sync
+the `w`/`h` values in the config to the resized files**, because those reserve
+the box and stop layout shift. That build came down to 841KB.
 
 ## Gallery symmetry is automatic
 
@@ -216,7 +258,22 @@ counting them into threes.
 **Symmetry is the client's most frequent note.** Any repeating block needs to
 divide evenly at every column count it reaches, or fill the last row
 deliberately. The same rule already covers the insurance radios (two halves and
-a full-width third, all three stacked below 360px) and the stat band. When a
+a full-width third, all three stacked below 360px) and the stat band.
+
+The **service card grid** now handles it the same way the gallery does — six
+tracks, two per card, with a last row of one or two centred. One deliberate
+difference from the gallery: a leftover card is centred at its normal size and
+never widened to fill the row, because a service card twice the size of its
+neighbours reads as the most important service, and "there were seven of them"
+is not a reason to promote one.
+
+Even so, **prefer an even card count to relying on that.** Six cards in three
+columns is the shape clients like; seven is the shape they complain about, and
+they will complain even when the stray card is centred. `card` is optional on
+each service, so drop the tile from whichever page is least like a service
+someone shops for — an insurance-claims explainer, say — and leave the page
+itself reachable from the footer. Getting the count right beats handling the
+remainder gracefully. When a
 label is the thing breaking a row — one caption wrapping to two lines while its
 neighbours fit — shorten the label rather than adjusting the grid.
 
