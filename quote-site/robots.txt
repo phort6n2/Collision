@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://quote.collisionautoglass.com/sitemap.xml
+Sitemap: https://collisionglass.co/sitemap.xml

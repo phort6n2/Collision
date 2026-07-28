@@ -1,45 +1,29 @@
-# Google Ads final-URL migration
+# Cutover: taking over `collisionglass.co`
 
-`collisionglass.co` → `quote.collisionautoglass.com`
+**The site keeps the domain it is replacing.** This is not a launch on a new
+host with a redirect from the old one — it is a DNS change on `collisionglass.co`
+that swaps GoHighLevel out and this build in.
 
-The domain is changing, so every final URL in the account has to be edited
-regardless. That edit should also carry the **new path** where one applies —
-doing both in one pass costs nothing extra and avoids leaning on a redirect.
+That changes the shape of the job considerably, and mostly in our favour.
 
-## Why not just change the domain
+## What this means for Google Ads
 
-Because the old site carried fourteen service URLs for about seven services.
-Four paths — `/windshield-repair`, `/rock-chip-repair`, `/windshield-chip-repair`,
-`/windshield-crack-repair` — answered one customer question, and three more did
-the same for side glass. Near-duplicate pages compete with each other in the
-same auction and read as thin to Google, which is a landing-page-experience
-problem rather than a cosmetic one.
+Every live final URL already points at `collisionglass.co/<path>`. The host is
+not changing, so **most of the account needs no edit at all.**
 
-Seven service pages now, each owning a distinct subject. Nothing was deleted:
-the break typology, the crack-propagation material and the door-cavity detail
-all moved into the page that absorbed them.
+**11 paths — no Ads work whatsoever**
 
-## The mapping
+`/` · `/windshield-replacement` · `/windshield-repair` · `/adas-calibration` ·
+`/auto-glass-repair-portland` · `/auto-glass-repair-beaverton` ·
+`/auto-glass-repair-hillsboro` · `/auto-glass-repair-tualatin` ·
+`/auto-glass-repair-lake-oswego` · `/privacy` · `/terms`
 
-**Unchanged — edit the host only (11)**
+Same domain, same path, real page. Those ads keep serving through the cutover
+without anybody touching them.
 
-| Final URL path | Status |
-|---|---|
-| `/` | unchanged |
-| `/windshield-replacement` | unchanged |
-| `/windshield-repair` | unchanged — now also covers rock chips, break types and cracks |
-| `/adas-calibration` | unchanged |
-| `/auto-glass-repair-portland` | unchanged |
-| `/auto-glass-repair-beaverton` | unchanged |
-| `/auto-glass-repair-hillsboro` | unchanged |
-| `/auto-glass-repair-tualatin` | unchanged |
-| `/auto-glass-repair-lake-oswego` | unchanged |
-| `/privacy` | unchanged |
-| `/terms` | unchanged |
+**11 paths — 301'd, and editable at leisure**
 
-**Changed — edit the host AND the path (11)**
-
-| Old path | New path |
+| Old path | Now redirects to |
 |---|---|
 | `/rock-chip-repair` | `/windshield-repair` |
 | `/windshield-chip-repair` | `/windshield-repair` |
@@ -53,18 +37,6 @@ all moved into the page that absorbed them.
 | `/auto-glass-repair` | `/` |
 | `/auto-glass-replacement` | `/` |
 
-## The safety net, and why it is not the plan
-
-All eleven old paths are **301'd** to their new home from the root
-`vercel.json`. So an ad final URL that gets missed will redirect rather than
-404 — the difference between a crawler hop and a disapproved ad.
-
-Do not treat that as permission to skip the edit. A same-domain redirect on a
-live ad destination adds a hop Google follows before scoring landing page
-experience, for no benefit. The redirects exist because the Ads final-URL
-export has not been supplied, so there may be a URL referenced by an ad that no
-crawl of the old site could reveal.
-
 Checked against every path the old site served:
 
 ```
@@ -72,20 +44,69 @@ $ node landing/check-urls.cjs --file old-urls.txt
 EXACT (11) · REDIRECT ONLY (11) · MISSING (0)
 ```
 
-**Zero missing is the number that matters** — nothing on the old site can 404
-on the new one. The eleven redirect-only entries are the checker telling you to
-correct those final URLs, which is exactly what the table above is for.
+**Zero missing.** Nothing 404s on cutover day whether or not a single final URL
+is edited.
 
-## Order of operations at cutover
+## About that consolidation — the trade-off moved
 
-1. Deploy to `quote.collisionautoglass.com` and confirm the 15 pages serve
-2. Export final URLs from Google Ads at **keyword, ad and sitelink level**
-3. Run `npm run check:urls -- --file ads-final-urls.txt` — no `--allow-redirects`
-4. Fix anything it reports by correcting the final URL in Ads, using the table above
-5. Re-run until it reports 0 redirect-only and 0 missing
-6. Leave `collisionglass.co` serving until the change has propagated
+The fourteen service URLs became seven because four paths answered one customer
+question and three more did the same for side glass. Near-duplicate pages
+compete with each other in the same auction and read as thin.
 
-One caution on step 2: editing an ad's final URL may reset that ad's
-performance history depending on ad type, whereas keyword- and sitelink-level
-final URLs edit in place. Worth checking which level your URLs are set at
-before you start, so the reset is a decision rather than a surprise.
+When the plan was a new subdomain, that consolidation was **free**: every final
+URL had to be edited for the host anyway, so a better slug cost nothing.
+
+Staying on `collisionglass.co` removes that argument. Those eleven paths would
+have needed no edit at all under strict parity, and now they either get edited
+or they serve through a redirect hop.
+
+**The recommendation is still to keep it**, for three reasons:
+
+1. The near-duplicate problem is the main thing the rebuild exists to fix.
+   Re-splitting `/windshield-repair` back into four thin pages to avoid eleven
+   form edits is the wrong trade.
+2. Nothing breaks in the meantime. The 301s hold indefinitely, so this can be
+   tidied whenever it is convenient rather than on cutover day.
+3. A same-domain 301 costs a crawler hop before landing page experience is
+   scored. That is a real but small cost, and it is reversible by editing the
+   URL — unlike shipping seven near-duplicate pages, which is not.
+
+So: **cut over first, edit the eleven when you have a quiet hour.** If you would
+rather not edit them at all, that is a defensible choice too — just know the hop
+is there.
+
+## The cutover itself is the risky part now
+
+A subdomain launch is reversible: the old site keeps serving while the new one
+is tested. **This is not.** The moment `collisionglass.co` repoints, GoHighLevel
+stops answering and this build starts, for every visitor and every ad click at
+once. There is no overlap window and no rollback except pointing DNS back and
+waiting for it to propagate.
+
+So the order matters:
+
+1. **Get preflight green first.** Right now the build carries
+   `REPLACE__AW-0000000000` in a live script tag and a placeholder GHL webhook.
+   Cutting over in that state means live ad traffic hitting a page that reports
+   no conversions and posts leads nowhere.
+2. **Deploy and test on the Vercel URL** before touching DNS. Click every page,
+   submit the form, confirm the lead lands in the CRM.
+3. **Snapshot the GHL site before you dismantle anything.** Export or screenshot
+   the funnel. Once DNS moves you cannot see it at that address again, and it is
+   the only record of what the ads were pointing at.
+4. **Then move DNS**, and watch the first conversions land rather than assuming.
+5. **Do not delete the GHL funnel for a while.** It costs nothing to leave it
+   sitting there, and it is the only rollback that does not involve rebuilding.
+
+## One thing to check before cutover day
+
+The Google Ads final-URL export, at **keyword, ad and sitelink level**. The crawl
+found 22 paths, but a final URL can be referenced by an ad without being linked
+anywhere crawlable — and on the same domain a stray path that neither exists nor
+redirects is a 404 the moment DNS moves.
+
+```
+npm run check:urls -- --file ads-final-urls.txt
+```
+
+Anything it reports as missing needs a page or a redirect before you repoint.

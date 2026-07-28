@@ -69,7 +69,12 @@
 
 module.exports = {
   site: {
-    domain: 'quote.collisionautoglass.com',
+    /* The site takes over collisionglass.co itself — the SAME domain the old
+     * GoHighLevel site serves today. That makes the cutover a DNS change, not a
+     * parallel launch: the moment the domain repoints, GHL stops answering and
+     * this site starts. There is no window where both are up, and no rollback
+     * except pointing DNS back. See docs/ads-url-migration.md. */
+    domain: 'collisionglass.co',
 
     /* Plain-text fields: a literal ampersand, never &amp;. */
     name: 'Collision Auto Glass & Calibration',

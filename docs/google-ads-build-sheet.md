@@ -22,7 +22,7 @@ Display expansion OFF.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/windshield-replacement
+https://collisionglass.co/windshield-replacement
 ```
 
 **Display path** (the two boxes after the domain): `Windshield` and `Replacement`
@@ -75,7 +75,7 @@ We bill your insurer directly. Tell us the year, make and model for a real quote
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/windshield-repair
+https://collisionglass.co/windshield-repair
 ```
 
 **Display path** (the two boxes after the domain): `Windshield` and `Repair`
@@ -128,7 +128,7 @@ Free mobile service across the Portland metro. Home, office or park and ride.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/adas-calibration
+https://collisionglass.co/adas-calibration
 ```
 
 **Display path** (the two boxes after the domain): `ADAS` and `Calibration`
@@ -181,7 +181,7 @@ Ask any shop whether calibration happens under their roof or gets sent out.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/mobile-auto-glass
+https://collisionglass.co/mobile-auto-glass
 ```
 
 **Display path** (the two boxes after the domain): `Mobile` and `Auto-Glass`
@@ -234,7 +234,7 @@ Where a job belongs indoors we will say so and bring it in. That costs no extra.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/side-window-replacement
+https://collisionglass.co/side-window-replacement
 ```
 
 **Display path** (the two boxes after the domain): `Side-Glass` and `Replacement`
@@ -287,7 +287,7 @@ Sometimes it is the regulator rather than the glass. We check before ordering pa
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/back-window-replacement
+https://collisionglass.co/back-window-replacement
 ```
 
 **Display path** (the two boxes after the domain): `Back-Glass` and `Replacement`
@@ -339,7 +339,7 @@ Bonded like a windshield, so it has a cure time. We often bring these into the s
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/auto-glass-repair-portland
+https://collisionglass.co/auto-glass-repair-portland
 ```
 
 **Display path** (the two boxes after the domain): `Portland` and `Auto-Glass`
@@ -391,7 +391,7 @@ Broken into overnight? Tell us when you call and we will get it sealed first.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/auto-glass-repair-beaverton
+https://collisionglass.co/auto-glass-repair-beaverton
 ```
 
 **Display path** (the two boxes after the domain): `Beaverton` and `Auto-Glass`
@@ -442,7 +442,7 @@ Check with your property manager first if the car lives in a shared apartment lo
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/auto-glass-repair-hillsboro
+https://collisionglass.co/auto-glass-repair-hillsboro
 ```
 
 **Display path** (the two boxes after the domain): `Hillsboro` and `Auto-Glass`
@@ -493,7 +493,7 @@ Check site access first. Larger campuses often have gated or badge-only parking.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/auto-glass-repair-tualatin
+https://collisionglass.co/auto-glass-repair-tualatin
 ```
 
 **Display path** (the two boxes after the domain): `Tualatin` and `Auto-Glass`
@@ -544,7 +544,7 @@ Vans, box trucks and light commercial are a normal part of the week here.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/auto-glass-repair-lake-oswego
+https://collisionglass.co/auto-glass-repair-lake-oswego
 ```
 
 **Display path** (the two boxes after the domain): `Lake-Oswego` and `Glass`
@@ -707,12 +707,12 @@ different trade and a different customer.
 
 | Text | Description 1 | Description 2 | Final URL |
 |---|---|---|---|
-| Windshield Replacement | New glass, set by two people | Camera recalibrated too | `https://quote.collisionautoglass.com/windshield-replacement` |
-| Chip & Crack Repair | Far cheaper than replacing | If it is still repairable | `https://quote.collisionautoglass.com/windshield-repair` |
-| ADAS Calibration | Autel MaxiSYS, in our shop | Never sent to a third shop | `https://quote.collisionautoglass.com/adas-calibration` |
-| Free Mobile Service | We come to your car | Home, work or park and ride | `https://quote.collisionautoglass.com/mobile-service` |
-| Insurance Claims | We bill your insurer direct | Oregon law: you pick the shop | `https://quote.collisionautoglass.com/insurance-claims` |
-| Side & Door Glass | Broken window sorted fast | Door cavity cleared properly | `https://quote.collisionautoglass.com/side-window-replacement` |
+| Windshield Replacement | New glass, set by two people | Camera recalibrated too | `https://collisionglass.co/windshield-replacement` |
+| Chip & Crack Repair | Far cheaper than replacing | If it is still repairable | `https://collisionglass.co/windshield-repair` |
+| ADAS Calibration | Autel MaxiSYS, in our shop | Never sent to a third shop | `https://collisionglass.co/adas-calibration` |
+| Free Mobile Service | We come to your car | Home, work or park and ride | `https://collisionglass.co/mobile-service` |
+| Insurance Claims | We bill your insurer direct | Oregon law: you pick the shop | `https://collisionglass.co/insurance-claims` |
+| Side & Door Glass | Broken window sorted fast | Door cavity cleared properly | `https://collisionglass.co/side-window-replacement` |
 
 ### Callouts
 

@@ -13,8 +13,8 @@ is it on their own property".
 |---|---|
 | Legal / trading name | Collision Auto Glass & Calibration |
 | Main site | <https://collisionautoglass.com> (WordPress) |
-| Current ad landing site | <https://collisionglass.co> (GoHighLevel) — **being replaced** |
-| New landing site | `quote.collisionautoglass.com` — **confirmed by client** |
+| Current ad landing site | <https://collisionglass.co> (GoHighLevel) — **being replaced in place** |
+| New landing site | **`collisionglass.co`** — takes over the domain it replaces |
 | Trade | Auto glass + ADAS calibration |
 | Market | Portland metro, Oregon |
 | Founded | 2008 ("EST. 2008" on the logo, "Locally Owned & Operated Since 2008" on the storefront) |
@@ -121,9 +121,11 @@ lifetime warranty always defined on-page.
 
 ## URL inventory — `collisionglass.co`
 
-**Ads are live against this domain, and the new site sits on a different host.**
-That makes exact path parity mandatory: when the final URLs are repointed, the
-edit must be a pure domain swap so nothing 404s mid-flight.
+**Ads are live against this domain, and the new site TAKES IT OVER.** The host
+does not change, so most of the account needs no edit at all — but it also means
+the cutover is a DNS switch with no overlap window and no rollback but DNS. A
+stray final URL that neither exists nor redirects becomes a 404 the instant the
+domain moves.
 
 Crawled 2026-07-28. All 22 return HTTP 200. Crawling every page surfaced no URL
 beyond those linked from the homepage, so this list is complete *as a crawl* —
@@ -148,10 +150,20 @@ but a final URL can be referenced by an ad without being linked anywhere, so
 
 ### Consolidated, 2026-07-28, with the client's agreement
 
-The fourteen service URLs above became seven. Because the domain is changing,
-repointing every final URL in Ads is a single edit either way, so a better slug
-costs nothing. All eleven collapsed paths are 301'd as a safety net; the full
-old-to-new table and the cutover order are in `docs/ads-url-migration.md`.
+The fourteen service URLs above became seven — four paths answered one customer
+question and three more did the same for side glass.
+
+**The trade-off moved when the domain decision changed.** Under the original
+subdomain plan every final URL had to be edited anyway, so a better slug was
+free. Staying on `collisionglass.co` removes that argument: those eleven paths
+would have needed no edit at all under strict parity.
+
+Keeping the consolidation is still the recommendation — the near-duplicate
+problem is the main thing this rebuild exists to fix, and re-splitting
+`/windshield-repair` into four thin pages to save eleven form edits is the wrong
+trade. All eleven collapsed paths are 301'd, so nothing breaks and the edits can
+happen whenever convenient. Reasoning and the full table are in
+`docs/ads-url-migration.md`.
 
 `check:urls` against every path the old site served reports **0 missing** — 11
 exact, 11 redirect-only. Nothing can 404. The redirect-only entries are the
@@ -398,7 +410,17 @@ value is known, which lets Smart Bidding optimise toward revenue.
 
 ### Cutover sequence
 
-1. Deploy to `quote.collisionautoglass.com` and confirm all 19 paths serve
-2. Run `check:urls` against the Ads export
-3. Only then repoint the final URLs in Google Ads — a pure domain swap
-4. Leave `collisionglass.co` up until the change has propagated
+The site takes over `collisionglass.co` itself, so this is a DNS change rather
+than a parallel launch — there is no overlap window and no rollback but DNS.
+Full detail in `docs/ads-url-migration.md`.
+
+1. Get preflight green — cutting over with a placeholder conversion ID means
+   live ad traffic reporting nothing and leads posting nowhere
+2. Deploy and test on the Vercel URL: click every page, submit the form,
+   confirm the lead lands in the CRM
+3. Run `check:urls` against the Ads export — on the same domain, a stray final
+   URL that neither exists nor redirects becomes a 404 the instant DNS moves
+4. Snapshot the GoHighLevel funnel before dismantling anything
+5. Move DNS, then watch the first conversions land rather than assuming
+6. Leave the GHL funnel in place for a while — it is the only rollback that
+   does not involve rebuilding
