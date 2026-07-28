@@ -490,6 +490,34 @@ domain. This has silently swallowed several rounds of fixes — if the client sa
 
 Root `vercel.json` sets `outputDirectory: "quote-site"`.
 
+### The weekly reviews job is the one thing that runs when nobody is looking
+
+`.github/workflows/refresh-reviews.yml` pulls the rating, the review count and
+the quotes once a week, rebuilds, verifies, commits and pushes — and because
+production deploys from `main`, that push publishes. Three things about it are
+worth knowing before you promise a client it is running:
+
+- **Scheduled workflows only fire from the default branch.** On a feature branch
+  GitHub does not register the workflow at all: it will not appear in the Actions
+  tab and cannot even be dispatched by hand. Nothing happens until it is merged.
+- **It runs `verify` before it commits**, deliberately, so a broken site never
+  publishes. The side effect is that a preflight failure — a placeholder that
+  never got filled in — silently stops review updates too. A client whose rating
+  is frozen at launch values usually has an unfilled config, not an API problem.
+- **The push has to survive a rejection.** A bare `git push` fails if anything
+  landed on the branch since the checkout, and the only symptom is a red tick in
+  a tab nobody opens while the site serves a stale rating for weeks. Retry it.
+
+On that last point, the retry cannot be a plain rebase. `quote-site/` is
+generated, so a conflict there is never resolved by picking a side — the right
+answer is always to take the config that is now on the branch and rebuild from
+it, carrying over only the freshly fetched `reviews.json`. The workflow does
+exactly that, and makes no extra Places API call to do it.
+
+Worth testing rather than trusting: point a throwaway bare repo at the script,
+push a competing commit between the checkout and the push, and confirm the run
+rebuilds from the config that landed instead of clobbering it.
+
 ## Things that look like bugs and are not
 
 - **No conversion in Google Ads after a test submit.** Google only records

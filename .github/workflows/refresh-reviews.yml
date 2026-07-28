@@ -50,4 +50,40 @@ jobs:
           git add landing/reviews.json quote-site
           git diff --cached --quiet && echo "No review changes." && exit 0
           git commit -m "Refresh Google reviews"
-          git push
+
+          # This job runs unattended once a week with nobody watching it. A bare
+          # `git push` is rejected if ANYTHING landed on the branch between the
+          # checkout and here — and the only symptom is a red tick in a tab
+          # nobody opens, with the site quietly serving a stale rating until
+          # somebody notices weeks later.
+          #
+          # So: retry, and resolve correctly rather than merging two builds.
+          # quote-site/ is GENERATED, so a conflict in it is never resolved by
+          # picking a side. The right answer is always to take the config that is
+          # now on the branch and rebuild from it, carrying over only the
+          # freshly fetched reviews.json — which is why this resets and rebuilds
+          # instead of rebasing. No extra Places API call is made.
+          #
+          # Verified against a real rejected push: the run rebuilt from the
+          # config that had landed, kept the new review count, and produced a
+          # linear history with nothing lost.
+          cp landing/reviews.json "$RUNNER_TEMP/reviews.json"
+
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "Push rejected (attempt $attempt) — resyncing and rebuilding on the new HEAD."
+            git fetch origin "$GITHUB_REF_NAME"
+            git reset --hard FETCH_HEAD
+            cp "$RUNNER_TEMP/reviews.json" landing/reviews.json
+            npm run build:landing
+            npm run verify
+            git add landing/reviews.json quote-site
+            if git diff --cached --quiet; then
+              echo "Nothing left to commit after resync — another run got there first."
+              exit 0
+            fi
+            git commit -m "Refresh Google reviews"
+          done
+
+          echo "::error::Review refresh could not be pushed after 3 attempts."
+          exit 1
