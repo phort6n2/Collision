@@ -1,0 +1,20 @@
+{
+  "name": "REPLACE__Client Business Name",
+  "short_name": "REPLACE__Client",
+  "icons": [
+    {
+      "src": "/img/icon-192.91c84b7a.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icon-512.228f969b.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "REPLACE__#0A2650",
+  "background_color": "#FFFFFF",
+  "display": "browser",
+  "start_url": "/"
+}

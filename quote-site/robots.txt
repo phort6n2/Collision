@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://REPLACE__client-domain.com/sitemap.xml
