@@ -7,3 +7,10 @@ tmp-*.txt
 
 # Playwright browsers are provisioned by the environment, not the repo
 node_modules/
+
+# Nothing beginning with _ belongs in the deploy output. quote-site/ is served
+# verbatim by Vercel, so a scratch file dropped in here during a design review
+# becomes a public URL on the client's domain. This caught a full copy of
+# another client's landing page staged as quote-site/_ref.html — which would
+# have published their branding and phone numbers at collisionglass.co/_ref.html.
+quote-site/_*
