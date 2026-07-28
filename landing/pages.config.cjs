@@ -415,6 +415,22 @@ module.exports = {
   ],
 
   home: {
+    /* Chapters 0 and 2, matching every other page on the site. The home page
+       shipped without these once — hero, trust strip, then four unbroken
+       chapters of prose while all fourteen other pages alternated text and
+       image. It reads as a wall next to them, and it is the page most visitors
+       see first.
+
+       Both come from bodyPhotos, so the six-up gallery band below is untouched.
+       Chapter 0 gets the van because for a mobile business the van shot is the
+       most valuable image on the site — the whole proposition is that it comes
+       to you — and this one has the service list and the guarantee painted on
+       its own door. Chapter 2 gets the scan tool because that chapter is about
+       the calibration and nothing else illustrates it. */
+    figures: [
+      { chapter: 0, src: 'van-door-decal.webp' },
+      { chapter: 2, src: 'adas-calibration-scan.webp' }
+    ],
     navLabel: 'Home',
     shortLabel: 'Home',
     title: 'Auto Glass & Windshield Repair | Portland Metro OR',
