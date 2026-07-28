@@ -37,6 +37,18 @@ jobs:
           GOOGLE_PLACE_ID: ${{ vars.GOOGLE_PLACE_ID }}   # optional override; default is baked into the script
         run: node landing/fetch-reviews.cjs
 
+      # The fetch succeeds long before verify runs, and when verify blocks the
+      # commit the runner is destroyed with the data still in it — which is how
+      # a confirmed-good rating, count and set of quotes got thrown away three
+      # times on this build while the config was still incomplete.
+      #
+      # Printing it costs nothing and means a blocked run still yields the data.
+      # These are public Google reviews on a public listing; there is nothing
+      # here that is not already visible to anyone who clicks through.
+      - name: Show what was fetched
+        if: always()
+        run: cat landing/reviews.json || echo "(no reviews.json — the fetch skipped)"
+
       - name: Rebuild site
         run: npm run build:landing
 
