@@ -108,7 +108,7 @@ rather than finding out on the day.</p>
   <p>Photograph the damage before you clear anything up if there is a claim or a
   report. Then get the loose fragments off the seats. The glass inside the door
   is ours to deal with, and it needs the trim panel off rather than a brush —
-  <a href="/ASSET/door-glass-repair">why that matters is here</a>.</p>
+  <a href="/ASSET/side-window-replacement">why that matters is here</a>.</p>
 </div>
 
 <h2>Where we work across the city</h2>
@@ -197,7 +197,7 @@ has a camera behind the glass.</p>
       { q: 'How far is your shop from Beaverton?',
         a: '<p>Cedar Mill is at 14201 NW Science Park Dr, just off the Sunset Highway near the north end of the 217 — a short run from most of Beaverton. That is where we bring anything needing a level floor for calibration or shelter for bonded glass.</p>' },
       { q: 'I keep getting chips on the 217. Can anything be done?',
-        a: '<p>Not about the road, no. What does help is dealing with each chip while it is still small, dry and clean — resin bonds far better to a fresh break than to one that has sat through a wet month. <a href="/ASSET/rock-chip-repair">Rock chip repair</a> covers the timing, which matters more than most people think.</p>' }
+        a: '<p>Not about the road, no. What does help is dealing with each chip while it is still small, dry and clean — resin bonds far better to a fresh break than to one that has sat through a wet month. <a href="/ASSET/windshield-repair">Chip and crack repair</a> covers the timing, which matters more than most people think.</p>' }
     ]
   },
 
@@ -272,7 +272,7 @@ appointment out here costs you a great deal more time than it costs us.</p>
       { q: 'Why does my windshield look hazy at the bottom?',
         a: '<p>Usually grit trapped in the cowl channel at the base of the glass, dragged back and forth by the wipers. It is common on cars that spend time on gravel shoulders and unpaved approaches. Once the glass is scratched it cannot be polished out, but clearing the channel stops it getting worse.</p>' },
       { q: 'Is a chip from a farm road different from a highway chip?',
-        a: '<p>Often, yes. Highway strikes tend to be small and blunt, which produces the neat bullseye that fills well with resin. Larger sharp material tends to produce star breaks with longer legs, which are repairable but less forgiving and more likely to run. <a href="/ASSET/windshield-chip-repair">The break types are set out here</a>.</p>' }
+        a: '<p>Often, yes. Highway strikes tend to be small and blunt, which produces the neat bullseye that fills well with resin. Larger sharp material tends to produce star breaks with longer legs, which are repairable but less forgiving and more likely to run. <a href="/ASSET/windshield-repair">The break types are set out here</a>.</p>' }
     ]
   },
 

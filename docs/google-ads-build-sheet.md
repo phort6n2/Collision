@@ -181,7 +181,7 @@ Ask any shop whether calibration happens under their roof or gets sent out.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/mobile-service
+https://quote.collisionautoglass.com/mobile-auto-glass
 ```
 
 **Display path** (the two boxes after the domain): `Mobile` and `Auto-Glass`
@@ -234,7 +234,7 @@ Where a job belongs indoors we will say so and bring it in. That costs no extra.
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/car-window-replacement
+https://quote.collisionautoglass.com/side-window-replacement
 ```
 
 **Display path** (the two boxes after the domain): `Side-Glass` and `Replacement`
@@ -287,7 +287,7 @@ Sometimes it is the regulator rather than the glass. We check before ordering pa
 **Final URL** — paste into the ad group's ad:
 
 ```
-https://quote.collisionautoglass.com/back-glass-repair
+https://quote.collisionautoglass.com/back-window-replacement
 ```
 
 **Display path** (the two boxes after the domain): `Back-Glass` and `Replacement`
@@ -711,8 +711,8 @@ different trade and a different customer.
 | Chip & Crack Repair | Far cheaper than replacing | If it is still repairable | `https://quote.collisionautoglass.com/windshield-repair` |
 | ADAS Calibration | Autel MaxiSYS, in our shop | Never sent to a third shop | `https://quote.collisionautoglass.com/adas-calibration` |
 | Free Mobile Service | We come to your car | Home, work or park and ride | `https://quote.collisionautoglass.com/mobile-service` |
-| Insurance Claims | We bill your insurer direct | Oregon law: you pick the shop | `https://quote.collisionautoglass.com/auto-insurance` |
-| Side & Door Glass | Broken window sorted fast | Door cavity cleared properly | `https://quote.collisionautoglass.com/car-window-replacement` |
+| Insurance Claims | We bill your insurer direct | Oregon law: you pick the shop | `https://quote.collisionautoglass.com/insurance-claims` |
+| Side & Door Glass | Broken window sorted fast | Door cavity cleared properly | `https://quote.collisionautoglass.com/side-window-replacement` |
 
 ### Callouts
 

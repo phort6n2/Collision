@@ -6,22 +6,94 @@
     {
       "source": "/img/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/favicon.ico",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800"
+        }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/auto-glass-repair",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/auto-glass-replacement",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/rock-chip-repair",
+      "destination": "/windshield-repair",
+      "permanent": true
+    },
+    {
+      "source": "/windshield-chip-repair",
+      "destination": "/windshield-repair",
+      "permanent": true
+    },
+    {
+      "source": "/windshield-crack-repair",
+      "destination": "/windshield-repair",
+      "permanent": true
+    },
+    {
+      "source": "/car-window-repair",
+      "destination": "/side-window-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/car-window-replacement",
+      "destination": "/side-window-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/door-glass-repair",
+      "destination": "/side-window-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/back-glass-repair",
+      "destination": "/back-window-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/mobile-service",
+      "destination": "/mobile-auto-glass",
+      "permanent": true
+    },
+    {
+      "source": "/auto-insurance",
+      "destination": "/insurance-claims",
+      "permanent": true
     }
   ]
 }

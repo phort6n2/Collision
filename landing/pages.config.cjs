@@ -257,28 +257,47 @@ module.exports = {
    * a live ad destination, and a redirect on an ad destination is a cost with
    * no benefit. */
   migration: {
+    /* Still served at their original path, so an ad pointing here is unchanged
+       apart from the host. Verified to exist on every build. */
     preserve: [
       '/windshield-replacement',
       '/windshield-repair',
-      '/auto-glass-repair',
-      '/auto-glass-replacement',
-      '/car-window-repair',
-      '/car-window-replacement',
-      '/door-glass-repair',
-      '/back-glass-repair',
-      '/rock-chip-repair',
-      '/windshield-chip-repair',
-      '/windshield-crack-repair',
       '/adas-calibration',
-      '/mobile-service',
-      '/auto-insurance',
       '/auto-glass-repair-portland',
       '/auto-glass-repair-beaverton',
       '/auto-glass-repair-hillsboro',
       '/auto-glass-repair-tualatin',
       '/auto-glass-repair-lake-oswego'
     ],
-    redirects: []
+
+    /* The eleven paths consolidated away, 301'd to the page that absorbed them.
+     *
+     * These are a SAFETY NET, not the plan. Because the domain is changing, the
+     * client has to edit every final URL in Google Ads regardless — and that
+     * edit should name the new path directly. A redirect on a live ad
+     * destination is a crawler hop before Google scores landing page
+     * experience, which is a cost with no benefit.
+     *
+     * They exist because the Google Ads final-URL export has not been supplied
+     * yet, so there may be an ad pointing at a path no crawl of the old site
+     * could reveal. A redirect costs a hop; a 404 costs the ad. Once the export
+     * is in hand, run:
+     *   npm run check:urls -- --file ads-final-urls.txt
+     * with no --allow-redirects, and fix anything it reports as REDIRECT ONLY
+     * by correcting the final URL in Ads rather than by keeping the redirect. */
+    redirects: [
+      { from: '/auto-glass-repair',        to: '/' },
+      { from: '/auto-glass-replacement',   to: '/' },
+      { from: '/rock-chip-repair',         to: '/windshield-repair' },
+      { from: '/windshield-chip-repair',   to: '/windshield-repair' },
+      { from: '/windshield-crack-repair',  to: '/windshield-repair' },
+      { from: '/car-window-repair',        to: '/side-window-replacement' },
+      { from: '/car-window-replacement',   to: '/side-window-replacement' },
+      { from: '/door-glass-repair',        to: '/side-window-replacement' },
+      { from: '/back-glass-repair',        to: '/back-window-replacement' },
+      { from: '/mobile-service',           to: '/mobile-auto-glass' },
+      { from: '/auto-insurance',           to: '/insurance-claims' }
+    ]
   },
 
   /* Every one of these is either on the client's own website or photographed
@@ -465,17 +484,25 @@ the cost of the comeback.</p>
 
   services: [
     /* ---------------------------------------------------------------------
-     * The 14 service slugs below are inherited verbatim from collisionglass.co
-     * because live ads point at them. Several are near-synonyms as URLs —
-     * rock chip / windshield chip / windshield crack / windshield repair are
-     * four paths for what a customer thinks of as one job.
+     * CONSOLIDATED 2026-07-28, with the client's agreement.
      *
-     * They are NOT four versions of one page. Each is built on a genuinely
-     * different technical question: the umbrella repair-or-replace decision,
-     * the cause and the debris, the break typology, and crack propagation.
-     * Same for the three side-glass paths. If a future edit makes any two of
-     * them paraphrases of each other, collapse them and update Ads instead —
-     * that is the honest fix, not a thesaurus.
+     * collisionglass.co carried fourteen service URLs for about seven actual
+     * services: four paths for windshield repair, three for side glass, and two
+     * generic ones. That fragmentation is what made the old site's pages read as
+     * near-duplicates, and near-duplicate pages compete with each other in the
+     * same auction while looking thin to Google.
+     *
+     * Seven pages now. Because the domain is changing anyway, repointing the
+     * final URLs in Google Ads is a single edit either way — so a better slug
+     * costs nothing. Every collapsed path is 301'd in `migration.redirects`
+     * below as a safety net for any ad final URL that gets missed, but the
+     * redirects are NOT the plan: the Ads final URLs should name the new paths
+     * directly, because a redirect on an ad destination is a crawler hop that
+     * buys nothing.
+     *
+     * Nothing was thrown away. The break typology, the crack-propagation
+     * material and the door-cavity detail all moved into the surviving page
+     * that owns that subject.
      * ------------------------------------------------------------------- */
     {
       slug: 'windshield-replacement',
@@ -561,18 +588,20 @@ and hoping.</p>
       card: {
         icon: 'wrench',
         title: 'Chip and crack repair',
-        blurb: 'Resin injection while the damage is still small enough for it to work.',
+        blurb: 'Rock chips, star breaks and cracks — resin injection while the damage is still small enough for it to work.',
         cta: 'Repair or replace?'
       },
       figures: [
-        { chapter: 0, src: 'inspection-clipboard.webp' }
+        { chapter: 0, src: 'inspection-clipboard.webp' },
+        { chapter: 2, src: 'van-door-decal.webp' },
+        { chapter: 4, src: 'cabin-header-trim.webp' }
       ],
       navLabel: 'Repairs',
-      shortLabel: 'Windshield repair',
-      title: 'Windshield Repair | Portland Metro, Oregon',
-      desc: 'Windshield chip and crack repair across the Portland metro. We will tell you honestly whether it is repairable before you book anything.',
+      shortLabel: 'Chip and crack repair',
+      title: 'Windshield Chip & Crack Repair | Portland Metro OR',
+      desc: 'Rock chip, star break and crack repair across the Portland metro. We will tell you honestly whether yours is repairable before you book anything.',
       eyebrow: 'Windshield repair',
-      h1: 'Windshield repair, and the honest limits of it',
+      h1: 'Windshield chip and crack repair',
       sub: '<p>Repair is cheaper, faster and keeps your original factory seal. It also does not work on everything, and we will tell you which you have.</p>',
       svcValue: 'chip-crack-repair',
       body: `
@@ -586,71 +615,16 @@ Broadly: smaller than a quarter, not in your primary sightline, not touching the
 edge of the glass, not over the camera bracket, and not so old that the break has
 filled with dirt and water. Miss any of those and you are looking at
 <a href="/ASSET/windshield-replacement">replacement</a> instead.</p>
+<p>Keeping the original glass is worth something in its own right. Your factory
+windshield was bonded in a controlled plant, on a clean pinch weld, with no
+history. Every replacement after that is a new bond on a surface that has been cut
+back at least once. A good replacement is genuinely fine — we do them every day —
+but if a repair will hold, the original seal is the one least likely to ever give
+you trouble.</p>
 
-<h2>Why keeping the original glass is worth something</h2>
-<p>Your factory windshield was bonded in a controlled plant, on a clean pinch
-weld, with no history. Every replacement after that is a new bond on a surface
-that has been cut back at least once. A good replacement is genuinely fine — we
-do them every day — but if a repair will hold, the original seal is the one least
-likely to ever give you trouble. That is the real argument for repairing early,
-more than the price difference.</p>
-
-<h2>What we will not do</h2>
-<p>We will not repair damage in the driver's primary viewing area just because it
-is technically small enough. A cured resin line refracts light differently from
-the glass around it, and putting that directly in your eyeline at night in the
-rain is trading a known problem for a subtler one. We will not repair a break
-that has run to the edge, because the bond line is already compromised. And we
-will not repair a windshield we can see is delaminating, because the resin has
-nothing sound to key into.</p>
-
-<div class="callout">
-  <h3>The suspicion you are right to have</h3>
-  <p>Plenty of people have been told a chip was unrepairable by a shop that only
-  makes real money on replacements. It is a fair thing to be wary of, and the
-  only useful answer is a test you can apply yourself: ask them <em>why</em>. A
-  straight answer names the reason — it is in your sightline, it has reached the
-  edge, there are five breaks not one, it is over the camera. A vague answer
-  about it being "too risky" is worth a second opinion.</p>
-  <p>Send us a photo with a coin next to the damage and we will give you the
-  reason, not just the verdict.</p>
-</div>
-`,
-      faq: [
-        { q: 'Will the repair be invisible?',
-          a: '<p>No. It will be much less noticeable and it will stop spreading, but there will be a faint mark where the break was. How faint depends on the break type — a clean bullseye fills better than a dirty star break that has been there through a winter. Anyone promising invisible has not told you the truth about the other things either.</p>' },
-        { q: 'How soon should I get a chip looked at?',
-          a: '<p>Sooner is genuinely better, and not as a sales line. Dirt and moisture get into the break and reduce how well resin bonds, and temperature swings drive cracks outward from the chip — a defroster on full against a cold windshield is a common way to turn a repairable chip into a replacement overnight.</p>' },
-        { q: 'What does a repair cost compared with replacement?',
-          a: '<p>A repair is a fraction of a replacement, and many carriers treat the two differently because a repair costs them so much less. We are not going to invent a figure on a web page — call with the year, make and model and we will quote both, so you can see the gap for your car.</p>' },
-        { q: 'Is a repair warranted?',
-          a: '<p>Our workmanship carries the same lifetime no-leak guarantee. What a repair specifically cannot be warranted against is the break running later from a fresh impact or an extreme temperature swing — that is new damage. If a repair we did fails on its own, we credit it against the replacement.</p>' }
-      ]
-    },
-
-    {
-      slug: 'rock-chip-repair',
-      card: {
-        icon: 'target',
-        title: 'Rock chip repair',
-        blurb: 'The Sunset Highway and a studded-tire winter are why this is our most common call.',
-        cta: 'Rock chip repair'
-      },
-      figures: [
-        { chapter: 0, src: 'cowl-wiper-detail.webp' }
-      ],
-      navLabel: 'Rock chips',
-      shortLabel: 'Rock chip repair',
-      title: 'Rock Chip Repair | Portland Metro, Oregon',
-      desc: 'Rock chip repair across the Portland metro. Why Oregon roads produce so many of them, and how quickly a chip needs looking at.',
-      eyebrow: 'Rock chip repair',
-      h1: 'Rock chip repair, and why Oregon produces so many',
-      sub: '<p>Gravel off a truck on US-26 is the single most common way a Portland windshield gets damaged. Here is what happens next.</p>',
-      svcValue: 'chip-crack-repair',
-      body: `
-<h2>Where the debris actually comes from</h2>
-<p>Rock chips are not evenly distributed across the year here, and the reason is
-specific to Oregon. <strong>Studded tires are legal in this state from 1 November
+<h2>Where Oregon's rock chips actually come from</h2>
+<p>Chips are not evenly distributed across the year here, and the reason is
+specific to this state. <strong>Studded tires are legal in Oregon from 1 November
 to 31 March</strong> — outside that window they carry a Class C violation. ODOT
 discourages them precisely because of what they do to road surfaces: a 2014 state
 study put the damage at roughly $8.5 million a year to state highways alone,
@@ -659,152 +633,42 @@ before you count city and county roads.</p>
 climb over the West Hills and the gravel that comes off construction and log
 trucks year round, and the Sunset Highway becomes a reliable chip generator. The
 calls follow the calendar.</p>
+<p>The mechanism itself is worth understanding, because it explains the urgency. A
+windshield is two sheets of glass laminated around a plastic interlayer. A stone
+impact fractures the outer sheet and leaves a small cone of pulverised glass under
+the point of contact, with legs radiating out. The interlayer stops it going
+further — which is why you get a chip and not a hole — but that fracture is now a
+stress concentrator sitting in a panel that flexes with every door slam and
+expands and contracts with every temperature change.</p>
 
-<h2>What a chip is doing to the glass</h2>
-<p>A windshield is two sheets of glass laminated around a plastic interlayer. A
-stone impact fractures the outer sheet and leaves a small cone of pulverised
-glass under the point of contact, with legs radiating out. The interlayer usually
-stops it going further — which is why you get a chip and not a hole — but the
-fracture is now a stress concentrator sitting in a panel that flexes with every
-door slam and expands and contracts with every temperature change.</p>
-<p>That is the mechanism that turns a chip into a crack, and it is why the
-timeline matters more than the size.</p>
-
-<div class="callout">
-  <h3>The single fastest way to lose a repairable chip</h3>
-  <p>Cold morning, chip in the glass, defroster on full blast aimed at the
-  windshield. The inner sheet warms and expands while the outer sheet is still
-  near freezing, and the stress goes straight into the flaw you already have. A
-  great many chips become cracks in a driveway, not on the road.</p>
-  <p>If you have a chip and it is frosty, warm the car gradually and keep the
-  defroster off maximum until the glass has caught up. Then call us.</p>
-</div>
-
-<h2>Getting it done before the weather does it for you</h2>
-<p>A fresh chip is clean, dry and takes resin well. The same chip after a fortnight
-of Portland rain has water and road film in the fracture, and both interfere with
-the bond. We would rather see it in the first week. If it has already run, the
-answer is <a href="/ASSET/windshield-crack-repair">a crack conversation</a>, which
-is a different set of limits.</p>
-`,
-      faq: [
-        { q: 'Is it worth fixing a chip I can barely see?',
-          a: '<p>Usually yes, because the cost of the repair is small and the cost of it running is a whole windshield. The exception is a chip so shallow it has only marked the surface without fracturing into the glass — those do not spread and do not need resin. We will tell you which you have.</p>' },
-        { q: 'Does it matter that studded tires are legal here?',
-          a: '<p>Not to your claim, but it explains the seasonality. Studded tires are legal in Oregon from 1 November to 31 March and ODOT estimates them at around $8.5 million a year in damage to state highways alone. Rougher surfaces throw more aggregate, which is why chip calls climb through the winter and stay high into spring.</p>' },
-        { q: 'Can you do it in my work car park?',
-          a: '<p>Yes, and it is one of the better jobs for mobile — a chip repair is quick and needs less setup than a full replacement. The glass does need to be dry and reasonably close to normal temperature for the resin to behave, so in a downpour we may suggest the shop instead.</p>' },
-        { q: 'How many chips can be repaired at once?',
-          a: '<p>Several, if they are individually repairable and reasonably spread out. Where it stops making sense is a shotgun pattern from one impact, or damage so clustered that the repairs start to overlap — at that point you are compromising the same area repeatedly and replacement is the sounder answer.</p>' }
-      ]
-    },
-
-    {
-      slug: 'windshield-chip-repair',
-      card: {
-        icon: 'star',
-        title: 'Chip repair',
-        blurb: 'Bullseye, star, half-moon or combination — the break type decides how well it fills.',
-        cta: 'Chip repair'
-      },
-      figures: [
-        { chapter: 0, src: 'van-door-decal.webp' }
-      ],
-      navLabel: 'Chips',
-      shortLabel: 'Windshield chip repair',
-      title: 'Windshield Chip Repair | Portland Metro, Oregon',
-      desc: 'Windshield chip repair in the Portland metro. The four break types, which fill well, and how size and position decide repairability.',
-      eyebrow: 'Windshield chip repair',
-      h1: 'Windshield chip repair, by break type',
-      sub: '<p>Not all chips behave the same under resin. What yours looks like tells us how well it will come out.</p>',
-      svcValue: 'chip-crack-repair',
-      body: `
-<h2>The four shapes, and what each one means</h2>
+<h2>The four break types, and how each one fills</h2>
 <ul>
   <li><strong>Bullseye</strong> — a clean circular cone, usually from a blunt stone hitting square on. The most predictable break there is, and the one that fills best. Resin flows into a single cavity and cures evenly.</li>
   <li><strong>Star break</strong> — short legs radiating from the impact point. Repairable, but each leg has to be filled individually, and legs are where an incomplete repair shows. This is the type most likely to keep running if it is left.</li>
   <li><strong>Half-moon</strong> — a partial cone, typically a glancing impact. Behaves much like a bullseye with a slightly less tidy edge.</li>
   <li><strong>Combination</strong> — a cone with legs coming off it, which is what most real-world damage actually is. Repairable up to a point; the honest limit is when the legs are long enough that you are effectively repairing several cracks at once.</li>
 </ul>
+<p>The working size rule is a chip up to about a quarter. Beyond that the resin
+has too large a void to fill without shrinking as it cures, and you get a repair
+that looks worse than the damage did. Position overrides size in both directions:
+a small chip in the driver's primary viewing area is a replacement, because cured
+resin refracts light and that belongs anywhere except directly in front of the
+driver. A chip within about an inch of the edge is a replacement, because the edge
+is where the glass carries its bond. And a chip over the camera bracket behind the
+mirror is a replacement regardless of how neat it is.</p>
 
-<h2>Size, position and the camera</h2>
-<p>The working rule is a chip up to about the size of a quarter. Beyond that the
-resin has too large a void to fill without shrinking as it cures, and you get a
-repair that looks worse than the damage did.</p>
-<p>Position overrides size in both directions. A small chip in the driver's
-primary viewing area is a replacement, because the cured resin refracts light and
-that belongs anywhere except directly in front of the driver. A chip within about
-an inch of the edge is a replacement, because the edge is where the glass carries
-its bond and stress concentrates. And a chip over the camera bracket behind the
-mirror is a replacement regardless of how neat it is — the camera has to look
-through clean glass.</p>
-
-<div class="callout">
-  <h3>What we need from you before we come out</h3>
-  <p>A photo with something for scale — a coin against the damage is ideal — and
-  roughly where it sits: driver's side, passenger side, high, low, how far from
-  the edge. That is genuinely enough to tell you repair or replace in most cases.</p>
-  <p>The one thing a photo hides is a leg that has run under the trim at the edge.
-  If we find that on arrival we will tell you before starting, and what you have
-  paid for the visit comes off the replacement.</p>
-</div>
-
-<h2>Age changes the answer</h2>
-<p>A chip repaired in its first week comes out substantially better than the same
-chip repaired three months later. The break fills with moisture, road film and
-in this climate sometimes a little algae, and resin cannot bond through
-contamination. We can clean and dry a break before injecting, and we do, but it
-never fully undoes months of weather.</p>
-`,
-      faq: [
-        { q: 'How do I tell a star break from a combination break?',
-          a: '<p>A star break has legs but no obvious circular cone at the centre. A combination has both — a visible round cone with legs coming out of it. In practice you do not need to classify it yourself; send a photo and we will. The distinction matters to us because it changes the injection approach and how long the cure takes.</p>' },
-        { q: 'There are three chips. Is that still a repair?',
-          a: '<p>Often yes. Three separate, individually repairable chips in different parts of the glass is a straightforward job. What changes the answer is clustering — several breaks close enough that their repairs interact — or one of the three sitting somewhere disqualifying, like the sightline or the edge.</p>' },
-        { q: 'Will the repair fail later?',
-          a: '<p>A properly filled chip does not generally reopen on its own. What can happen is a fresh impact nearby, or an extreme temperature swing finding another flaw in the same panel. That is new damage rather than a failed repair. If a repair we did fails by itself, we credit what you paid against the replacement.</p>' },
-        { q: 'Does a repaired chip pass inspection?',
-          a: '<p>Oregon does not run a general safety inspection for passenger cars, so there is no test to pass. What does apply is ORS 815.220, which makes it unlawful to drive with a windshield obstruction that impairs your view — which is the practical reason we will not put a resin repair in your primary sightline.</p>' }
-      ]
-    },
-
-    {
-      slug: 'windshield-crack-repair',
-      card: {
-        icon: 'doc',
-        title: 'Crack repair',
-        blurb: 'Length is only half the question. Where it starts and ends matters more.',
-        cta: 'Crack repair'
-      },
-      figures: [
-        { chapter: 1, src: 'cabin-header-trim.webp' }
-      ],
-      navLabel: 'Cracks',
-      shortLabel: 'Windshield crack repair',
-      title: 'Windshield Crack Repair | Portland Metro, Oregon',
-      desc: 'Windshield crack repair in the Portland metro. When a crack can be stabilised, when it cannot, and why cracks spread fastest in winter.',
-      eyebrow: 'Windshield crack repair',
-      h1: 'Windshield crack repair, and when it stops being possible',
-      sub: '<p>Some cracks can be stabilised. The ones that have reached the edge cannot, and that is not a matter of trying harder.</p>',
-      svcValue: 'chip-crack-repair',
-      body: `
-<h2>Why a crack is a harder problem than a chip</h2>
-<p>A chip is a contained cavity. Resin goes in, fills a defined space and cures.
-A crack is a propagating fracture with two ends, and one of them is doing
-something — even when it looks stationary, it is a stress riser waiting for the
-right combination of load and temperature. Filling it stabilises it and improves
-how it looks, but the repair has to hold along its whole length rather than in
-one pocket.</p>
-<p>That is why the limits on crack repair are tighter than people expect, and why
-a shop quoting you a repair on a crack that runs the width of the glass is not
-doing you a favour.</p>
-
-<h2>What decides whether it can be done</h2>
+<h2>Cracks, and where repair stops being possible</h2>
+<p>A chip is a contained cavity. A crack is a propagating fracture with two ends,
+and one of them is doing something even when it looks stationary. Filling it
+stabilises it and improves how it looks, but the repair has to hold along its
+whole length rather than in one pocket — which is why the limits are tighter than
+people expect, and why a shop quoting a repair on a crack running the width of the
+glass is not doing you a favour.</p>
 <ul>
-  <li><strong>Has it reached the edge?</strong> If either end of the crack has run into the perimeter of the glass, the bond line is involved and it is a replacement. This is the one that catches people out, because the last inch is usually hidden under the trim.</li>
+  <li><strong>Has it reached the edge?</strong> If either end has run into the perimeter, the bond line is involved and it is a replacement. This is the one that catches people out, because the last inch is usually hidden under the trim.</li>
   <li><strong>Where does it sit?</strong> Anywhere across the driver's primary viewing area is a replacement, however short.</li>
-  <li><strong>How long is it?</strong> Long cracks are progressively less likely to give a sound, stable result. There is no single magic number that is honest across all glass and all vehicles — the length interacts with position and with how old the crack is.</li>
-  <li><strong>How old is it?</strong> A crack that has been open through a wet Portland winter is contaminated along its entire length, which is a much bigger surface to fail to bond to than the inside of a chip.</li>
+  <li><strong>How long is it?</strong> Longer cracks are progressively less likely to give a stable result. There is no single honest number across all glass and all vehicles — length interacts with position and with age.</li>
+  <li><strong>How old is it?</strong> A crack open through a wet Portland winter is contaminated along its entire length, which is a far bigger surface to fail to bond to than the inside of a chip.</li>
 </ul>
 
 <div class="callout">
@@ -814,27 +678,40 @@ doing you a favour.</p>
   minutes of the morning when hot air from the defroster hits the inside face of
   glass that is still near freezing. The differential between the inner and outer
   sheets is what drives the fracture along.</p>
-  <p>If you are waiting a few days for an appointment: park it out of a hard
-  frost if you can, warm the cabin gradually rather than on maximum, and do not
-  slam the doors — the pressure spike in a sealed cabin flexes the glass.</p>
+  <p>Cold morning, chip in the glass, defroster on full — that is how a great many
+  repairable chips become replacements in a driveway rather than on the road. If
+  you are waiting a few days for an appointment: park out of a hard frost where you
+  can, warm the cabin gradually, and close the doors rather than slamming them.</p>
 </div>
 
-<h2>If it has to be replaced</h2>
-<p>Then it does, and we would rather say so on the phone than after we have taken
-your money for an attempt. <a href="/ASSET/windshield-replacement">Replacement</a>
-covers what that involves, including the recalibration if your car has a camera
-behind the glass. If you have already paid us to look and the answer turns out to
-be replacement, that comes off the price.</p>
+<h2>What we will not do</h2>
+<p>We will not repair damage in the driver's primary viewing area just because it
+is technically small enough. We will not repair a break that has run to the edge,
+because the bond line is already compromised. And we will not repair a windshield
+we can see is delaminating, because the resin has nothing sound to key into.</p>
+<p>Plenty of people have been told a chip was unrepairable by a shop that only
+makes real money on replacements. It is a fair thing to be wary of, and the only
+useful answer is a test you can apply yourself: ask them <em>why</em>. A straight
+answer names the reason — it is in your sightline, it has reached the edge, there
+are five breaks not one, it is over the camera. A vague answer about it being "too
+risky" is worth a second opinion. Send us a photo with a coin next to the damage
+and we will give you the reason, not just the verdict.</p>
 `,
       faq: [
+        { q: 'Will the repair be invisible?',
+          a: '<p>No. It will be much less noticeable and it will stop spreading, but there will be a faint mark where the break was. How faint depends on the break type — a clean bullseye fills better than a dirty star break that has been there through a winter. Anyone promising invisible has not told you the truth about the other things either.</p>' },
+        { q: 'How soon should I get a chip looked at?',
+          a: '<p>Sooner is genuinely better, and not as a sales line. Dirt and moisture get into the break and reduce how well resin bonds, and temperature swings drive cracks outward from the chip. A chip repaired in its first week comes out substantially better than the same chip three months later.</p>' },
         { q: 'The crack is only four inches. Can you fix it?',
           a: '<p>Possibly, and the length is the least important part of the answer. What matters more is whether either end has reached the edge of the glass, whether it crosses your primary sightline, and how long it has been open. A four-inch crack starting at the edge is a replacement; the same crack in the middle of the passenger side may not be.</p>' },
-        { q: 'Can you stop it spreading while I wait for an appointment?',
-          a: '<p>There are stop-drill techniques, and we do not recommend them as a customer DIY. What genuinely helps in the meantime costs nothing: avoid hard frost where you can, warm the car gradually rather than blasting the defroster, and close the doors rather than slamming them. Most overnight growth comes from thermal shock in the morning.</p>' },
-        { q: 'Will a repaired crack still be visible?',
-          a: '<p>Yes, more so than a repaired chip. A filled crack reads as a fine line rather than a bright white fracture, which is a real improvement, but it does not disappear. If appearance is the main thing you are trying to solve rather than structure, replacement is the honest recommendation.</p>' },
+        { q: 'There are three chips. Is that still a repair?',
+          a: '<p>Often yes. Three separate, individually repairable chips in different parts of the glass is a straightforward job. What changes the answer is clustering — several breaks close enough that their repairs interact — or one of the three sitting somewhere disqualifying, like the sightline or the edge.</p>' },
+        { q: 'What does a repair cost compared with replacement?',
+          a: '<p>A repair is a fraction of a replacement, and many carriers treat the two differently because a repair costs them so much less. We are not going to invent a figure on a web page — call with the year, make and model and we will quote both, so you can see the gap for your car.</p>' },
         { q: 'Is it illegal to drive with a cracked windshield in Oregon?',
-          a: '<p>Oregon does not set a specific crack length in law. ORS 815.220 makes it unlawful to drive with anything obstructing the windshield that impairs the driver\'s view, which is a judgement about your specific damage rather than a measurement. A crack across the driver\'s side is the kind that attracts attention.</p>' }
+          a: '<p>Oregon does not set a specific crack length in law. ORS 815.220 makes it unlawful to drive with anything obstructing the windshield that impairs the driver\'s view, which is a judgement about your specific damage rather than a measurement. A crack across the driver\'s side is the kind that attracts attention.</p>' },
+        { q: 'Is a repair warranted?',
+          a: '<p>Our workmanship carries the same lifetime no-leak guarantee. What a repair specifically cannot be warranted against is the break running later from a fresh impact or an extreme temperature swing — that is new damage. If a repair we did fails on its own, we credit it against the replacement.</p>' }
       ]
     },
 
@@ -914,362 +791,116 @@ We will tell you which yours needs when you book, not when we arrive.</p>
     },
 
     {
-      slug: 'auto-glass-repair',
-      card: {
-        icon: 'wrench',
-        title: 'Auto glass repair',
-        blurb: 'What can actually be repaired rather than replaced, across every piece of glass on the car.',
-        cta: 'Auto glass repair'
-      },
-      figures: [
-        { chapter: 0, src: 'inspection-clipboard.webp' }
-      ],
-      navLabel: 'Glass repair',
-      shortLabel: 'Auto glass repair',
-      title: 'Auto Glass Repair | Portland Metro, Oregon',
-      desc: 'Auto glass repair across the Portland metro. Which glass on your car can be repaired, which can only be replaced, and why.',
-      eyebrow: 'Auto glass repair',
-      h1: 'Auto glass repair across the Portland metro',
-      sub: '<p>Only one piece of glass on your car can actually be repaired. Here is why, and what happens with the rest.</p>',
-      svcValue: 'not-sure',
-      body: `
-<h2>The distinction almost nobody is told</h2>
-<p>Your windshield is <strong>laminated</strong> — two sheets of glass bonded
-around a plastic interlayer. That construction is why it chips rather than
-shattering, and it is why resin repair works: there is a defined cavity in the
-outer sheet to fill, with something sound behind it.</p>
-<p>Almost everything else on the car is <strong>tempered</strong>. Side windows,
-door glass, quarter glass and most back glass are heat-treated so that when they
-fail they break completely, into thousands of blunt pebbles, by design. There is
-nothing left to inject resin into. <em>Tempered glass cannot be repaired.</em>
-Anyone offering to repair a cracked side window is either confused or not being
-straight with you.</p>
-
-<h2>So what is repairable</h2>
-<ul>
-  <li><strong>Windshield chips</strong> — up to roughly a quarter, away from the sightline and the edge. See <a href="/ASSET/windshield-chip-repair">chip repair</a>.</li>
-  <li><strong>Some windshield cracks</strong> — subject to tighter limits than people expect. See <a href="/ASSET/windshield-crack-repair">crack repair</a>.</li>
-  <li><strong>Laminated side glass</strong> — a small but growing number of vehicles use laminated door glass for noise and security. Where that is what you have, a repair is sometimes possible. It is not the common case.</li>
-</ul>
-
-<h2>And what is not</h2>
-<p>Broken side or door glass, back glass, and any windshield damage past the
-limits above, all mean replacement. That is not a shop preferring the bigger job —
-it is what the material allows. The useful thing we can do is get the answer
-right the first time, and get a car with a broken side window sealed and off the
-street quickly, because in this metro an open window overnight tends to become a
-second problem.</p>
-
-<div class="callout">
-  <h3>How to get a straight answer in one call</h3>
-  <p>Tell us three things: which piece of glass, what the damage looks like, and
-  the year, make and model. That is enough for us to tell you repair or replace
-  before anyone is committed to anything, and to tell you whether your car needs
-  <a href="/ASSET/adas-calibration">a camera calibration</a> as part of it.</p>
-</div>
-`,
-      faq: [
-        { q: 'Why can a windshield be repaired but not a side window?',
-          a: '<p>Different glass. A windshield is laminated — two sheets around a plastic interlayer — so damage stays local and there is a cavity to fill. Side and door glass is tempered, engineered to disintegrate completely rather than leave sharp edges. Once it goes, there is no structure left to repair.</p>' },
-        { q: 'Can you repair a chip in my back window?',
-          a: '<p>Almost certainly not, because back glass is usually tempered too. If your back glass has been chipped rather than shattered, that is unusual enough to be worth a look — some vehicles do use laminated rear glass. Send a photo and we will tell you which you have.</p>' },
-        { q: 'My side window is broken and I need it off the street tonight.',
-          a: '<p>Call and say exactly that. If we cannot get the glass to you the same day we can usually get it sealed so the car is weathertight and less of an invitation, and book the replacement properly. See <a href="/ASSET/car-window-replacement">side window replacement</a> for what the full job involves.</p>' },
-        { q: 'Is repair always the cheaper option?',
-          a: '<p>Where it is possible, substantially. But it is only genuinely cheaper if it holds — a repair pushed past its limits that fails in three months has cost you the repair and the replacement. That is why we would rather turn down a marginal repair than sell you one.</p>' }
-      ]
-    },
-
-    {
-      slug: 'auto-glass-replacement',
-      card: {
-        icon: 'form',
-        title: 'Auto glass replacement',
-        blurb: 'Windshield, side, quarter, vent or back glass — and what changes between them.',
-        cta: 'Auto glass replacement'
-      },
-      figures: [
-        { chapter: 2, src: 'two-tech-set-glass.webp' }
-      ],
-      navLabel: 'Replacement',
-      shortLabel: 'Auto glass replacement',
-      title: 'Auto Glass Replacement | Portland Metro, Oregon',
-      desc: 'Auto glass replacement across the Portland metro: windshield, door, quarter, vent and back glass, with calibration handled in-house.',
-      eyebrow: 'Auto glass replacement',
-      h1: 'Auto glass replacement, piece by piece',
-      sub: '<p>Every pane on the car mounts differently. What that changes about the job, and about the wait.</p>',
-      svcValue: 'not-sure',
-      body: `
-<h2>Bonded glass versus glass in a frame</h2>
-<p>Windshields and most back glass are <strong>bonded</strong> — urethane
-adhesive holds them to the body, and on a modern car that bond is structural. It
-contributes to roof crush resistance and it is what the passenger airbag deploys
-against. That is why cure time and safe drive-away time exist, and why we are
-careful about weather.</p>
-<p>Door and quarter glass are not bonded. Door glass rides in channels, driven by
-a regulator, and comes out through the inside of the door. That is a mechanical
-job rather than an adhesive one, with no cure time — so it is done when it is
-done.</p>
-
-<h2>What we replace</h2>
-<ul>
-  <li><strong>Windshields</strong> — bonded, structural, usually with a camera behind them. <a href="/ASSET/windshield-replacement">Full detail here</a>.</li>
-  <li><strong>Door and side glass</strong> — tempered, in-channel. <a href="/ASSET/car-window-replacement">What that involves</a>.</li>
-  <li><strong>Quarter and vent glass</strong> — small fixed panes, sometimes bonded, sometimes in a frame; often the slowest to source.</li>
-  <li><strong>Back glass</strong> — usually bonded, usually with a defroster grid and often the radio antenna printed into it. <a href="/ASSET/back-glass-repair">Detail here</a>.</li>
-  <li><strong>RV glass</strong> — different sizes, different seals, and a job a lot of shops decline.</li>
-</ul>
-
-<div class="callout">
-  <h3>The thing that actually delays a replacement</h3>
-  <p>Not our schedule — parts availability. A common windshield for a common
-  vehicle is usually on a shelf in the metro. A quarter glass for something ten
-  years old and never popular, or a heated windshield variant, or glass with an
-  uncommon sensor package, can take days to source.</p>
-  <p>We would rather tell you that on the phone than book you in and discover it
-  the morning of. Give us the VIN and we can check what your car actually takes
-  rather than what the model year generally takes — trim-level differences in
-  glass are more common than people expect.</p>
-</div>
-
-<h2>Weather, and when we will move you indoors</h2>
-<p>Bonded glass wants a dry, reasonably warm surface. Urethane will cure in
-Oregon winter conditions, but the safe drive-away time stretches, and setting
-glass in steady rain risks contaminating a bond that is supposed to last the life
-of the car. When the forecast is against us we will bring the car into Cedar Mill
-or Tualatin rather than doing it badly in a driveway. Non-bonded work — a door
-glass, a regulator — is far less weather-sensitive and usually goes ahead.</p>
-`,
-      faq: [
-        { q: 'Do you need the VIN?',
-          a: '<p>It helps more than the year, make and model do. Glass varies by trim and by build date within a single model year — rain sensors, heating elements, acoustic interlayers, camera packages. The VIN tells us exactly what your car left the factory with, which means the right part turns up the first time.</p>' },
-        { q: 'How long until I can drive it after a windshield?',
-          a: '<p>Set by the urethane manufacturer\'s safe drive-away time for the conditions on the day, and it moves with temperature and humidity. The technician gives you the real figure before leaving. For non-bonded glass — a door window — there is no cure time and you can drive immediately.</p>' },
-        { q: 'Can you replace glass on an RV?',
-          a: '<p>Yes, and it is on our shop signage because plenty of places will not. RV glass runs to different sizes and sealing methods and often has to be ordered rather than pulled from local stock, so expect the lead time to be longer. Call with the make, model and year of the coach.</p>' },
-        { q: 'Is the replacement guaranteed?',
-          a: '<p>Our workmanship carries a lifetime no-leak guarantee for as long as you own the vehicle — leaks, lifting mouldings and installation-related wind noise. It does not cover new impact damage, rust already present in the pinch weld, or work done by someone else. Full terms sit on the <a href="/ASSET/windshield-replacement">windshield replacement page</a>.</p>' }
-      ]
-    },
-
-    {
-      slug: 'car-window-replacement',
+      slug: 'side-window-replacement',
       card: {
         icon: 'door',
-        title: 'Side window replacement',
-        blurb: 'Tempered glass, and the pebbles that end up inside the door.',
-        cta: 'Side window replacement'
+        title: 'Side and door glass',
+        blurb: 'Tempered glass, the pebbles inside the door, and the regulator that often broke with it.',
+        cta: 'Side and door glass'
       },
       figures: [
-        { chapter: 1, src: 'inspection-clipboard.webp' }
+        { chapter: 0, src: 'inspection-clipboard.webp' },
+        { chapter: 2, src: 'cabin-header-trim.webp' }
       ],
       navLabel: 'Side glass',
-      shortLabel: 'Side window replacement',
-      title: 'Car Window Replacement | Portland Metro, Oregon',
-      desc: 'Side and door window replacement across the Portland metro, including clearing the tempered glass out of the door cavity properly.',
-      eyebrow: 'Car window replacement',
-      h1: 'Car window replacement, and the part that gets skipped',
+      shortLabel: 'Side and door glass',
+      title: 'Car Window & Door Glass Replacement | Portland OR',
+      desc: 'Side, door and quarter glass replacement across the Portland metro, including clearing the tempered glass out of the door cavity properly.',
+      eyebrow: 'Side and door glass',
+      h1: 'Side and door glass, and the part that gets skipped',
       sub: '<p>Fitting the new glass is the easy half. Getting the old glass out of the door is where the difference shows.</p>',
       svcValue: 'door-side-glass',
       body: `
-<h2>What happens when tempered glass lets go</h2>
-<p>A side window does not crack. It converts, all at once, into several thousand
-blunt fragments. Some end up on the seat and the floor, and most of the rest fall
-straight down inside the door cavity, into a space with the window regulator, the
-lock mechanism, the speaker, the wiring loom and the drain holes at the bottom.</p>
-<p>The visible mess takes ten minutes. The glass in the door is the job.</p>
+<h2>Why a side window cannot be repaired</h2>
+<p>Your windshield is <strong>laminated</strong> — two sheets of glass bonded
+around a plastic interlayer — which is why it chips rather than shattering and why
+resin repair works on it. Side, door and quarter glass is <strong>tempered</strong>:
+heat-treated so that when it fails it fails completely, into thousands of blunt
+pebbles, by design.</p>
+<p>There is nothing left to inject resin into. <em>Tempered glass cannot be
+repaired.</em> Anyone offering to repair a cracked side window is either confused
+or not being straight with you. The exception is worth knowing: a growing number
+of vehicles use laminated door glass for cabin quietness and smash-and-grab
+resistance. If yours is one, the damage looks like a cracked windshield rather than
+a pile of pebbles, and a repair is occasionally possible. Send a photo and we will
+tell you which you have.</p>
 
-<h2>Why the cavity matters more than it sounds</h2>
+<h2>The job is inside the door</h2>
+<p>When tempered glass lets go, some of it lands on the seat and the floor. Most
+of the rest falls straight down inside the door cavity, into a space containing the
+window regulator, the lock mechanism, the speaker, the wiring loom and the drain
+holes at the bottom. The visible mess takes ten minutes. The glass in the door is
+the job.</p>
 <ul>
-  <li>Fragments in the regulator track make the new window bind, judder or jam — often weeks later, once they have worked their way into the mechanism</li>
-  <li>Glass sitting on the bottom of the door blocks the drain holes, and a door that cannot drain in Oregon rains rusts from the inside out</li>
+  <li>Fragments in the regulator track make the new window bind, judder or jam — often weeks later, once they have worked into the mechanism</li>
+  <li>Glass sitting in the sill blocks the drain holes, and a door that cannot drain in Oregon rains rusts from the inside out, where nobody looks until the paint bubbles</li>
   <li>Pebbles against the speaker cone buzz at anything above moderate volume</li>
   <li>Fragments caught in the weather seal chew the new glass edge every time the window goes up</li>
 </ul>
-<p>Doing this properly means pulling the interior trim panel and the vapour
-barrier, vacuuming the cavity out thoroughly, and checking the drains are clear
-before the new glass goes anywhere near the channels. It adds real time to the
-job, and it is the first thing that gets dropped when someone is quoting to win
-on price.</p>
+<p>Doing it properly means pulling the interior trim panel and the vapour barrier,
+vacuuming the cavity out thoroughly, and checking the drains are clear before the
+new glass goes near the channels. It adds real time, and it is the first thing
+dropped when someone is quoting to win on price.</p>
+
+<h2>When the glass is fine and the mechanism is not</h2>
+<p>"The window won't go up" describes at least four unrelated problems, and they
+cost very different amounts to put right. If your glass is intact, replacing it
+fixes nothing — so we diagnose before ordering parts.</p>
+<ul>
+  <li><strong>The regulator</strong> — the scissor or cable mechanism carrying the glass. Cable regulators fray and bunch; the sign is a graunching noise and glass that drops crookedly or falls into the door.</li>
+  <li><strong>The motor</strong> — clicks, hums, or does nothing while the switch light still works.</li>
+  <li><strong>The switch or wiring</strong> — often the driver's master switch, or a loom in the door jamb that has flexed thousands of times and finally broken a core.</li>
+  <li><strong>The track and seals</strong> — perished run channels let the glass wander and bind. Common on older cars and mistaken for a dying motor, because the motor is straining.</li>
+</ul>
+<p>These faults cause each other, which is what catches people out. A failing
+regulator drops the glass where it gets broken; fragments left from a previous
+break wreck a healthy regulator. So a car in front of us often needs both, and we
+would rather show you why than present a bill.</p>
 
 <div class="callout">
-  <h3>If it happened overnight, say so when you call</h3>
-  <p>A broken side window usually means the car is sitting open. That changes the
-  priority and it changes what we bring — we can get it sealed weathertight
-  quickly even where the specific glass has to be ordered, so the car is not
-  standing open in the rain or advertising itself for a second visit.</p>
-  <p>Take photos before anything gets cleaned up if you are claiming on
-  insurance. Then vacuum the seats, because the fragments migrate.</p>
+  <h3>If the car has been broken into</h3>
+  <p>Say so when you call — it changes the order of operations. Photograph the
+  damage first if there is a claim or a police report. Then the priority is getting
+  the car sealed and weathertight, which we can usually do quickly even when the
+  specific glass has to be ordered, so it is not standing open in the rain or
+  advertising itself for a second visit.</p>
+  <p>Forced entry rarely stops at the pane. Worth checking before the trim goes
+  back on, because it is all in the same place: the regulator, often bent where the
+  glass was levered; the run channel and weather seal; the lock rod, if entry was
+  through the top of the door frame; and the vapour barrier behind the trim panel,
+  frequently torn and rarely replaced, which is how doors start letting water into
+  the cabin.</p>
 </div>
 
 <h2>Sourcing, and why one door is not like another</h2>
 <p>Door glass varies by body style, by which door, by whether it is tinted or
-acoustic, and on some cars by trim level. Front doors are usually quicker to
-source than rear; quarter and vent glass are usually slower than either. Give us
-the VIN and which door, and we can tell you whether it is on a shelf in the metro
-or coming from further out.</p>
+acoustic, and on some cars by trim level. Front doors are usually quicker to source
+than rear; quarter and vent glass are usually slower than either. Give us the VIN
+and which door, and we can tell you whether it is on a shelf in the metro or coming
+from further out.</p>
 `,
       faq: [
         { q: 'Can you just repair the crack instead?',
           a: '<p>No, and not because we would rather sell you glass. Side windows are tempered, which means they are built to shatter completely instead of holding a crack. If yours is genuinely holding a crack rather than in pieces, you may have laminated door glass — uncommon but increasingly used. Send a photo and we will check.</p>' },
         { q: 'Will you get all the glass out of the door?',
           a: '<p>That is the part we are actually being paid for. The trim panel comes off, the cavity gets vacuumed out, and the drain holes get checked before the new glass goes in. Skipping it is what produces a window that binds a month later and a door that quietly rusts from the inside.</p>' },
-        { q: 'Can you do it at my house?',
-          a: '<p>Yes — door glass is not bonded, so there is no cure time and no real weather sensitivity beyond keeping the interior dry while the trim is off. It is one of the more straightforward mobile jobs. We need room to open the door fully.</p>' },
-        { q: 'The window will not go up now. Is that the glass or the motor?',
-          a: '<p>Could be either, and it is worth diagnosing before ordering parts. A broken window often damages the regulator on its way down, and sometimes the regulator failed first and put the glass somewhere it could be broken. See <a href="/ASSET/car-window-repair">car window repair</a> — we check the mechanism as part of the visit.</p>' }
-      ]
-    },
-
-    {
-      slug: 'car-window-repair',
-      card: {
-        icon: 'wrench',
-        title: 'Window mechanism repair',
-        blurb: 'When the glass is fine and it is the regulator, the motor or the track.',
-        cta: 'Window repair'
-      },
-      figures: [
-        { chapter: 0, src: 'cabin-header-trim.webp' }
-      ],
-      navLabel: 'Window repair',
-      shortLabel: 'Car window repair',
-      title: 'Car Window Repair | Portland Metro, Oregon',
-      desc: 'Car window repair in the Portland metro. When the problem is the regulator, motor or track rather than the glass itself.',
-      eyebrow: 'Car window repair',
-      h1: 'Car window repair when the glass is not the problem',
-      sub: '<p>A window that will not go up is often a mechanism fault, not a glass fault. Worth establishing before anyone orders a pane.</p>',
-      svcValue: 'door-side-glass',
-      body: `
-<h2>Four different faults that look identical from the driver's seat</h2>
-<p>"The window won't go up" describes at least four unrelated problems, and they
-cost very different amounts to put right:</p>
-<ul>
-  <li><strong>The regulator</strong> — the scissor or cable mechanism that carries the glass. Cable regulators fray and bunch; the usual sign is a graunching noise and glass that drops crookedly or falls into the door.</li>
-  <li><strong>The motor</strong> — clicks, hums, or does nothing while the switch light still works.</li>
-  <li><strong>The switch or the wiring</strong> — often the driver's master switch, or a loom in the door jamb that has flexed thousands of times and finally broken a core.</li>
-  <li><strong>The track and seals</strong> — perished run channels let the glass wander and bind. Common on older cars and mistaken for a dying motor because the motor is straining.</li>
-</ul>
-
-<h2>Why we check before ordering glass</h2>
-<p>If your glass is intact, replacing it fixes nothing. It is worth ten minutes
-of diagnosis to establish whether you need a pane, a regulator, a motor or a
-switch — and it is worth doing before parts are ordered, because a door with the
-trim off is the moment to find out, not the moment after.</p>
-<p>The overlap that catches people is that these faults cause each other. A
-failing regulator drops the glass into the door where it gets broken. Fragments
-left from a previous break wreck a healthy regulator. So a car in front of us
-often needs both, and we would rather show you why than present a bill.</p>
-
-<div class="callout">
-  <h3>The one thing worth trying before you call</h3>
-  <p>If the window is stuck down and it is going to rain — which here it is —
-  hold the switch in the up position and firmly tap the inside of the door panel
-  around the motor. On a motor with a worn commutator that occasionally frees it
-  long enough to raise the glass once.</p>
-  <p>It is not a repair and it will not last. But getting the window up before an
-  Oregon night is worth knowing about, and it also tells us something useful about
-  the fault when you describe what happened.</p>
-</div>
-
-<h2>Where this becomes a glass job</h2>
-<p>If the glass has broken as well, you are into
-<a href="/ASSET/car-window-replacement">side window replacement</a>, and the door
-cavity needs clearing properly before any new mechanism goes in. Fragments and a
-new regulator in the same door is a repeat visit waiting to happen.</p>
-`,
-      faq: [
         { q: 'How do I know if it is the motor or the regulator?',
           a: '<p>Listen. A motor running while nothing moves, or moving unevenly with a grinding noise, generally points at the regulator or a frayed cable. Complete silence with a working switch points at the motor, the switch or the wiring. Neither is conclusive from outside the door, which is why we look before ordering.</p>' },
-        { q: 'Is it worth repairing on an older car?',
-          a: '<p>Often, yes — a regulator or motor is usually modest against the value of a car that is otherwise sound, and a window stuck down is not something you can live with here. What we will tell you is when it is not worth it: a door with significant rust around the mounting points is throwing good money after bad.</p>' },
-        { q: 'Do you carry regulators for my car?',
-          a: '<p>Common vehicles, often. Anything less common gets ordered, which is why diagnosing first matters — we would rather establish exactly what is wrong on one visit and arrive with the right part on the second than guess twice.</p>' },
-        { q: 'Can you do it mobile?',
-          a: '<p>Usually. Mechanism work needs the interior trim panel off, so we want the car somewhere the inside will stay dry for the duration — a garage, a carport, or a dry spell. If neither is available we will bring it into Cedar Mill or Tualatin.</p>' }
-      ]
-    },
-
-    {
-      slug: 'door-glass-repair',
-      card: {
-        icon: 'door',
-        title: 'Door glass',
-        blurb: 'The break-in aftermath job, done so the door still drains afterwards.',
-        cta: 'Door glass'
-      },
-      figures: [
-        { chapter: 2, src: 'van-door-decal.webp' }
-      ],
-      navLabel: 'Door glass',
-      shortLabel: 'Door glass repair',
-      title: 'Door Glass Repair | Portland Metro, Oregon',
-      desc: 'Door glass repair and replacement across the Portland metro, including same-visit sealing when a car has been broken into.',
-      eyebrow: 'Door glass',
-      h1: 'Door glass, and what a break-in actually leaves behind',
-      sub: '<p>Most door glass calls are not accidents. They are mornings that started badly, and they need handling quickly.</p>',
-      svcValue: 'door-side-glass',
-      body: `
-<h2>The order things need to happen in</h2>
-<p>A car with a smashed door window is exposed to the weather and visibly worth a
-second look. So the sequence matters more than it does for a windshield booked a
-week out:</p>
-<ol>
-  <li><strong>Photograph it before touching anything</strong> if you are claiming, or if there is a police report</li>
-  <li><strong>Get it sealed</strong> — we can make a car weathertight quickly even when the specific glass has to be ordered</li>
-  <li><strong>Clear the cavity and fit the glass</strong> — the real job, once the car is not standing open</li>
-</ol>
-<p>Tell us on the phone if the car is sitting outside overnight. It changes what
-we bring and how we schedule it.</p>
-
-<h2>What tends to be damaged besides the glass</h2>
-<p>Forced entry rarely stops at the pane. Worth checking before the trim goes back
-on, because it is all in the same place:</p>
-<ul>
-  <li>The window regulator, often bent where the glass was levered or pushed</li>
-  <li>The run channel and weather seal, cut or pulled during entry</li>
-  <li>The lock rod or door latch, if entry was through the top of the door frame</li>
-  <li>The vapour barrier behind the trim panel — frequently torn and rarely replaced, which is how doors start letting water into the cabin</li>
-</ul>
-
-<div class="callout">
-  <h3>Why the drain holes are the part we care about</h3>
-  <p>The bottom of a door is designed to be wet. Rain runs down inside the glass,
-  past the seals, and out through drain holes in the sill. Thousands of tempered
-  fragments sitting in that channel dam it up.</p>
-  <p>In a climate like this the consequence is not theoretical. A door that
-  cannot drain holds water against bare metal through an entire wet season, and
-  the rust starts on the inside where nobody looks until the paint bubbles. It is
-  why we vacuum the cavity out properly and check the drains before refitting —
-  the part of the job you cannot see afterwards and would never know was skipped.</p>
-</div>
-
-<h2>Laminated door glass, and why some cars are different</h2>
-<p>A growing number of vehicles use laminated rather than tempered door glass,
-for cabin quietness and because it resists a smash-and-grab far better — it holds
-together rather than dropping away. If that is what your car has, the damage will
-look like a cracked windshield rather than a pile of pebbles, and occasionally it
-can be repaired. Tell us what you are actually looking at and we will tell you
-which you have.</p>
-`,
-      faq: [
-        { q: 'Can you get here today?',
-          a: '<p>Tell us where the car is and we will tell you honestly what we can do — that varies by day and by where you are in the metro. Even where the specific glass has to be ordered, sealing the car so it is weathertight is usually quicker than the full replacement, and it is worth doing first.</p>' },
+        { q: 'Can you do it at my house?',
+          a: '<p>Yes — door glass is not bonded, so there is no cure time and little weather sensitivity beyond keeping the interior dry while the trim is off. It is one of the more straightforward mobile jobs. We need room to open the door fully, and for mechanism work somewhere the inside will stay dry.</p>' },
         { q: 'Should I clean up the glass myself?',
           a: '<p>Photograph it first if there is a claim or a report. After that, yes — get the loose fragments off the seats and floor, because they migrate and they are unpleasant to find later. Leave the inside of the door to us; that needs the trim panel off and a vacuum, not a brush.</p>' },
         { q: 'Will my insurance cover a break-in?',
-          a: '<p>Glass broken in a break-in is generally a comprehensive claim rather than collision, and your deductible applies as your policy states. Whether it is worth claiming depends on that deductible against the job. Under ORS 746.280 your insurer cannot require you to use a particular shop, so you can name us either way.</p>' },
-        { q: 'Do you fix the damage around the window too?',
-          a: '<p>We handle the glass, the regulator and the seals — the things in the door. Bodywork where a door skin or frame has been bent is a body shop job, and we will tell you plainly if that is what you are looking at rather than fitting glass into a door that will not seal.</p>' }
+          a: '<p>Glass broken in a break-in is generally a comprehensive claim rather than collision, and your deductible applies as your policy states. Whether it is worth claiming depends on that deductible against the job. Under ORS 746.280 your insurer cannot require you to use a particular shop, so you can name us either way.</p>' }
       ]
     },
 
     {
-      slug: 'back-glass-repair',
+      slug: 'back-window-replacement',
       card: {
         icon: 'rear',
         title: 'Back glass',
-        blurb: 'Defroster grid, antenna, and thousands of pebbles in the boot.',
+        blurb: 'Defroster grid, antenna, and several thousand pebbles in the load area.',
         cta: 'Back glass'
       },
       figures: [
@@ -1334,7 +965,7 @@ say so when you book rather than turning up and changing the plan.</p>
     },
 
     {
-      slug: 'mobile-service',
+      slug: 'mobile-auto-glass',
       card: {
         icon: 'van',
         title: 'Mobile service',
@@ -1401,7 +1032,7 @@ tell us at booking. Mobile jobs lose more time to access than to the work.</p>
     },
 
     {
-      slug: 'auto-insurance',
+      slug: 'insurance-claims',
       card: {
         icon: 'doc',
         title: 'Insurance claims',

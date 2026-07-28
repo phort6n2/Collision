@@ -151,7 +151,7 @@ const GROUPS = [
 },
 {
   name: 'CAG | Mobile Service',
-  page: '/mobile-service',
+  page: '/mobile-auto-glass',
   share: '~10%',
   paths: ['Mobile', 'Auto-Glass'],
   note: 'Convenience intent rather than damage intent. Works well against park-and-ride and workplace-parking searches on the Westside.',
@@ -186,7 +186,7 @@ const GROUPS = [
 },
 {
   name: 'CAG | Side & Door Glass',
-  page: '/car-window-replacement',
+  page: '/side-window-replacement',
   share: '~9%',
   paths: ['Side-Glass', 'Replacement'],
   note: 'Urgency group — a broken side window means an open car. Expect short lead times and higher conversion. Worth a bid uplift in the morning.',
@@ -221,7 +221,7 @@ const GROUPS = [
 },
 {
   name: 'CAG | Back Glass',
-  page: '/back-glass-repair',
+  page: '/back-window-replacement',
   share: '~5%',
   paths: ['Back-Glass', 'Replacement'],
   note: 'Small volume, high ticket. The defroster and antenna angle is what separates a competent quote from a cheap one.',
@@ -473,8 +473,8 @@ const SITELINKS = [
   ['Chip & Crack Repair', 'Far cheaper than replacing', 'If it is still repairable', '/windshield-repair'],
   ['ADAS Calibration', 'Autel MaxiSYS, in our shop', 'Never sent to a third shop', '/adas-calibration'],
   ['Free Mobile Service', 'We come to your car', 'Home, work or park and ride', '/mobile-service'],
-  ['Insurance Claims', 'We bill your insurer direct', 'Oregon law: you pick the shop', '/auto-insurance'],
-  ['Side & Door Glass', 'Broken window sorted fast', 'Door cavity cleared properly', '/car-window-replacement']
+  ['Insurance Claims', 'We bill your insurer direct', 'Oregon law: you pick the shop', '/insurance-claims'],
+  ['Side & Door Glass', 'Broken window sorted fast', 'Door cavity cleared properly', '/side-window-replacement']
 ];
 
 const CALLOUTS = [

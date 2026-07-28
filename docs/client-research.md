@@ -146,6 +146,18 @@ but a final URL can be referenced by an ad without being linked anywhere, so
 /auto-glass-repair-tualatin
 ```
 
+### Consolidated, 2026-07-28, with the client's agreement
+
+The fourteen service URLs above became seven. Because the domain is changing,
+repointing every final URL in Ads is a single edit either way, so a better slug
+costs nothing. All eleven collapsed paths are 301'd as a safety net; the full
+old-to-new table and the cutover order are in `docs/ads-url-migration.md`.
+
+`check:urls` against every path the old site served reports **0 missing** — 11
+exact, 11 redirect-only. Nothing can 404. The redirect-only entries are the
+checker asking for the final URLs to be corrected rather than left on a hop,
+which is the right instruction and the reason the table exists.
+
 ### The existing pages are doorway pages
 
 Diffing `/auto-glass-repair-beaverton` against `/auto-glass-repair-hillsboro`:
