@@ -1131,62 +1131,70 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
               border-left:1px solid rgba(255,255,255,.16); }
 
   /* -------------------------------------------------- body chapters
-     A chapter with a photo breaks into two columns and alternates side. A
-     chapter without one stays a single centred column.
+     ONE grid for every chapter, illustrated or not: a fixed reading column
+     flush with the container's left edge, and a figure rail beside it.
 
-     The first draft gave every chapter a 380px heading rail. It looked right
-     where the heading and the body were comparable in height and badly wrong
-     the moment they were not: a two-word heading beside a long list left a
-     600px empty rectangle hard against the left edge, which reads worse than
-     symmetric margin does. Centred prose is what long-form text is supposed to
-     look like; the photographs are what break it up.
+     This replaces a scheme that gave the prose three different left edges on
+     the same page. An illustrated chapter was a 934px block centred in the
+     1132px container with its photo alternating sides, so its prose started at
+     either 253px (photo right) or 689px (photo left); a chapter with no photo
+     was a separate 56ch grid centred on its own, so its prose started at 471px.
+     Three offsets, none of them the container's own edge, and the un-illustrated
+     ones marooned mid-page with ~317px of dead gutter on BOTH sides — which is
+     where the "narrow column stranded in the middle" complaint came from. Note
+     that this is not rare: eleven of the fifteen pages here are mostly chapters
+     with no photo, so the stranded case was the COMMON case, not the exception.
 
-     The prose column stays at 56ch either way. That figure is measured, not
-     chosen — 72ch rendered 96 characters per line — so filling the container
-     had to come from what sits BESIDE the text, never from widening it. */
+     The fix is to stop deriving the text position from whether a photo happens
+     to exist. The prose column is the same 56ch box in the same place in every
+     chapter — aligned with the section headings, the hero and the footer above
+     and below it, so the body reads as part of the page rather than as a raft
+     floating in it. What varies is only what sits in the rail to its right.
+
+     Alternation is gone deliberately. Alternating the photo is what moved the
+     text, and a rhythm you can only see when every chapter is illustrated is
+     not a rhythm — on these pages it just read as text that would not sit
+     still. The photos still break the page up; they now do it from a rail.
+
+     The prose column stays at 56ch. That figure is measured, not chosen — 72ch
+     rendered 96 characters per line — so filling the container has to come from
+     what sits BESIDE the text, never from widening it. */
   .chaps{ gap:64px; }
-  .pchap-fig{
-    /* Ratio tracks inside a capped width, not two max-widths. With
-       minmax(0,380px) each track sized to its own CONTENT, so a chapter whose
-       caption happened to be short gave the photo 282px and the prose 596 —
-       every illustrated chapter came out a different shape. fr keeps the
-       proportion and scales the pair down at 900px instead of overflowing. */
-    max-width:934px; margin-inline:auto;
-    display:grid; grid-template-columns:380fr 498fr;
-    /* Column gap only. `gap:56px` also opened 56px between the heading row and
-       the prose row, which read as a missing paragraph — the h2's own 12px
+  .pchap{
+    display:grid;
+    /* minmax(0,56ch), not 56ch: without the 0 minimum the track refuses to go
+       below max-content and a long unbroken token (a URL in a chapter) would
+       push the rail off the container. 56ch resolves against .pchap's own
+       font-size — ch is a property of the element you put it on, which is why
+       max-width:56ch on the h2 did nothing when it was tried there. */
+    grid-template-columns:minmax(0,56ch) minmax(0,1fr);
+    /* The figure spans both rows of the rail, so heading and prose stack
+       against it. Areas rather than column order: heading, figure and prose are
+       siblings precisely so a phone gets heading -> photo -> text from source
+       order, and the areas re-place them here without touching the markup. */
+    grid-template-areas:"head fig" "prose fig"; grid-template-rows:auto 1fr;
+    /* Column gap only. `gap:56px` would also open 56px between the heading row
+       and the prose row, which reads as a missing paragraph — the h2's own 12px
        bottom margin is the spacing that belongs there. */
-    gap:0 56px; justify-content:center; align-items:start;
-    /* The figure spans both rows of its own column, so heading and prose stack
-       against it. Areas rather than order: the three are siblings precisely so
-       a phone gets heading -> photo -> text from source order. */
-    grid-template-areas:"fig head" "fig prose"; grid-template-rows:auto 1fr;
+    gap:0 56px; align-items:start;
   }
-  .pchap-alt{ grid-template-columns:498fr 380fr;
-              grid-template-areas:"head fig" "prose fig"; }
-  .pchap-fig > h2{ grid-area:head; }
-  .pchap-fig > figure{ grid-area:fig; align-self:center; margin:0; }
-  .pchap-fig > .prose{ grid-area:prose; max-width:none; }
+  .pchap > h2{ grid-area:head; }
+  .pchap > .prose{ grid-area:prose; max-width:none; }
+  /* The rail is 1fr, so it is whatever the container has left: 578px at 1440,
+     422px at 1024, 298px at the 900px floor. Capping the photo at the measure
+     keeps the text the larger of the two — a photo wider than the column it
+     illustrates inverts the hierarchy — and ending it on the container's right
+     edge means the chapter terminates on the same line as every band above it
+     instead of trailing off. */
+  .pchap-fig > figure{
+    grid-area:fig; align-self:center; justify-self:end;
+    margin:0; width:100%; max-width:56ch;
+  }
   /* Portraits otherwise ran to their natural height and towered over the text
      they illustrate — the 440x900 driveway shot was twice the height of its own
      two paragraphs. Cropping to a cap keeps every chapter in proportion
      whichever orientation the client's photo happens to be. */
   .pchap-fig img{ max-height:470px; object-fit:cover; }
-  /* Text-only chapters: one centred column at the same measure the illustrated
-     ones use, so the two kinds do not read as different pages.
-
-     The column is on the GRID, not on the children. `max-width:56ch` set on the
-     heading resolves against the heading's own font — 1170px at this size, so
-     it constrained nothing and the h2 ran the full width while its paragraphs
-     sat centred beneath it. ch is a property of the element you put it on. */
-  /* :not(), not source order. .pchap and .pchap-fig have equal specificity, so
-     whichever is written second wins — and this one was, which quietly replaced
-     the two-column illustrated grid with a single column plus an implicit auto
-     track. The exclusion says what is meant and cannot be undone by moving a
-     block. */
-  .pchap:not(.pchap-fig){ display:grid; grid-template-columns:minmax(0,56ch);
-                          justify-content:center; }
-  .pchap:not(.pchap-fig) > .prose{ max-width:none; }
 }
 /* Tablet: the card stretches to the full container because the rule pinning it
    to a column is behind min-width:900px. Functional, but the highest-value
@@ -1483,7 +1491,7 @@ after.</p>
   claiming.</p>
 </div>
 </div></div>
-      <div class="pchap pchap-fig pchap-alt"><h2>Whether to claim at all</h2><figure><span class="shot"><img src="/img/van-door-decal.51f7925a.webp" width="935" height="1400" alt="The side of the branded van listing windshield, door glass, rock chip, mobile service and the lifetime guarantee" loading="lazy" decoding="async"></span><figcaption>The guarantee has been painted on the van since before it was on a website.</figcaption></figure><div class="prose"><p>Sometimes the answer is no, and we will say so. If your comprehensive
+      <div class="pchap pchap-fig"><h2>Whether to claim at all</h2><figure><span class="shot"><img src="/img/van-door-decal.51f7925a.webp" width="935" height="1400" alt="The side of the branded van listing windshield, door glass, rock chip, mobile service and the lifetime guarantee" loading="lazy" decoding="async"></span><figcaption>The guarantee has been painted on the van since before it was on a website.</figcaption></figure><div class="prose"><p>Sometimes the answer is no, and we will say so. If your comprehensive
 deductible is higher than the cash price of the job, claiming achieves nothing
 except putting a claim on your record. A chip repair in particular is often
 cheaper than any deductible worth having.</p>

@@ -519,22 +519,23 @@ function galleryHtml(page) {
  *
  * It used to render as one 56ch column centred in a 1180px container, which
  * left more than half the desktop width empty beside a 400-900 word wall of
- * text. Splitting at the headings gives two chapter layouts, both of which put
- * something in that space:
+ * text. Splitting at the headings gives the photographs somewhere to go:
  *
- *   .pchap       heading in a left rail, prose beside it. This is the default
- *                and the only one that scales: there are 98 h2 chapters across
- *                a site like this and a handful of real photographs, so a photo beside every
- *                block is not reachable, and recycling the same six across all
- *                of them would look worse than the wall of text does.
- *   .pchap-fig   a photo in the rail instead of the heading, with the heading
- *                and prose beside it, alternating side down the page. Only
- *                where `figures` names a photo that genuinely illustrates that
+ *   .pchap       heading and prose in the reading column, nothing in the rail
+ *                beside it. This is the default and the only one that scales:
+ *                there are 98 h2 chapters across a site like this and a handful
+ *                of real photographs, so a photo beside every block is not
+ *                reachable, and recycling the same six across all of them would
+ *                look worse than the wall of text does.
+ *   .pchap-fig   the same chapter with a photo in the rail. Only where
+ *                `figures` names a photo that genuinely illustrates that
  *                chapter.
  *
- * Both variants are the same total width and centred, so the prose column lands
- * in one of exactly two positions — the alternation reads as rhythm rather than
- * as text that will not sit still.
+ * Both put the heading and the prose in the SAME column at the SAME left edge
+ * — see the .pchap grid in template.html. The two used to be laid out
+ * separately, which gave the prose three different left edges on one page and
+ * stranded every un-illustrated chapter in a narrow centred column. A chapter
+ * having a photo is not a reason to move its text.
  */
 function proseHtml(page) {
   const byChapter = new Map();
@@ -544,7 +545,6 @@ function proseHtml(page) {
      and callouts use <h3>, so this cannot catch a nested heading. */
   const parts = page.body.trim().split(/\n(?=<h2>)/);
 
-  let illustrated = 0;
   const chapters = parts.map((part, i) => {
     const m = /^<h2>([\s\S]*?)<\/h2>\s*/.exec(part);
     const heading = m ? '<h2>' + m[1] + '</h2>' : '';
@@ -554,17 +554,13 @@ function proseHtml(page) {
     if (!fig) {
       return '<div class="pchap">' + heading + '<div class="prose">' + rest + '</div></div>';
     }
-    /* Alternate against the other illustrated chapters, not the absolute index
-       — otherwise two figures three chapters apart land on the same side and
-       the alternation disappears. */
-    const alt = illustrated++ % 2 === 1 ? ' pchap-alt' : '';
     /* Heading, figure and prose as three siblings rather than a figure beside a
        wrapped heading+prose. Source order is what a phone gets, and heading ->
        photo -> text is the readable order there; on desktop grid-template-areas
        lifts the figure into its own column spanning both rows. Wrapping the text
        instead delivered the photo before its own heading on mobile. */
     return (
-      '<div class="pchap pchap-fig' + alt + '">' +
+      '<div class="pchap pchap-fig">' +
       heading +
       figureHtml(galleryEntry(fig.src)) +
       '<div class="prose">' + rest + '</div>' +
