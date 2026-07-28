@@ -30,7 +30,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/img/icon-16.78184853.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.541fce75.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#0A2650">
+<meta name="theme-color" content="#201414">
 
 <!-- ============================================================
      TRACKING CONFIG — the only place Google IDs are pasted.
@@ -68,75 +68,97 @@
 <style>
 /* ==========================================================================
    Master template — light theme.
-   Palette sampled from the real logo (navy #004B81 / cyan #00ACE4 /
-   orange #FE6221). Every text-on-surface pair below was contrast-checked;
-   the measured ratio is noted where it matters.
+   Palette sampled from the real logo (near-black #241818 48% of opaque
+   pixels / brand red #A81818 24% / white 21%). Every text-on-surface pair
+   below was measured with a contrast calculator, never estimated; the ratio
+   is noted where it matters.
 
    CSS ORDER MATTERS: base tokens → reset → layout → components → utilities
    → MEDIA QUERIES LAST. Never append an "audit fixes" block after the media
    queries; equal specificity means it would override them at every width.
    ========================================================================== */
 :root{
-  /* ---- surfaces (cyan-tinted neutrals, so the page reads as this brand) ---- */
+  /* The brand red clears 4.5:1 on white unaided, so unlike the reference
+     build's cyan it can carry text AND fills AND the button. That makes red
+     the scarce, load-bearing colour: near-black does the structural work
+     (bands, headings, body copy) and red is reserved for actions and small
+     accents — which is the logo's own hierarchy, a red wordmark on a black
+     badge. */
+
+  /* ---- surfaces (red-tinted warm neutrals, so the page reads as this brand) ---- */
   --paper:#FFFFFF;
-  --surface-1:#F5FCFE;      /* 4% cyan  */
-  --surface-2:#EDF9FD;      /* 7% cyan  */
-  --tint-cyan:#E3F6FC;      /* 11% cyan */
-  --tint-warm:#FFF5EC;      /* 9% orange — the "money"/insurance band */
-  --band-dark:#0A2650;      /* white text 14.9:1 */
-  --band-dark-2:#062038;    /* footer, white text 16.5:1 */
-  --band-dark-3:#123763;    /* raised surface inside dark bands */
+  --surface-1:#FDF7F7;      /* 3% red  */
+  --surface-2:#FAF0F0;      /* 6% red  */
+  --tint-accent:#F6E7E7;    /* 10% red */
+  --tint-warm:#FBF3EC;      /* warm sand — the "money"/insurance band */
+  --band-dark:#201414;      /* white text 17.9:1 */
+  --band-dark-2:#150D0D;    /* footer, white text 19.2:1 */
+  --band-dark-3:#33201F;    /* raised surface inside dark bands, white 15.4:1 */
 
   /* ---- text ---- */
-  --text:#0B1B2B;           /* 17.4:1 on white */
-  --text-2:#2C3B49;         /* 11.5:1 */
-  --text-muted:#4C5C6B;     /* 6.9:1  */
-  --text-placeholder:#5E6D7C; /* 5.3:1 on white — inputs are always white */
+  --text:#1A1212;           /* 18.4:1 on white */
+  --text-2:#3D2E2E;         /* 12.9:1 */
+  --text-muted:#5C4A4A;     /* 8.3:1  */
+  --text-placeholder:#6E5B5B; /* 6.3:1 on white — inputs are always white */
   --text-on-dark:#FFFFFF;
-  --text-on-dark-2:#C4D3E4;
-  --text-disabled:#5E6D7C;
+  --text-on-dark-2:#D8C8C8; /* 11.1:1 on --band-dark */
+  --text-disabled:#6E5B5B;
 
   /* ---- brand ---- */
-  --navy:#004B81;           /* 9.0:1 on white — safe for text and links */
-  --navy-deep:#113371;
-  --cyan:#00ACE4;           /* 2.6:1 — FILLS AND LARGE GRAPHICS ONLY, never text */
-  --cyan-ink:#0080A9;       /* 4.5:1 — cyan when it must carry small text */
-  --cyan-graphic:#00A0D5;   /* 3.0:1 — cyan when it must be a border/icon */
-  --cyan-light:#45D3EF;
-  --cyan-pale:#C3EEF9;
+  --brand:#A81818;          /* 7.5:1 on white — safe for text and links */
+  --brand-deep:#8C1212;     /* 9.5:1 */
+  --accent:#D42222;         /* 5.2:1 — fills and large graphics */
+  --accent-ink:#B01A1A;     /* 7.0:1 — accent red when it must carry small text */
+  --accent-graphic:#C81E1E; /* 5.7:1 — accent red when it must be a border/icon */
+  --accent-light:#E85555;   /* 5.0:1 on --band-dark */
+  --accent-pale:#F7DADA;
 
-  /* ---- primary action: brand orange, darkened until white text passes AA ---- */
-  --cta:#CB4E1A;            /* white text 4.52:1 */
-  --cta-grad-a:#CB4E1A;
-  --cta-grad-b:#BA4413;     /* white text 5.35:1 */
-  --cta-hover:#B84412;
-  --cta-active:#A23B0F;
+  /* ---- primary action ----
+     The brand red needs no darkening: white on it is already 7.5:1, where the
+     reference build's orange had to be pushed down to scrape 4.52:1. */
+  --cta:#A81818;            /* white text 7.5:1 */
+  --cta-grad-a:#A81818;
+  --cta-grad-b:#8C1212;     /* white text 9.5:1 */
+  --cta-hover:#8C1212;
+  --cta-active:#6E0E0E;     /* white text 12.1:1 */
   --cta-text:#FFFFFF;
-  --orange-accent:#FE912A;  /* decorative only, or text on dark (5.4:1) */
+  --orange-accent:#E85555;  /* decorative only, or text on dark (5.0:1) */
 
   /* ---- lines ---- */
-  --line:#DCE7ED;           /* decorative dividers only */
-  --line-card:#CFDDE6;
-  --line-strong:#AFC3D0;
-  --border-field:#7C8FA3;   /* 3.3:1 — real affordance for inputs */
-  --line-on-dark:#1E416B;
+  --line:#EFE2E2;           /* decorative dividers only */
+  --line-card:#E2D0D0;
+  --line-strong:#C4AFAF;    /* 2.1:1 — decorative only, never an affordance */
+  --border-field:#8A7373;   /* 4.4:1 — real affordance for inputs */
+  --line-on-dark:#422C2B;
 
   /* ---- semantic ---- */
   --success:#0F7A3D;        /* 5.4:1 */
   --success-tint:#ECFDF3;
   --success-line:#8CCBA6;
-  --error:#B3261E;          /* 6.5:1 */
-  --error-tint:#FEF2F2;
-  --error-line:#E3A9A5;
+  /* On a red-branded site the error colour and the CTA are the same hue —
+     measured at 1.14:1 against each other, i.e. indistinguishable. Errors are
+     therefore NEVER signalled by colour alone: they always carry the tint
+     background, the border and the message text. Kept deliberately darker and
+     browner than --cta so the two are at least not identical. */
+  --error:#8F2018;          /* 8.9:1 */
+  --error-tint:#FDEEEC;
+  --error-line:#D89A94;
   --gold:#F5A524;           /* star FILL — always paired with the stroke below */
   --gold-stroke:#A15C06;    /* 5.2:1, so stars are not colour-only */
   --gold-on-dark:#FFC53D;
-  /* Cyan lightened for dark panels. --cyan itself is 2.6:1 on white and only
-     4.58:1 on --band-dark-3; this is 7.44:1 there, so it holds up on an icon
-     without being mistaken for a text colour. Measured, not picked. */
-  --cyan-on-dark:#7FD8F5;
+  /* Red lightened for dark panels. --accent is 5.2:1 on white but only 3.1:1
+     on --band-dark-3; this is 7.5:1 there, so it holds up on an icon without
+     being mistaken for a text colour. Measured, not picked. */
+  --accent-on-dark:#F2A0A0;
 
-  --ring:#004B81;
+  /* No single ring colour survives every surface here: measured against white,
+     the red CTA, the dark band and the red tint, brand red fails on two of the
+     four and near-black fails on the dark band. So the ring is two-valued —
+     near-black on light surfaces, white on dark ones — and --ring-on-dark is
+     applied by the :is(.sec-dark,.final) rule further down. A focus ring that
+     vanishes on a third of the page is a keyboard trap, not a style choice. */
+  --ring:#1A1212;           /* 18.4:1 on white, 15.4:1 on the red tint */
+  --ring-on-dark:#FFFFFF;   /* 17.9:1 on --band-dark */
   --ring-w:3px;
   --ring-offset-w:2px;
 
@@ -145,15 +167,16 @@
   --gutter:20px;
   --r-xs:6px; --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-pill:999px;
 
-  /* ---- shadows: cool blue-black, never pure black (goes brown on a cyan
-         tinted white). Alpha capped low; depth comes from layering. ---- */
-  --sh-xs:0 1px 2px rgba(11,27,43,.05);
-  --sh-sm:0 1px 2px rgba(11,27,43,.06), 0 1px 3px rgba(11,27,43,.04);
-  --sh-md:0 2px 4px -1px rgba(11,27,43,.06), 0 6px 14px -3px rgba(11,27,43,.09);
-  --sh-lg:0 4px 8px -3px rgba(11,27,43,.06), 0 14px 30px -8px rgba(11,27,43,.11);
-  --sh-xl:0 2px 4px rgba(11,27,43,.04), 0 10px 20px -6px rgba(11,27,43,.08), 0 28px 56px -18px rgba(11,27,43,.15);
-  --sh-cta:0 1px 1px rgba(90,32,8,.18), 0 6px 14px -4px rgba(184,68,18,.34);
-  --sh-cta-hover:0 1px 1px rgba(90,32,8,.22), 0 10px 22px -6px rgba(184,68,18,.42);
+  /* ---- shadows: warm near-black, never pure black and never the cool
+         blue-black the reference used — that reads grey-blue over a red-tinted
+         white. Alpha capped low; depth comes from layering. ---- */
+  --sh-xs:0 1px 2px rgba(26,18,18,.05);
+  --sh-sm:0 1px 2px rgba(26,18,18,.06), 0 1px 3px rgba(26,18,18,.04);
+  --sh-md:0 2px 4px -1px rgba(26,18,18,.06), 0 6px 14px -3px rgba(26,18,18,.09);
+  --sh-lg:0 4px 8px -3px rgba(26,18,18,.06), 0 14px 30px -8px rgba(26,18,18,.11);
+  --sh-xl:0 2px 4px rgba(26,18,18,.04), 0 10px 20px -6px rgba(26,18,18,.08), 0 28px 56px -18px rgba(26,18,18,.15);
+  --sh-cta:0 1px 1px rgba(60,8,8,.18), 0 6px 14px -4px rgba(168,24,24,.34);
+  --sh-cta-hover:0 1px 1px rgba(60,8,8,.22), 0 10px 22px -6px rgba(168,24,24,.42);
 
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
   --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
@@ -181,14 +204,20 @@ h3{ font-size:clamp(1.1875rem,1.1rem + .4vw,1.375rem); line-height:1.3; font-wei
 h4{ font-size:1.0625rem; line-height:1.35; font-weight:700; letter-spacing:0; }
 p{ margin:0 0 1em; }
 p:last-child{ margin-bottom:0; }
-a{ color:var(--navy); text-decoration-thickness:1.5px; text-underline-offset:3px; }
-a:hover{ color:var(--navy-deep); }
+a{ color:var(--brand); text-decoration-thickness:1.5px; text-underline-offset:3px; }
+a:hover{ color:var(--brand-deep); }
 ul,ol{ margin:0 0 1em; padding-left:1.15em; }
 li{ margin:0 0 .4em; }
 button{ font:inherit; }
 input,select,textarea,button{ font:inherit; max-width:100%; }
 :focus{ outline:none; }
 :focus-visible{ outline:var(--ring-w) solid var(--ring); outline-offset:var(--ring-offset-w); border-radius:var(--r-xs); }
+/* The near-black ring measures 1.0:1 on --band-dark and would simply not exist
+   there, so dark bands get the white ring instead. .final is its own gradient
+   and matches no .sec-dark selector — it must be named explicitly or the
+   closing CTA, which holds the most important button on the page, keeps the
+   invisible ring. */
+:is(.sec-dark,.final) :focus-visible{ outline-color:var(--ring-on-dark); }
 .sr-only{
   position:absolute!important; width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
@@ -203,12 +232,12 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
 .sec{ padding:56px 0; border-top:1px solid var(--line); }
 .sec-1{ background:var(--surface-1); }
 .sec-2{ background:var(--surface-2); }
-.sec-cyan{ background:var(--tint-cyan); border-block:1px solid #C9E9F5; }
-.sec-warm{ background:var(--tint-warm); border-block:1px solid #F5E3D2; }
+.sec-accent{ background:var(--tint-accent); border-block:1px solid #EBD4D4; }
+.sec-warm{ background:var(--tint-warm); border-block:1px solid #EFE0CE; }
 .sec-dark{ background:var(--band-dark); border-top:0; color:var(--text-on-dark); }
 .sec-dark h2,.sec-dark h3{ color:var(--text-on-dark); }
 .sec-dark p{ color:var(--text-on-dark-2); }
-.sec-dark a{ color:var(--cyan-light); }
+.sec-dark a{ color:var(--accent-light); }
 .sec-head{ max-width:60ch; margin:0 0 32px; }
 .sec-head.center{ margin-inline:auto; text-align:center; }
 /* A centred lead is only ever 1–2 short lines here; balancing stops the second
@@ -216,13 +245,13 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
 .sec-head.center .lead{ text-wrap:balance; }
 .eyebrow{
   display:block; font-size:.8125rem; font-weight:700; letter-spacing:.09em;
-  text-transform:uppercase; color:var(--navy); margin:0 0 10px;
+  text-transform:uppercase; color:var(--brand); margin:0 0 10px;
 }
 /* Any dark band, not just .sec-dark. The closing CTA is .final — its own navy
-   gradient — and the eyebrow there inherited --navy on navy: 1.33:1, which is
-   invisible rather than merely low. --cyan-light measures 6.74:1 on the
+   gradient — and the eyebrow there inherited --brand on navy: 1.33:1, which is
+   invisible rather than merely low. --accent-light measures 6.74:1 on the
    lightest part of that gradient. */
-.sec-dark .eyebrow, .final .eyebrow{ color:var(--cyan-light); }
+.sec-dark .eyebrow, .final .eyebrow{ color:var(--accent-light); }
 .eyebrow::before{
   content:""; display:block; width:26px; height:3px; border-radius:2px;
   background:var(--cta); margin:0 0 12px;
@@ -256,7 +285,7 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
   color:#fff; background:var(--cta); border:1.5px solid var(--cta);
   box-shadow:0 1px 2px rgba(11,27,43,.16);
 }
-.btn-call:hover{ background:var(--cta-dark,#A93F13); border-color:var(--cta-dark,#A93F13); color:#fff; }
+.btn-call:hover{ background:var(--cta-dark,#6E0E0E); border-color:var(--cta-dark,#6E0E0E); color:#fff; }
 .btn-call svg{ color:#fff; }
 /* On the navy band the solid orange would vibrate against the background;
    invert to a white button there instead. */
@@ -273,7 +302,7 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
   border:1.5px solid var(--line-strong); box-shadow:var(--sh-xs);
 }
 .btn-ghost:hover{ background:var(--surface-1); border-color:var(--border-field); color:var(--text); }
-:is(.sec-dark,.final) .btn-ghost{ background:transparent; color:#fff; border-color:#3A5E8C; }
+:is(.sec-dark,.final) .btn-ghost{ background:transparent; color:#fff; border-color:#6B4A48; }
 :is(.sec-dark,.final) .btn-ghost:hover{ background:rgba(255,255,255,.08); color:#fff; }
 .btn-block{ width:100%; }
 
@@ -346,13 +375,13 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
   box-shadow:0 1px 2px rgba(11,27,43,.16);
   transition:background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
 }
-.callbtn:hover{ background:var(--cta-dark,#A93F13); border-color:var(--cta-dark,#A93F13); color:#fff; }
+.callbtn:hover{ background:var(--cta-dark,#6E0E0E); border-color:var(--cta-dark,#6E0E0E); color:#fff; }
 .callbtn svg{ flex:0 0 auto; color:#fff; }
 .callbtn .cb-num{ display:none; }
 
 /* ---------------------------------------------------------------- hero */
 .hero{
-  background:linear-gradient(168deg,var(--tint-cyan) 0%,var(--surface-1) 52%,var(--paper) 100%);
+  background:linear-gradient(168deg,var(--tint-accent) 0%,var(--surface-1) 52%,var(--paper) 100%);
   padding:20px 0 36px;
 }
 .hero-grid{
@@ -512,8 +541,8 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
   transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
 .input::placeholder{ color:var(--text-placeholder); opacity:1; }  /* Firefox resets opacity */
-.input:hover{ border-color:#66788B; }
-.input:focus{ border-color:var(--navy); box-shadow:0 0 0 3px rgba(0,75,129,.16); outline:none; }
+.input:hover{ border-color:#6E5B5B; }
+.input:focus{ border-color:var(--brand); box-shadow:0 0 0 3px rgba(0,75,129,.16); outline:none; }
 .input:focus-visible{ outline:none; }
 .input[aria-invalid="true"]{
   border-color:var(--error); background:var(--error-tint);
@@ -533,8 +562,8 @@ select.input{
   padding:10px 14px; text-align:left; background:var(--surface-1);
   border:1px solid var(--line); border-radius:var(--r-sm); cursor:pointer;
 }
-.qc-more-btn:hover{ background:var(--tint-cyan); }
-.qc-more-btn[aria-expanded="true"]{ background:var(--tint-cyan); border-bottom-left-radius:0; border-bottom-right-radius:0; }
+.qc-more-btn:hover{ background:var(--tint-accent); }
+.qc-more-btn[aria-expanded="true"]{ background:var(--tint-accent); border-bottom-left-radius:0; border-bottom-right-radius:0; }
 .qc-more-t{ font-size:.9375rem; font-weight:600; color:var(--text); }
 .qc-more-s{ font-size:.8125rem; color:var(--text-muted); }
 .qc-more-btn .chev{ margin-left:auto; flex:0 0 auto; color:var(--text-muted); transition:transform var(--t) var(--ease); }
@@ -567,7 +596,7 @@ select.input{
   border-radius:var(--r-md); cursor:pointer; font-size:.9375rem;
 }
 .radio input{ width:18px; height:18px; accent-color:var(--cta); margin:0; }
-.radio:has(input:checked){ border-color:var(--navy); background:var(--tint-cyan); font-weight:600; }
+.radio:has(input:checked){ border-color:var(--brand); background:var(--tint-accent); font-weight:600; }
 #carrierField[hidden]{ display:none; }
 
 .qc-submit{ width:100%; margin-top:18px; min-height:56px; font-size:1.09375rem; }
@@ -597,7 +626,7 @@ select.input{
   border-radius:var(--r-md); overflow:hidden; margin-top:26px;
 }
 .tb>div{ background:var(--paper); padding:14px 16px; display:flex; gap:10px; align-items:flex-start; min-width:0; }
-.tb svg{ flex:0 0 auto; margin-top:2px; color:var(--cyan-ink); }
+.tb svg{ flex:0 0 auto; margin-top:2px; color:var(--accent-ink); }
 .tb b{ display:block; font-size:.875rem; }
 .tb span{ font-size:.8125rem; color:var(--text-muted); }
 
@@ -607,12 +636,12 @@ select.input{
   border-radius:var(--r-lg); padding:22px; min-width:0;
 }
 .card-i{
-  width:44px; height:44px; border-radius:var(--r-sm); background:var(--tint-cyan);
-  color:var(--cyan-ink); display:flex; align-items:center; justify-content:center; margin:0 0 14px;
+  width:44px; height:44px; border-radius:var(--r-sm); background:var(--tint-accent);
+  color:var(--accent-ink); display:flex; align-items:center; justify-content:center; margin:0 0 14px;
 }
 .card h3{ margin:0 0 8px; }
 .card p{ font-size:.9375rem; color:var(--text-2); margin:0 0 12px; }
-.card-link{ font-size:.9375rem; font-weight:700; color:var(--navy); text-decoration:none; }
+.card-link{ font-size:.9375rem; font-weight:700; color:var(--brand); text-decoration:none; }
 .card-link:hover{ text-decoration:underline; }
 a.card{ display:block; text-decoration:none; transition:border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), transform var(--t) var(--ease); }
 a.card:hover{ border-color:var(--line-strong); box-shadow:var(--sh-md); transform:translateY(-2px); }
@@ -685,7 +714,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .prose strong{ color:var(--text); }
 .callout{
   margin:22px 0; padding:18px 20px; background:var(--surface-2);
-  border:1px solid #C9E9F5; border-left:4px solid var(--cyan); border-radius:var(--r-sm);
+  border:1px solid #EBD4D4; border-left:4px solid var(--accent); border-radius:var(--r-sm);
 }
 .callout p:last-child{ margin-bottom:0; }
 .callout h3{ margin:0 0 8px; font-size:1.0625rem; }
@@ -750,7 +779,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   flex:0 0 auto; width:36px; height:36px; border-radius:50%;
   display:grid; place-items:center;
   font-weight:700; font-size:.9375rem; color:#fff; line-height:1;
-  background:var(--av-bg, #5F6368);
+  background:var(--av-bg, #5C4A4A);
 }
 .rev-id{ min-width:0; display:flex; flex-direction:column; gap:1px; }
 .rev-name{
@@ -767,7 +796,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
    plus hairline panels so each figure reads as its own object at any column
    count. Dividers via nth-child break when the grid reflows; panels do not. */
 .statband{
-  background:radial-gradient(120% 120% at 50% 0%,#153C6B,#0A2650);
+  background:radial-gradient(120% 120% at 50% 0%,#3A2320,#201414);
   color:#fff; padding:40px 0;
   border-block:1px solid rgba(255,255,255,.08);
 }
@@ -918,7 +947,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 
 /* ------------------------------------------------------------ area map */
 .areas{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 18px; list-style:none; padding:0; margin:0; }
-.areas a{ color:var(--cyan-light); font-size:.9375rem; text-decoration:none; }
+.areas a{ color:var(--accent-light); font-size:.9375rem; text-decoration:none; }
 .areas a:hover{ color:#fff; text-decoration:underline; }
 
 /* ---------------------------------------------------------------- FAQ */
@@ -933,7 +962,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   padding:18px 0; background:none; border:0; text-align:left; cursor:pointer;
   font-size:1.0625rem; font-weight:700; line-height:1.4; color:var(--text);
 }
-.faq button:hover{ color:var(--navy); }
+.faq button:hover{ color:var(--brand); }
 .faq button:focus-visible{ outline:var(--ring-w) solid var(--ring); outline-offset:2px; border-radius:var(--r-xs); }
 .faq .chev{
   flex:0 0 auto; margin-left:auto; width:20px; height:20px; position:relative; top:3px;
@@ -948,7 +977,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .faq .ans-in p:last-child{ margin-bottom:0; }
 
 /* -------------------------------------------------------------- final */
-.final{ background:radial-gradient(120% 90% at 50% 0%,#123763,#0A2650); color:#fff; padding:56px 0; }
+.final{ background:radial-gradient(120% 90% at 50% 0%,#33201F,#201414); color:#fff; padding:56px 0; }
 .final h2{ color:#fff; }
 .final p{ color:var(--text-on-dark-2); }
 .final-actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
@@ -991,9 +1020,9 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .bar a{ color:var(--gold-on-dark); font-weight:700; }
 
 /* Trust cluster beside the registered identity. Measured on --band-dark-3
-   (#123763): #FFFFFF 11.98:1, --text-on-dark-2 7.87:1 — both clear 4.5:1 at
+   (#33201F): #FFFFFF 15.36:1, --text-on-dark-2 9.52:1 — both clear 4.5:1 at
    this size. The divider is decorative, so it is a white wash rather than
-   --line-on-dark, which sits at 1.15:1 against this panel and disappears. */
+   --line-on-dark, which sits at 1.19:1 against this panel and disappears. */
 /* On a phone the panel is one column, so the cluster needs the same separation
    the desktop divider gives it — without this the first badge sat directly
    under the address line and read as a fourth line of the address. */
@@ -1004,7 +1033,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .bt b{ display:block; line-height:1.35; }
 .bt span{ display:block; color:var(--text-on-dark-2); font-size:.75rem; line-height:1.4; }
 .bt .rb-g{ width:18px; height:18px; flex:0 0 auto; }
-.bt-i{ color:var(--cyan-on-dark); }
+.bt-i{ color:var(--accent-on-dark); }
 .disclaimer{ font-size:.78125rem; line-height:1.6; color:var(--text-on-dark-2); }
 
 /* --------------------------------------------------------- sticky bar */
@@ -1559,7 +1588,7 @@ reviews, and it is the single most common lie on a landing page of this kind.</p
 </section>
 
 <!-- ============ WARRANTY ============ -->
-<section class="sec sec-cyan">
+<section class="sec sec-accent">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow">Our promise</span>

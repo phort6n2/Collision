@@ -4,3 +4,6 @@ node_modules/
 *.log
 tmp-*.cjs
 tmp-*.txt
+
+# Playwright browsers are provisioned by the environment, not the repo
+node_modules/

@@ -215,6 +215,65 @@ icon set. Best available copy is only 512×512
 (`cropped-Untitled-design-41.png`), so the original high-resolution or vector
 logo is still worth asking for.
 
+### Palette — applied, every value measured
+
+Variables renamed from the reference build's colour-specific names to
+role-based ones (`--navy` → `--brand`, `--cyan*` → `--accent*`) so the template
+stays honest for any future palette. Verified in Chromium: all custom
+properties resolve, none empty, `qa:render` clean.
+
+| Role | Value | Measured |
+|---|---|---|
+| `--brand`, `--cta` | `#A81818` | 7.5:1 on white; white text on it 7.5:1 |
+| `--brand-deep`, `--cta-hover` | `#8C1212` | 9.5:1 |
+| `--cta-active` | `#6E0E0E` | 12.1:1 |
+| `--accent` | `#D42222` | 5.2:1 — fills and large graphics |
+| `--accent-ink` | `#B01A1A` | 7.0:1 — accent red carrying small text |
+| `--band-dark` | `#201414` | white 17.9:1 |
+| `--band-dark-2` | `#150D0D` | white 19.2:1 |
+| `--band-dark-3` | `#33201F` | white 15.4:1 |
+| `--text` | `#1A1212` | 18.4:1 |
+| `--border-field` | `#8A7373` | 4.4:1 (reference managed 3.3:1) |
+
+The brand red clears 4.5:1 unaided, so unlike the reference build's cyan — which
+failed at 2.62:1 and could never carry text — red here works as text, fill and
+button alike. That makes red the *scarce* colour: near-black carries the
+structure, red is reserved for actions. It is the logo's own hierarchy, a red
+wordmark on a black badge.
+
+### Two problems a red brand creates, and what was done
+
+**The focus ring had nowhere safe to land.** Measured against all four surfaces
+it can appear on — white, the red CTA, the dark band, the red tint — no single
+colour clears 3:1 everywhere. Brand red fails on two, near-black fails on the
+dark band at 1.0:1. The ring is therefore two-valued: `--ring` near-black for
+light surfaces, `--ring-on-dark` white applied by
+`:is(.sec-dark,.final) :focus-visible`. Note `.final` named explicitly —
+per the skill's warning it is its own gradient and matches no `.sec-dark`
+selector, so without it the closing CTA, the most important button on the page,
+would have kept an invisible ring.
+
+**The error colour collides with the CTA.** Both are red; the reference's
+`--error` measured 1.14:1 against the new `--cta`, i.e. indistinguishable.
+Darkened to `#8F2018` (8.9:1 on white) so they are at least not identical, and
+errors must never be signalled by colour alone — the tint background, the border
+and the message text all carry it. Worth an explicit check once the form has
+real validation states.
+
+### To port back to the template repo
+
+1. **The 404 page's palette is hardcoded inside `build-pages.cjs`** (9 hex
+   values). Client colours in the generator are exactly what the skill says
+   must not happen. Patched here so the 404 isn't off-brand, but the real fix
+   is to lift those into config.
+2. **The invisible focus ring on dark bands is a latent bug in the reference
+   template**, not something this palette introduced — `--ring:#004B81` on a
+   navy `--band-dark` has the same problem. The two-valued ring should go
+   upstream.
+3. **The legal pages duplicate the palette inline** and were hand-synced again
+   here (31 values across the two files). The skill already flags this; it is
+   now the third time it has been patched twice instead of once.
+
 ---
 
 ## Outstanding
