@@ -91,7 +91,7 @@ module.exports = {
      * which makes it the honest choice rather than a tracking number. */
     callAsset: { formatted: '(503) 678-9910', e164: '+15036789910' },
 
-    email: 'REPLACE__client@example.com',
+    email: 'glass@collisionautoglass.com',
 
     /* Geocoded and confirmed against OpenStreetMap, which returns "Collision
      * Auto Glass, 14201, Northwest Science Park Drive, Marlene Village,
