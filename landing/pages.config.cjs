@@ -126,7 +126,17 @@ module.exports = {
      * omitted rather than guessed.
      * ------------------------------------------------------------------- */
     reviews: {
-      placeId: '',
+      /* Portland / Cedar Mill listing, supplied by the client 2026-07-28.
+       * Place IDs are public — they appear in Maps URLs — so this is safe to
+       * commit; only the API key is secret.
+       *
+       * NOT independently verified yet: confirming it resolves to the right
+       * business needs a Places API call. The expect* guards below are what
+       * actually protects us — if this ID resolves to some other shop, the
+       * fetch bails and writes nothing rather than publishing a stranger's
+       * rating. Run `npm run check:placeid` with the key and read the output
+       * before trusting the numbers. */
+      placeId: 'ChIJTX3GiaIOlVQR-v6G9E8_3L8',
       expectName: 'collision',
       expectVertical: 'auto glass|glass|windshield|calibration',
       expectAddress: ',\\s*OR\\b|Oregon'
