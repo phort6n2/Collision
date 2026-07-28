@@ -1164,9 +1164,21 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   /* The panel was one column of identity text with two thirds of its own width
      empty. Identity left, trust right, divided. auto on the second track so the
      badges size to their content and the identity block keeps the remainder. */
-  .bar{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:32px;
-        align-items:center; padding:18px 22px; }
-  .bar-trust{ grid-auto-flow:column; gap:30px;
+  /* Both tracks are fractions, and the identity has a floor.
+     This was `minmax(0,1fr) auto` with the badges in a single row, which is a
+     trap: an `auto` track is sized to its max-content BEFORE any free space
+     reaches an `fr`, and four badges in a row have a max-content of ~1090px
+     against a 1132px container. The identity column was handed the remaining
+     8px and rendered the shop name one word per line, 441px tall, at every
+     width from 900px up. It reached 0px below 1100.
+
+     Two rows of two halves the cluster's demand, so both sides get a real
+     column and the "identity left, trust right, divided" arrangement survives.
+     Do not put these badges back on one row without checking the max-content
+     against the wrap width first — this failure is silent and total. */
+  .bar{ display:grid; grid-template-columns:minmax(240px,1fr) minmax(0,1.5fr);
+        gap:32px; align-items:center; padding:18px 22px; }
+  .bar-trust{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 26px;
               padding:0 0 0 30px; border-top:0;
               border-left:1px solid rgba(255,255,255,.16); }
 
@@ -1863,7 +1875,7 @@ Professional, flexible, and they even have a really sweet dog greeting customers
     <div class="bar">
       <div class="bar-id">
         <b>Collision Auto Glass &amp; Calibration</b><br>
-        the Portland metro: <a class="ghl-no-swap" data-no-swap="true" href="tel:+15038324376">(503) 832-4376</a><br>
+        Serving the Portland metro: <a class="ghl-no-swap" data-no-swap="true" href="tel:+15038324376">(503) 832-4376</a><br>
         14201 NW Science Park Dr, Portland, OR 97229
       </div>
       <!-- Restates claims made further up this page. Never a third-party mark.

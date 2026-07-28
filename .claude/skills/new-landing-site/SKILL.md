@@ -512,6 +512,45 @@ matter what trails it in the markup. Anywhere a grid holds a caption, a
 plus one attribution line is four children, and every `3n+1` in those rules
 means something different than intended once you forget the fourth.
 
+### 8. An `auto` track eats an `fr` track alive
+
+`.bar` — the footer compliance block — was `grid-template-columns:minmax(0,1fr) auto`
+with the four trust badges in a single row on the right. Grid sizes an `auto`
+track to its max-content *before* any free space reaches an `fr`, and four
+badges in a row want ~1090px against a 1132px container. The identity column
+was handed the leftover 8px and rendered the shop name one word per line, 441px
+tall, at **every width from 900px up** — 0px below 1100.
+
+This shipped in the template and reproduces on any client whose badge captions
+run longer than the reference build's. Nothing catches it: `verify` passes,
+`render-check` passes, there is no horizontal overflow — the text just wraps
+into a 19px ribbon.
+
+Two fixes, and take both:
+
+- **Make both tracks fractions and give the content-bearing one a floor**:
+  `minmax(240px,1fr) minmax(0,1.5fr)`.
+- **Put the badges in two rows of two**, which halves the cluster's demand.
+
+The general rule: **whenever `auto` sits beside `fr`, measure the `auto` side's
+max-content against the container.** If it does not fit with room to spare, the
+`fr` column silently collapses. Cloning the element with `width:max-content`
+into the document and reading its width is a two-line check and settles it.
+
+### 9. A config value that reads well in prose can read as broken in a label
+
+`serviceArea.short` is `'the Portland metro'` — correct in every sentence that
+uses it ("mobile service across the Portland metro"). The footer template used
+it as a bare label, `{{AREA_SHORT}}: <a>{{CALL_ASSET}}</a>`, which rendered
+**"the Portland metro: (503) 832-4376"**. It read fine on the reference build
+only because that client's short area was a bare city name.
+
+Do not fix this in the config — the prose uses are right. Fix the label so it
+works with either shape: `Serving {{AREA_SHORT}}:` reads correctly for
+"the Portland metro" and for "Los Angeles" alike. Any template that drops a
+config phrase into a position the config author was not writing for needs the
+same treatment.
+
 ## Do not invent facts about the business
 
 The compliance rules in this repo ban carrier logos, certifications and prices.
