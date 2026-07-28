@@ -1,10 +1,29 @@
 {
-  "fetched_at": "2026-07-28T15:55:57.000Z",
+  "fetched_at": "2026-07-28T19:50:58.995Z",
   "place_id": "ChIJTX3GiaIOlVQR-v6G9E8_3L8",
   "name": "Collision Auto Glass & Calibration",
   "address": "14201 NW Science Park Dr, Portland, OR 97229, USA",
   "rating": 4.9,
   "count": 362,
-  "maps_uri": "https://www.google.com/maps/place/?q=place_id:ChIJTX3GiaIOlVQR-v6G9E8_3L8",
-  "quotes": []
+  "maps_uri": "https://maps.google.com/?cid=13824994568758034170&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+  "quotes": [
+    {
+      "text": "Had a rock chip that grew to a huge crack. Called around and noticed the reviews for Collision Auto. I spoke with Scott who was very helpful and personable and I got a quote very quickly. And to clarify, I did go to Safelite to get a quote and they had 3 different prices, at Collision, it was just one price.\nI was unable to get it done for a few weeks, called Scott and he was able to get me right in with the same quote he gave before.\nThey did a great job, took a couple of hours so I stayed in their waiting room and worked.  It was quiet, clean and comfortable, and their WiFi worked great.\nI highly recommend them for your car window needs.",
+      "author": "Chad I",
+      "stars": 5,
+      "when": "5 months ago"
+    },
+    {
+      "text": "From the moment I called, I was treated with kindness and professionalism. Everyone—from the staff who answered the phone to the technicians who completed the work—made the entire experience easy and stress-free. The lobby was exceptionally comfortable, and I truly felt like I was treated as family, not just another customer.\n\nThe level of care, attention to detail, and customer service was outstanding. I highly recommend Collision Auto Glass & Calibration to anyone looking for honest, friendly, and top-quality service. Thank you for making such a great experience!",
+      "author": "lisa chapman",
+      "stars": 5,
+      "when": "3 weeks ago"
+    },
+    {
+      "text": "Great experience at Collision Auto Glass & Calibration. I was referred by Land Rover Portland.\nFrom the moment I called, Brad was very helpful and easy to work with. He walked me through the insurance claim and explained the process from start to finish. It took a few days for the insurance to process, but once they had my vehicle, the turnaround was quick—about 4 hours.\nProfessional, flexible, and they even have a really sweet dog greeting customers. Highly recommend for window replacement!",
+      "author": "M Cuter",
+      "stars": 5,
+      "when": "4 months ago"
+    }
+  ]
 }
