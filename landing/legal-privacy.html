@@ -1,27 +1,40 @@
 <!DOCTYPE html>
 <!-- ============================================================================
-     REPLACE__REVIEW_LEGAL
 
-     This page is a WORKED EXAMPLE, not boilerplate. It was written for one
-     California auto glass business and it describes what THAT site collected,
-     who it shared it with, and which statutes applied.
+     REVIEWED AND REWRITTEN FOR OREGON — 2026-07-28.
 
-     Publishing it unread publishes a false statement about your client's data
-     handling. Read it line by line against:
-       - what this site's form actually collects (see landing/template.html)
-       - what the CRM, tracking and call-recording setup actually does
-       - which privacy statute covers this client's customers
-       - which trade regulator, if any, this client answers to
+     This page began as a worked example written for a California auto glass
+     business. It has been read line by line against this client and rewritten;
+     none of the California material survives. What changed and why:
 
-     Then delete the REPLACE__REVIEW_LEGAL marker on the line above. Preflight
-     refuses to build while it is present.
+       - CCPA / CPRA replaced with the Oregon Consumer Privacy Act, in force
+         1 July 2024. Its thresholds are 100,000 Oregon residents, or 25,000
+         where a quarter of revenue comes from selling personal data. A
+         two-shop glass business is below both, so the statute very probably
+         does NOT bind this client. The page says so plainly and commits to
+         honouring the rights regardless, which is honest in both directions.
+       - Added the OCPA's distinctive right to a list of the specific third
+         parties that received personal data. Section 5 is the standing answer.
+       - Removed every "registered California Automotive Repair Dealer" claim
+         and the Bureau of Automotive Repair references. Oregon operates no
+         state licensing or registration scheme for auto glass or motor vehicle
+         repair, so there is no number, and the footer registration block is
+         correctly empty rather than carrying a placeholder.
+       - Removed the California two-party call-recording statement and replaced
+         it with a commitment we can keep regardless of what the law requires.
+       - Retention rewritten: there is no Oregon repair-dealer record-keeping
+         rule to cite, so it is tied to tax obligations and to the lifetime
+         guarantee, which is what actually drives it.
+
+     If the client turns out to hold a registration or licence we do not know
+     about, section 1 needs revisiting.
      ============================================================================ -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Privacy Policy | {{LEGAL_NAME}}</title>
-<meta name="description" content="What {{LEGAL_NAME}} collects through this site, who we share it with, and your California privacy rights under the CCPA and CPRA.">
+<meta name="description" content="What {{LEGAL_NAME}} collects through this site, who we share it with, and your privacy rights under the Oregon Consumer Privacy Act.">
 <link rel="canonical" href="{{CANONICAL}}">
 <meta name="robots" content="noindex,follow">
 <link rel="icon" href="/ASSET/favicon.ico" sizes="32x32">
@@ -120,7 +133,7 @@ main p, main li{ max-width:56ch; }
     <p>This policy describes what {{LEGAL_NAME}} ("we", "us") collects through this website, why we collect it, who we share it with, and what you can ask us to do about it. It is written specifically for this site rather than being a generic template, so it names the actual fields, the actual third parties, and the actual tracking involved.</p>
 
     <h2>1. Who we are</h2>
-    <p>{{LEGAL_NAME}}, {{ADDRESS_STREET}}, {{ADDRESS_CITY}}, {{ADDRESS_REGION}} {{ADDRESS_ZIP}}. Phone {{PHONE}}. Email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>. We are a registered California Automotive Repair Dealer; our registration number appears in the footer of every page on this site.</p>
+    <p>{{LEGAL_NAME}}, {{ADDRESS_STREET}}, {{ADDRESS_CITY}}, {{ADDRESS_REGION}} {{ADDRESS_ZIP}}. Phone {{PHONE}}. Email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>. We are a family-owned auto glass and calibration business operating shops in Cedar Mill and Tualatin, Oregon. Oregon does not operate a state registration scheme for auto glass or motor vehicle repair businesses, so there is no registration number for us to publish — if you see one claimed by a shop in this state, it is worth asking what it actually is.</p>
 
     <h2>2. What the quote form collects</h2>
     <p>When you submit the quote form, we receive the information you typed into it:</p>
@@ -161,8 +174,8 @@ main p, main li{ max-width:56ch; }
 
     <h2>4. Call tracking and dynamic phone numbers</h2>
     <p>Some phone numbers displayed on this site are <strong>tracking numbers</strong> that may change between visitors. This is how we tell which advertising generated a phone call. When you call a tracking number, our call platform records call metadata — the number you dialled, your caller ID, the date, time and duration of the call, and which advertising source your visit was attributed to — and connects you to us.</p>
-    <p>The number shown in the Bureau of Automotive Repair compliance block in our footer is our registered business line and is deliberately <em>not</em> a tracking number.</p>
-    <p>California is a two-party consent state for call recording. If any call is being recorded, you will be told at the start of that call and you may decline.</p>
+    <p>The number shown in the footer identity block is a real shop line and is deliberately <em>not</em> a tracking number. It is the number we give Google for its call asset, and it is excluded from the number-swapping described above so that it always reaches us directly.</p>
+    <p>Regardless of what Oregon law requires of us, our own commitment is simpler: if a call is being recorded you will be told at the start of it, and you may decline and speak to us on an unrecorded line instead.</p>
 
     <h2>5. Who we share your information with</h2>
     <p>We do not sell your personal information for money. We share it only as follows:</p>
@@ -181,28 +194,30 @@ main p, main li{ max-width:56ch; }
     <p>We may also disclose information where we are legally required to, or to protect our rights, safety or property.</p>
 
     <div class="box">
-      <h3>A note on "sharing" under California law</h3>
-      <p>Passing advertising identifiers and hashed contact details to Google for conversion measurement may constitute <strong>"sharing" for cross-context behavioural advertising</strong> under the CPRA, even though no money changes hands. You have the right to opt out — see section 8, or contact us using the details there and we will action it.</p>
+      <h3>A note on targeted advertising</h3>
+      <p>Passing advertising identifiers and hashed contact details to Google for conversion measurement is <strong>processing for targeted advertising</strong>, even though no money changes hands and we do not regard it as a sale. Under the Oregon Consumer Privacy Act you have the right to opt out of processing for targeted advertising — see section 8, or contact us using the details there and we will action it.</p>
     </div>
 
     <h2>6. Phone, text and email contact</h2>
     <p>By submitting the quote form you agree that we may contact you by phone, text message and email about your enquiry, your quote and your appointment. Message and data rates may apply. Reply STOP to any text message to opt out of texts, or ask us on a call or by email and we will stop. Opting out of marketing does not stop us contacting you about a job already in progress.</p>
 
     <h2>7. How long we keep it</h2>
-    <p>Attribution identifiers held in your browser are discarded when you close the tab. Enquiries that do not become jobs are retained in our CRM for up to 24 months so we can pick up the conversation if you come back. Records relating to work actually performed — including the invoice and warranty record — are kept for as long as required by California law for an Automotive Repair Dealer, and for as long as the workmanship warranty on your vehicle could be claimed against.</p>
+    <p>Attribution identifiers held in your browser are discarded when you close the tab. Enquiries that do not become jobs are retained in our CRM for up to 24 months so we can pick up the conversation if you come back. Records relating to work actually performed — including the invoice and warranty record — are kept for as long as our tax and accounting obligations require, and for as long as the lifetime workmanship guarantee on your vehicle could be claimed against. Because that guarantee runs for as long as you own the vehicle, the installation record is kept indefinitely; that is what allows us to honour a claim years later.</p>
 
-    <h2>8. Your California privacy rights</h2>
-    <p>If you are a California resident, the California Consumer Privacy Act as amended by the California Privacy Rights Act gives you the right to:</p>
+    <h2>8. Your Oregon privacy rights</h2>
+    <p>The Oregon Consumer Privacy Act came into effect on 1 July 2024. It applies to businesses that process the personal data of at least 100,000 Oregon residents, or of at least 25,000 residents where a quarter or more of revenue comes from selling personal data. <strong>A two-shop auto glass business is comfortably below both thresholds, so the OCPA very probably does not apply to us as a matter of law.</strong></p>
+    <p>We would rather honour the rights than argue about the threshold. So if you are an Oregon resident, we will treat you as having the following rights, whether or not the statute compels us to:</p>
     <ul>
       <li><strong>Know</strong> what personal information we have collected about you, where it came from, why we collected it and who we disclosed it to</li>
       <li><strong>Access</strong> a copy of that information in a portable form</li>
       <li><strong>Correct</strong> inaccurate personal information</li>
-      <li><strong>Delete</strong> personal information we hold about you, subject to legal exceptions — we may need to keep repair records the state requires us to retain</li>
-      <li><strong>Opt out of the sale or sharing</strong> of your personal information, including sharing for cross-context behavioural advertising as described in section 5</li>
-      <li><strong>Limit the use of sensitive personal information</strong> — although we do not collect sensitive personal information through this site</li>
+      <li><strong>Delete</strong> personal information we hold about you, subject to narrow exceptions — we will keep the installation and warranty record for a vehicle we have worked on, because that is the document the lifetime guarantee is claimed against</li>
+      <li><strong>Opt out of targeted advertising</strong>, of any sale of personal data, and of profiling used to make significant decisions — see the note in section 5</li>
+      <li><strong>Obtain a list of the specific third parties</strong> to which we have disclosed personal data. This right is distinctive to Oregon, and section 5 of this page is our standing answer to it</li>
+      <li><strong>Withhold consent for sensitive data</strong> — although we do not collect sensitive personal data through this site at all. Note that Oregon treats precise geolocation as sensitive and bans its sale outright; we neither collect it here nor sell it</li>
       <li><strong>Not be discriminated against</strong> for exercising any of these rights. We will not refuse you service, change your price, or give you a lesser standard of service because you asked</li>
     </ul>
-    <p><strong>To exercise any of these rights</strong>, email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a> with the subject line "California privacy request", or call {{PHONE}}. We will verify your identity by matching what you give us against what we hold — usually the phone number or email you used — and respond within the timeframes the statute requires. You may use an authorised agent; we will ask for proof of their authority.</p>
+    <p><strong>To exercise any of these rights</strong>, email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a> with the subject line "Oregon privacy request", or call {{PHONE}}. We will verify your identity by matching what you give us against what we hold — usually the phone number or email you used — and respond within the timeframes the statute requires. You may use an authorised agent; we will ask for proof of their authority.</p>
     <p>You can also reduce ad tracking directly: Google offers <a href="https://myadcenter.google.com/" target="_blank" rel="noopener">My Ad Center</a> and an <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Analytics opt-out browser add-on</a>, and most browsers let you block or clear cookies and site storage.</p>
 
     <h2>9. Children</h2>

@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://REPLACE__client-domain.com/</loc><lastmod>2026-07-28</lastmod><priority>1.0</priority></url>
-  <url><loc>https://REPLACE__client-domain.com/REPLACE__service-one</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
-  <url><loc>https://REPLACE__client-domain.com/REPLACE__service-two</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
-  <url><loc>https://REPLACE__client-domain.com/REPLACE__area-a-hub</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
-  <url><loc>https://REPLACE__client-domain.com/REPLACE__area-b-hub</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
-  <url><loc>https://REPLACE__client-domain.com/REPLACE__service-city-one</loc><lastmod>2026-07-28</lastmod><priority>0.7</priority></url>
-  <url><loc>https://REPLACE__client-domain.com/REPLACE__service-city-two</loc><lastmod>2026-07-28</lastmod><priority>0.7</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/</loc><lastmod>2026-07-28</lastmod><priority>1.0</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/windshield-replacement</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/windshield-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/rock-chip-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/windshield-chip-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/windshield-crack-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/adas-calibration</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-glass-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-glass-replacement</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/car-window-replacement</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/car-window-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/door-glass-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/back-glass-repair</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/mobile-service</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-insurance</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/portland-westside-auto-glass</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/south-metro-auto-glass</loc><lastmod>2026-07-28</lastmod><priority>0.8</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-glass-repair-portland</loc><lastmod>2026-07-28</lastmod><priority>0.7</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-glass-repair-beaverton</loc><lastmod>2026-07-28</lastmod><priority>0.7</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-glass-repair-hillsboro</loc><lastmod>2026-07-28</lastmod><priority>0.7</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-glass-repair-tualatin</loc><lastmod>2026-07-28</lastmod><priority>0.7</priority></url>
+  <url><loc>https://quote.collisionautoglass.com/auto-glass-repair-lake-oswego</loc><lastmod>2026-07-28</lastmod><priority>0.7</priority></url>
 </urlset>
