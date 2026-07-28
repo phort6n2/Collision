@@ -1077,7 +1077,12 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 @media (min-width:600px){
   .qc-row-2{ grid-template-columns:repeat(2,minmax(0,1fr)); }
   .tb{ grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .grid-2,.grid-3,.grid-4{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .grid-2,.grid-4{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  /* Two columns here, so an odd card count strands the last one just as three
+     columns does. Four tracks, two per card, lone last centred. */
+  .grid-3{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .grid-3 > *{ grid-column:span 2; }
+  .grid-3 > :last-child:nth-child(2n+1){ grid-column:2 / span 2; }
   .revs{ grid-template-columns:repeat(2,minmax(0,1fr)); }
   /* Six columns, three photos per row (span 2 each). The sixths exist purely so
      an incomplete last row can still divide evenly — see the rules below.
@@ -1110,7 +1115,21 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   .hdr-rating{ display:none; }
   .hdr .wrap{ min-height:72px; }
   .tb{ grid-template-columns:repeat(4,minmax(0,1fr)); }
-  .grid-3{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  /* Six tracks, two per card — the same trick the gallery uses — so an
+     incomplete last row can be centred instead of stranded. Seven service
+     cards in three columns left one card beside two empty cells, which is the
+     single most common client note on a build like this.
+
+     Unlike the gallery, a leftover card is NOT widened to fill the row. A
+     service card twice the size of its neighbours reads as the most important
+     service, and "there were seven of them" is not a reason to promote one. */
+  .grid-3{ grid-template-columns:repeat(6,minmax(0,1fr)); }
+  .grid-3 > *{ grid-column:span 2; }
+  /* Last row holds one: centre it. */
+  .grid-3 > :last-child:nth-child(3n+1){ grid-column:3 / span 2; }
+  /* Last row holds two: centre the pair. */
+  .grid-3 > :nth-last-child(2):nth-child(3n+1){ grid-column:2 / span 2; }
+  .grid-3 > :last-child:nth-child(3n+2){ grid-column:4 / span 2; }
   .grid-4{ grid-template-columns:repeat(4,minmax(0,1fr)); }
   .mapgrid{ grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:26px; }
   .steps{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:30px; }
