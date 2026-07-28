@@ -45,35 +45,377 @@ const LIM = { headline: 30, description: 90, path: 15 };
 
 const GROUPS = [
 {
-  name: 'REPLACE__SVC | Primary Service — Core',
-  page: '/REPLACE__service-one',
-  share: '~25%',
-  paths: ['REPLACE__Path1', 'REPLACE__Path2'],
-  note: 'REPLACE__Why this group exists and any bid adjustment worth making.',
+  name: 'CAG | Windshield Replacement — Core',
+  page: '/windshield-replacement',
+  share: '~28%',
+  paths: ['Windshield', 'Replacement'],
+  note: 'Highest intent and highest value. Bid up on mobile devices — a cracked windshield is searched from the driveway, not the desk.',
   keywords: [
-    '[REPLACE__head term]',
-    '[REPLACE__head term near me]',
-    '"REPLACE__phrase term"'
+    '[windshield replacement portland]',
+    '[windshield replacement near me]',
+    '[replace windshield portland or]',
+    '"windshield replacement cost"',
+    '"mobile windshield replacement"',
+    '"auto glass replacement portland"'
   ],
   headlines: [
-    'REPLACE__Headline 1',
-    'REPLACE__Headline 2',
-    'REPLACE__Headline 3',
-    'REPLACE__Headline 4',
-    'REPLACE__Headline 5',
-    'REPLACE__Headline 6',
-    'REPLACE__Headline 7',
-    'REPLACE__Headline 8',
-    'REPLACE__Headline 9',
-    'REPLACE__Headline 10',
-    'REPLACE__Headline 11',
-    'REPLACE__Headline 12'
+    'Windshield Replacement',
+    'Portland Metro Auto Glass',
+    'Windshield Replacement OR',
+    'We Come To You, No Charge',
+    'Free Mobile Auto Glass',
+    'Family Owned Since 2008',
+    'ADAS Calibration Included',
+    'Camera Recalibrated Onsite',
+    'Two Portland Metro Shops',
+    'Your Insurer Billed Direct',
+    'Repair Or Replace? We Say',
+    'Cedar Mill & Tualatin Shops'
   ],
   descriptions: [
-    'REPLACE__Description 1, up to ninety characters.',
-    'REPLACE__Description 2.',
-    'REPLACE__Description 3.',
-    'REPLACE__Description 4.'
+    'New glass fitted properly, and the camera behind it recalibrated in the same visit.',
+    'Family owned in the Portland metro since 2008. Two shops, and vans working from both.',
+    'Free mobile service across the metro. We come to your home or your workplace.',
+    'We bill your insurer directly. Tell us the year, make and model for a real quote.'
+  ]
+},
+{
+  name: 'CAG | Chip & Crack Repair',
+  page: '/windshield-repair',
+  share: '~14%',
+  paths: ['Windshield', 'Repair'],
+  note: 'Lower ticket than replacement but converts well and generates replacement work later. Runs hardest Nov–Mar, when studded tires are legal and the roads shed aggregate.',
+  keywords: [
+    '[windshield repair portland]',
+    '[rock chip repair portland]',
+    '[windshield chip repair near me]',
+    '"windshield crack repair"',
+    '"fix windshield chip"',
+    '"mobile chip repair"'
+  ],
+  headlines: [
+    'Windshield Chip Repair',
+    'Rock Chip Repair Portland',
+    'Windshield Crack Repair',
+    'Cheaper Than New Glass',
+    'We Tell You If It Is Fixable',
+    'Mobile Chip Repair, Free',
+    'Keep Your Factory Glass',
+    'Send A Photo, Get An Answer',
+    'Family Owned Since 2008',
+    'Portland Metro Auto Glass',
+    'Fixed Before It Spreads',
+    'Chip Repair At Your Office'
+  ],
+  descriptions: [
+    'Resin injection while the damage is still small enough for it to actually work.',
+    'Send a photo with a coin for scale and we will tell you repair or replace.',
+    'Keeping your original factory seal beats any replacement. Worth acting early.',
+    'Free mobile service across the Portland metro. Home, office or park and ride.'
+  ]
+},
+{
+  name: 'CAG | ADAS Calibration',
+  page: '/adas-calibration',
+  share: '~10%',
+  paths: ['ADAS', 'Calibration'],
+  note: 'Differentiator group. Most local glass shops subcontract this, so the in-house angle is the whole pitch. Also catches body shops looking for a calibration partner.',
+  keywords: [
+    '[adas calibration portland]',
+    '[windshield camera calibration]',
+    '[adas calibration near me]',
+    '"lane assist calibration"',
+    '"forward camera recalibration"',
+    '"adas calibration cost"'
+  ],
+  headlines: [
+    'ADAS Calibration Portland',
+    'Windshield Camera Aiming',
+    'Calibration Done In House',
+    'Not Sent To Another Shop',
+    'Autel MaxiSYS Calibration',
+    'Lane Assist Recalibrated',
+    'One Visit, Glass And Camera',
+    'Static And Dynamic Both',
+    'Portland Metro Calibration',
+    'We Show You The Result',
+    'Family Owned Since 2008',
+    'Cedar Mill & Tualatin Shops'
+  ],
+  descriptions: [
+    'New glass means the camera behind it is looking through a new optical path.',
+    'We calibrate in house on an Autel MaxiSYS. One appointment, one company answerable.',
+    'Most systems cannot detect their own aim is off. No warning light is not proof.',
+    'Ask any shop whether calibration happens under their roof or gets sent out.'
+  ]
+},
+{
+  name: 'CAG | Mobile Service',
+  page: '/mobile-service',
+  share: '~10%',
+  paths: ['Mobile', 'Auto-Glass'],
+  note: 'Convenience intent rather than damage intent. Works well against park-and-ride and workplace-parking searches on the Westside.',
+  keywords: [
+    '[mobile auto glass portland]',
+    '[mobile windshield replacement]',
+    '[mobile auto glass near me]',
+    '"they come to you windshield"',
+    '"auto glass at my house"',
+    '"mobile windshield service or"'
+  ],
+  headlines: [
+    'Mobile Auto Glass Service',
+    'We Come To You, No Charge',
+    'Glass Done At Your Office',
+    'Free Mobile Across Metro',
+    'Home, Work Or Park And Ride',
+    'No Extra Cost To Come Out',
+    'Portland Metro Mobile Glass',
+    'Vans From Two Shops',
+    'Family Owned Since 2008',
+    'We Bring The Glass To You',
+    'Book A Mobile Visit Today',
+    'Driveway Or Car Park, Fine'
+  ],
+  descriptions: [
+    'The van carries the glass, the urethane and the scan tool. Most jobs never see a shop.',
+    'Free mobile service inside our area. It is on the van and it has been for years.',
+    'We need level ground and room to open both front doors. That is genuinely it.',
+    'Where a job belongs indoors we will say so and bring it in. That costs no extra.'
+  ]
+},
+{
+  name: 'CAG | Side & Door Glass',
+  page: '/car-window-replacement',
+  share: '~9%',
+  paths: ['Side-Glass', 'Replacement'],
+  note: 'Urgency group — a broken side window means an open car. Expect short lead times and higher conversion. Worth a bid uplift in the morning.',
+  keywords: [
+    '[car window replacement portland]',
+    '[door glass replacement near me]',
+    '[side window replacement]',
+    '"broken car window"',
+    '"car window smashed"',
+    '"window regulator repair portland"'
+  ],
+  headlines: [
+    'Car Window Replacement',
+    'Door Glass Replacement',
+    'Broken Side Window?',
+    'We Clear The Door Cavity',
+    'Portland Metro Side Glass',
+    'Car Broken Into? Call Us',
+    'Sealed Up Then Replaced',
+    'Window Wont Go Up?',
+    'Regulator And Motor Repair',
+    'Family Owned Since 2008',
+    'Mobile Side Glass Service',
+    'Glass Vacuumed From Door'
+  ],
+  descriptions: [
+    'Fitting the glass is the easy half. Getting the old glass out of the door is the job.',
+    'Fragments block the door drains, and a door that cannot drain rusts from the inside.',
+    'Broken into overnight? Say so when you call. We can get it weathertight quickly.',
+    'Sometimes it is the regulator rather than the glass. We check before ordering parts.'
+  ]
+},
+{
+  name: 'CAG | Back Glass',
+  page: '/back-glass-repair',
+  share: '~5%',
+  paths: ['Back-Glass', 'Replacement'],
+  note: 'Small volume, high ticket. The defroster and antenna angle is what separates a competent quote from a cheap one.',
+  keywords: [
+    '[back glass replacement portland]',
+    '[rear window replacement near me]',
+    '[back windshield replacement]',
+    '"rear window shattered"',
+    '"back glass defroster replacement"'
+  ],
+  headlines: [
+    'Back Glass Replacement',
+    'Rear Window Replacement',
+    'Defroster Grid Reconnected',
+    'Antenna Reconnected Too',
+    'Portland Metro Back Glass',
+    'Rear Window Shattered?',
+    'We Clear The Load Area',
+    'Family Owned Since 2008',
+    'Two Portland Metro Shops',
+    'Bonded Glass Done Right',
+    'Test It Before We Leave',
+    'Mobile Or In Our Shop'
+  ],
+  descriptions: [
+    'Your rear window usually carries the defroster grid and often the radio antenna.',
+    'Both get reconnected, and you should test both with us there before we leave.',
+    'Tempered glass goes everywhere. Clearing the load area takes longer than the glass.',
+    'Bonded like a windshield, so it has a cure time. We often bring these into the shop.'
+  ]
+},
+{
+  name: 'CAG | GEO — Portland',
+  page: '/auto-glass-repair-portland',
+  share: '~8%',
+  paths: ['Portland', 'Auto-Glass'],
+  note: 'City-modified queries. Note we have no premises inside Portland city limits and the page says so — do not write copy implying a Portland shop.',
+  keywords: [
+    '[auto glass repair portland]',
+    '[windshield repair portland or]',
+    '[auto glass portland oregon]',
+    '"portland windshield replacement"',
+    '"auto glass shop portland"'
+  ],
+  headlines: [
+    'Auto Glass Repair Portland',
+    'Portland Windshield Repair',
+    'Windshield Replacement PDX',
+    'We Come To You In Portland',
+    'Kerbside Parking Is Fine',
+    'Portland Mobile Auto Glass',
+    'No Driveway? Not A Problem',
+    'Family Owned Since 2008',
+    'Free Mobile Service',
+    'ADAS Calibration In House',
+    'Your Insurer Billed Direct',
+    'Chip Repair Across Portland'
+  ],
+  descriptions: [
+    'Most Portland customers have no driveway. Kerbside work is what we do most often.',
+    'We need a legal space with room to open both front doors and stand at the front.',
+    'Our shops are in Cedar Mill and Tualatin, and the vans come to you at no extra cost.',
+    'Broken into overnight? Tell us when you call and we will get it sealed first.'
+  ]
+},
+{
+  name: 'CAG | GEO — Beaverton',
+  page: '/auto-glass-repair-beaverton',
+  share: '~6%',
+  paths: ['Beaverton', 'Auto-Glass'],
+  note: 'Closest geo to the Cedar Mill shop. Park-and-ride and apartment-lot angles convert well here.',
+  keywords: [
+    '[auto glass repair beaverton]',
+    '[windshield replacement beaverton]',
+    '[auto glass beaverton or]',
+    '"beaverton windshield repair"'
+  ],
+  headlines: [
+    'Auto Glass Beaverton OR',
+    'Beaverton Windshield Repair',
+    'Windshield Replacement',
+    'Shop Just Off Highway 26',
+    'We Come To You In Beaverton',
+    'Glass Done At The Park&Ride',
+    'Chips From The 217?',
+    'Family Owned Since 2008',
+    'Free Mobile Auto Glass',
+    'ADAS Calibration In House',
+    'Your Insurer Billed Direct',
+    'Apartment Car Parks Fine'
+  ],
+  descriptions: [
+    'Seven miles of commuter freeway run through this town, and our work follows it.',
+    'Left at a park and ride all day? That is close to a perfect mobile appointment.',
+    'Our Cedar Mill shop sits just off the Sunset Highway at the top of the 217.',
+    'Check with your property manager first if the car lives in a shared apartment lot.'
+  ]
+},
+{
+  name: 'CAG | GEO — Hillsboro',
+  page: '/auto-glass-repair-hillsboro',
+  share: '~5%',
+  paths: ['Hillsboro', 'Auto-Glass'],
+  note: 'Long-shift employment means cars sit in one place for ten or twelve hours, which suits a job with a cure time. Lean on that rather than on employer names.',
+  keywords: [
+    '[auto glass repair hillsboro]',
+    '[windshield replacement hillsboro]',
+    '[auto glass hillsboro or]',
+    '"hillsboro windshield repair"'
+  ],
+  headlines: [
+    'Auto Glass Hillsboro OR',
+    'Hillsboro Windshield Repair',
+    'Windshield Replacement',
+    'We Come To Your Car Park',
+    'Done While You Are On Shift',
+    'Free Mobile Auto Glass',
+    'Family Owned Since 2008',
+    'Chips From The Valley Roads',
+    'ADAS Calibration In House',
+    'Forest Grove & Cornelius Too',
+    'Your Insurer Billed Direct',
+    'Rural Addresses Covered'
+  ],
+  descriptions: [
+    'A car parked in one spot for a twelve hour shift is an easy job with a cure time.',
+    'Gravel shoulders west of town throw bigger, sharper material than metro pavement.',
+    'We cover Hillsboro, Forest Grove, Cornelius and the rural addresses around them.',
+    'Check site access first. Larger campuses often have gated or badge-only parking.'
+  ]
+},
+{
+  name: 'CAG | GEO — Tualatin',
+  page: '/auto-glass-repair-tualatin',
+  share: '~3%',
+  paths: ['Tualatin', 'Auto-Glass'],
+  note: 'Our second shop is here, so this is the one geo where in-shop is genuinely convenient. Fleet and commercial intent is worth catching.',
+  keywords: [
+    '[auto glass repair tualatin]',
+    '[windshield replacement tualatin]',
+    '[auto glass tualatin or]',
+    '"tualatin windshield repair"'
+  ],
+  headlines: [
+    'Auto Glass Tualatin OR',
+    'Tualatin Windshield Repair',
+    'Our Shop Is In Tualatin',
+    'On SW Mohave Court',
+    'Drive In Or We Come To You',
+    'Windshield Replacement',
+    'Family Owned Since 2008',
+    'Fleet And Commercial Glass',
+    'ADAS Calibration In House',
+    'Free Mobile Auto Glass',
+    'Sherwood & Wilsonville Too',
+    'Your Insurer Billed Direct'
+  ],
+  descriptions: [
+    'Our second shop is at 19390 SW Mohave Ct, with easy access from Interstate 5.',
+    'Local enough that in shop and mobile cost you about the same in time either way.',
+    'If a mobile job needs a bay, moving it indoors is a short drive rather than a delay.',
+    'Vans, box trucks and light commercial are a normal part of the week here.'
+  ]
+},
+{
+  name: 'CAG | GEO — Lake Oswego',
+  page: '/auto-glass-repair-lake-oswego',
+  share: '~2%',
+  paths: ['Lake-Oswego', 'Glass'],
+  note: 'Low volume, high vehicle value. The hillside-driveway and calibration angle is honest and differentiates from shops that would just do it on the slope.',
+  keywords: [
+    '[auto glass repair lake oswego]',
+    '[windshield replacement lake oswego]',
+    '"lake oswego windshield repair"'
+  ],
+  headlines: [
+    'Auto Glass Lake Oswego',
+    'Lake Oswego Windshield',
+    'Windshield Replacement',
+    'Steep Driveway? We Plan It',
+    'Calibration Needs Level Ground',
+    'We Come To You In LO',
+    'Family Owned Since 2008',
+    'Free Mobile Auto Glass',
+    'ADAS Calibration In House',
+    'West Linn Covered Too',
+    'Your Insurer Billed Direct',
+    'Tualatin Shop Is Close By'
+  ],
+  descriptions: [
+    'A static calibration needs genuinely level ground. A sloping driveway cannot give it.',
+    'Equipment will often still return a result on a slope, and that is the danger.',
+    'Heavy tree cover means drips and pollen landing on a bond meant to last for years.',
+    'A cleared garage works well here. Level, dry, sheltered and out of the tree canopy.'
   ]
 }
 ];
@@ -84,32 +426,65 @@ const GROUPS = [
 
    The geo-confusion list matters more than it looks. Nearly every US city name
    is shared with somewhere else, and a same-named city in another state will
-   quietly eat budget for months. Check each of the client's target cities. */
+   quietly eat budget for months.
+
+   PORTLAND IS THE WORST CASE IN THE COUNTRY for this. Portland, Maine is a
+   large, heavily-searched city with the same name, and an unnegated "auto glass
+   Portland" campaign will serve there. Aloha is the second trap: it is a real
+   Washington County community and also the most common word in Hawaii tourism
+   queries. Both are non-optional. */
 const SHARED_NEGATIVES = {
   'NEG — Global Waste': [
-    'REPLACE__adjacent product', 'REPLACE__diy intent', 'jobs', 'hiring', 'salary',
-    'training', 'course', 'school', 'wholesale', 'supplier', 'distributor', 'how to'
+    'jobs', 'hiring', 'salary', 'careers', 'training', 'course', 'school', 'apprentice',
+    'wholesale', 'supplier', 'distributor', 'how to', 'diy', 'kit', 'resin kit',
+    'youtube', 'used', 'junkyard', 'salvage', 'pick n pull',
+    'tint', 'tinting', 'ceramic coating', 'detailing', 'car wash',
+    'body shop', 'paintless dent', 'bumper repair', 'collision repair', 'auto body',
+    'car insurance', 'insurance quote', 'cheap insurance',
+    'plexiglass', 'plate glass', 'window glass house', 'shower door', 'glazier',
+    'for sale', 'rental', 'lease'
   ],
   'NEG — Geo Confusion': [
-    'REPLACE__same city name, other state'
+    'maine', 'portland maine', 'portland me', 'portland or maine',
+    'texas', 'portland texas', 'portland tx',
+    'hillsboro texas', 'hillsboro tx', 'hillsboro ohio', 'hillsboro oh',
+    'beaverton michigan', 'beaverton mi',
+    'sherwood arkansas', 'sherwood ar',
+    'hawaii', 'honolulu', 'oahu', 'maui',
+    'vancouver wa', 'washington state', 'seattle'
   ]
 };
 
 /* Every targeted city and area name, phrase-negative in the service ad groups so
    that geo-modified queries route to the geo ad group and its matching page
-   instead of being answered by a generic service page. */
-const ROUTING_NEGATIVES = ['REPLACE__city', 'REPLACE__area'];
+   instead of being answered by a generic service page.
+
+   NOTE: 'collision' is deliberately absent even though it is in the business
+   name — negating it would block brand searches. It belongs in the waste list
+   only as part of 'collision repair', which is a different trade. */
+const ROUTING_NEGATIVES = [
+  'portland', 'beaverton', 'hillsboro', 'tualatin', 'lake oswego',
+  'tigard', 'aloha', 'sherwood', 'wilsonville', 'west linn',
+  'cornelius', 'newberg', 'forest grove', 'cedar mill'
+];
 
 const SITELINKS = [
-  ['REPLACE__Sitelink', 'REPLACE__Description line 1', 'REPLACE__Description line 2', '/REPLACE__service-one']
+  ['Windshield Replacement', 'New glass, set by two people', 'Camera recalibrated too', '/windshield-replacement'],
+  ['Chip & Crack Repair', 'Far cheaper than replacing', 'If it is still repairable', '/windshield-repair'],
+  ['ADAS Calibration', 'Autel MaxiSYS, in our shop', 'Never sent to a third shop', '/adas-calibration'],
+  ['Free Mobile Service', 'We come to your car', 'Home, work or park and ride', '/mobile-service'],
+  ['Insurance Claims', 'We bill your insurer direct', 'Oregon law: you pick the shop', '/auto-insurance'],
+  ['Side & Door Glass', 'Broken window sorted fast', 'Door cavity cleared properly', '/car-window-replacement']
 ];
 
 const CALLOUTS = [
-  'REPLACE__Callout one', 'REPLACE__Callout two', 'REPLACE__Callout three', 'REPLACE__Callout four'
+  'Free mobile service', 'Family owned since 2008', 'Two Portland metro shops',
+  'ADAS calibration in house', 'Insurance billed direct', 'Repair or replace advice'
 ];
 
 const SNIPPETS = [
-  'REPLACE__Service one', 'REPLACE__Service two', 'REPLACE__Service three'
+  'Windshield replacement', 'Chip and crack repair', 'ADAS calibration',
+  'Side and door glass', 'Back glass', 'RV glass'
 ];
 
 /* ------------------------------------------------------------- validation */
@@ -235,16 +610,21 @@ for (const [name, words] of Object.entries(SHARED_NEGATIVES)) {
   block(words);
 }
 
-put('### Routing negatives — add to all seven SVC ad groups',
+put('### Routing negatives — add to every non-geo (service) ad group',
     '',
     'Service and geo ad groups share one campaign, so they compete for geo-modified',
-    'queries. These force "windshield replacement irvine" into the Irvine ad group and',
-    'onto the Irvine page, which is what earns the ad relevance and landing page',
-    'experience components of Quality Score.',
+    'queries. These force "windshield replacement beaverton" into the Beaverton ad',
+    'group and onto the Beaverton page, which is what earns the ad relevance and',
+    'landing page experience components of Quality Score.',
     '');
 block(ROUTING_NEGATIVES.map((w) => '"' + w + '"'));
-put('Also add `"irvine"` to the two county hub ad groups, so the hubs do not outbid the',
-    'city page for its own name.',
+put('In each GEO ad group, add the OTHER cities as phrase negatives but not its own —',
+    'otherwise the group cannot serve for the name it exists to answer.',
+    '',
+    'One deliberate omission: `"collision"` is NOT a routing negative, even though it',
+    'is the first word of the business name. Negating it would block brand searches.',
+    'It appears in the waste list only inside `"collision repair"`, which is a',
+    'different trade and a different customer.',
     '',
     '---',
     '');

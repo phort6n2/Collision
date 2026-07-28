@@ -162,6 +162,26 @@ module.exports = {
 
     notFoundNote: 'The page has moved, but the phone has not. Tell us the year, make and model and where the car is sitting, and we can tell you whether it is a repair or a replacement.',
 
+    /* ---------------------------------------------------------------------
+     * The four bullets beside the hero form. HTML, so an em dash and inline
+     * markup are fine. These used to be hardcoded in template.html, which is
+     * how a previous build shipped six insurance carrier names in the hero of
+     * a site whose own rules ban naming carriers. Keep them here.
+     *
+     * Same test as everything else on this site: every one of these is on the
+     * client's own website or photographed on their own storefront and van.
+     * ------------------------------------------------------------------- */
+    heroBullets: [
+      { lead: 'Free mobile service',
+        text: '&mdash; your driveway, your office lot, the park and ride' },
+      { lead: 'ADAS camera recalibration',
+        text: 'on the same visit, not a second appointment across town' },
+      { lead: 'We bill your insurer directly',
+        text: 'including through the Safelite Solutions and Lynx networks' },
+      { lead: 'Lifetime no-leak guarantee',
+        text: 'on our workmanship, for as long as you own the vehicle' }
+    ],
+
     footerBadges: [
       { icon: 'shield', label: 'Lifetime no-leak guarantee',
         sub: 'Our workmanship, for as long as you own the vehicle' },

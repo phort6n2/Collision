@@ -334,6 +334,26 @@ function icon(name, opts) {
 }
 
 /** Trust strip under the hero. Facts only — see the note in pages.config.cjs. */
+/**
+ * Hero bullets. These were hardcoded in the template until a client build put
+ * six insurance carrier names in the hero of a site whose own compliance rules
+ * ban exactly that — the reference client's copy, shipped verbatim because it
+ * lived in markup nobody thought of as content. They are config now.
+ *
+ * `text` is emitted as HTML so a bullet can carry an em dash and inline markup;
+ * `lead` is the bold opening clause.
+ */
+function heroBulletsHtml() {
+  const items = (cfg.site && cfg.site.heroBullets) || [];
+  if (!items.length) return '';
+  const check = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.6" stroke-linecap="round" ' +
+    'stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  return items
+    .map((b) => '<li>' + check + '<span><strong>' + b.lead + '</strong> ' + b.text + '</span></li>')
+    .join('\n          ');
+}
+
 function trustStripHtml() {
   const items = cfg.trust || [];
   if (!items.length) return '';
@@ -1053,6 +1073,7 @@ function renderPage(page) {
   if (ratingBar) s = region(s, 'RATINGBAR', ratingBar);
   if (hdrRating) s = region(s, 'HDRRATING', hdrRating);
   s = region(s, 'REVIEWS', reviewsSectionHtml());
+  s = region(s, 'HEROBULLETS', heroBulletsHtml());
   s = region(s, 'TRUST', trustStripHtml());
   s = region(s, 'STATS', statBandHtml());
   /* Guarded because section() has already deleted the band — and with it the

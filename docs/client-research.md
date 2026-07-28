@@ -260,6 +260,33 @@ errors must never be signalled by colour alone — the tint background, the bord
 and the message text all carry it. Worth an explicit check once the form has
 real validation states.
 
+### The logo was broken, and how it was fixed
+
+`Collision-1.png`, the horizontal lockup used on their WordPress header, is a
+**dark-background colourway**. The words "& Calibration" and the
+"LOCALLY OWNED & OPERATED" tagline are drawn in white with a transparent
+background, so on this site's white header they were invisible — the mark read
+as "Collision Auto Glass" and nothing else. Their own site gets away with it
+because that header sits on a dark band.
+
+Three changes, all reversible if they send a better original:
+
+1. Recoloured the white text lying to the right of the badge disc to the brand
+   ink `#1A1212`. The disc itself is untouched, so "Auto Glass" and "EST. 2008"
+   stay white where they belong. The disc was located by column density of
+   near-black pixels rather than by a bounding box — the tagline's outline made
+   the naive bbox span almost the whole image.
+2. Deleted the "LOCALLY OWNED & OPERATED" micro-tagline. At header size it is
+   sub-pixel noise, and the trust strip already carries "Family owned since 2008".
+3. Raised `.brand img` from 44px to 52px. The reference client's mark was a
+   simple wordmark; this is a badge-plus-wordmark lockup with far more detail
+   and it turns to mush below about 50px. Measured in the browser.
+
+**Worth asking the client for the original vector or a light-background export.**
+What we have is a 1163×525 raster built for a dark header, and the icon set is
+generated from a 512×512 badge — serviceable, but not what a designer would
+hand over.
+
 ### To port back to the template repo
 
 1. **The 404 page's palette is hardcoded inside `build-pages.cjs`** (9 hex
@@ -273,6 +300,16 @@ real validation states.
 3. **The legal pages duplicate the palette inline** and were hand-synced again
    here (31 values across the two files). The skill already flags this; it is
    now the third time it has been patched twice instead of once.
+4. **The hero bullets were hardcoded in `template.html`**, and one of them named
+   six insurance carriers — GEICO, State Farm, USAA, AAA, Farmers, Progressive —
+   in the hero of a site whose own compliance rules ban naming carriers. It
+   shipped because it lived in markup nobody thought of as content. Fixed here by
+   adding a `HEROBULLETS` region and a `site.heroBullets` config array; that
+   change belongs upstream, because every future client inherits the same trap.
+5. **The form's phone and ZIP placeholders were `(714) 555-0142` and `92614`** —
+   an Irvine, California area code and postcode, on a template meant for any
+   market. Now Oregon values. These should be derived from the config rather
+   than typed into the template at all.
 
 ---
 

@@ -331,7 +331,11 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
 .hdr.scrolled{ background:var(--paper); box-shadow:var(--sh-md); }
 .hdr .wrap{ display:flex; align-items:center; gap:16px; min-height:64px; }
 .brand{ display:flex; align-items:center; flex:0 0 auto; text-decoration:none; }
-.brand img{ display:block; height:44px; width:auto; }
+/* 52px, not the 44px this template shipped with. The reference client's
+   mark was a simple horizontal wordmark; this one is a badge-plus-wordmark
+   lockup with far more detail, and it turns to mush below about 50px.
+   Measured in the browser, not guessed. */
+.brand img{ display:block; height:52px; width:auto; }
 .nav{ display:none; margin-left:auto; gap:22px; }
 .nav a{
   font-size:.9375rem; font-weight:600; color:var(--text-2); text-decoration:none;
@@ -928,7 +932,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .shot::after{
   content:""; position:absolute; right:10px; bottom:10px;
   width:74px; height:30px;
-  background:url(/img/logo-wordmark.7c1948c3.png) right bottom/contain no-repeat;
+  background:url(/img/logo-wordmark.72f604d6.png) right bottom/contain no-repeat;
   opacity:.62; filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));
   pointer-events:none;
 }
@@ -1250,7 +1254,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
     <!-- logo links to "/" not "#top": on a sub-page an anchor just scrolls up,
          leaving an ad visitor with no route to the home page -->
     <a class="brand" href="/" aria-label="Collision Auto Glass &amp; Calibration — home">
-      <img src="/img/logo-wordmark.7c1948c3.png" width="234" height="96" alt="Collision Auto Glass &amp; Calibration" fetchpriority="high" decoding="async">
+      <img src="/img/logo-wordmark.72f604d6.png" width="234" height="96" alt="Collision Auto Glass &amp; Calibration" fetchpriority="high" decoding="async">
     </a>
     <nav class="nav" aria-label="Services and areas"><!--PAGE:NAV--><a href="/windshield-replacement">Windshields</a>
             <a href="/adas-calibration">ADAS</a>
@@ -1283,12 +1287,10 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
       </div>
 
       <div class="hero-more">
-        <ul class="hero-bul">
-          <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>Mobile at no extra charge</strong> — your driveway, your office lot, your job site</span></li>
-          <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>ADAS camera recalibration</strong> on the same visit, not a second appointment</span></li>
-          <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>We bill your carrier direct</strong> — GEICO, State Farm, USAA, AAA, Farmers, Progressive</span></li>
-          <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>Workmanship warranted</strong> for as long as you own the vehicle</span></li>
-        </ul>
+        <ul class="hero-bul"><!--PAGE:HEROBULLETS--><li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>Free mobile service</strong> &mdash; your driveway, your office lot, the park and ride</span></li>
+          <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>ADAS camera recalibration</strong> on the same visit, not a second appointment across town</span></li>
+          <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>We bill your insurer directly</strong> including through the Safelite Solutions and Lynx networks</span></li>
+          <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>Lifetime no-leak guarantee</strong> on our workmanship, for as long as you own the vehicle</span></li><!--/PAGE:HEROBULLETS--></ul>
 
         <div class="hero-actions">
           <a class="btn btn-call" href="tel:+15036563500">
@@ -1333,7 +1335,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
             </div>
             <div class="field">
               <label class="label" for="ph">Mobile phone<span class="req" aria-hidden="true">*</span></label>
-              <input class="input" id="ph" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(714) 555-0142">
+              <input class="input" id="ph" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(503) 555-0142">
               <p class="err" id="ph-err"></p>
             </div>
           </div>
@@ -1346,7 +1348,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
             </div>
             <div class="field">
               <label class="label" for="zip">Service ZIP<span class="req" aria-hidden="true">*</span></label>
-              <input class="input" id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" required placeholder="92614">
+              <input class="input" id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" required placeholder="97229">
               <p class="err" id="zip-err"></p>
             </div>
           </div>
@@ -1712,7 +1714,7 @@ be replacement, that comes off the price.</p></div></div></div><!--/PAGE:BODY-->
   <div class="wrap">
     <div class="ftr-grid">
       <div class="ftr-brand">
-        <img src="/img/logo-wordmark.7c1948c3.png" width="234" height="96" alt="Collision Auto Glass &amp; Calibration" loading="lazy" decoding="async">
+        <img src="/img/logo-wordmark.72f604d6.png" width="234" height="96" alt="Collision Auto Glass &amp; Calibration" loading="lazy" decoding="async">
         <p>Windshield replacement, chip and crack repair, side and back glass, and in-house ADAS camera calibration. Family owned and operated in the Portland metro since 2008.</p>
         <p style="margin-top:12px">
           <a class="ftr-tel" href="tel:+15036563500">(503) 656-3500</a><br>
@@ -1945,7 +1947,7 @@ be replacement, that comes off the price.</p></div></div></div><!--/PAGE:BODY-->
   var LEAD_WEBHOOK = "REPLACE__https://services.leadconnectorhq.com/hooks/.../webhook-trigger/...";
 
   /* phone: format as they type, normalise to E.164 for GHL and Google
-     (both match E.164 far more reliably than "(714) 555-0142") */
+     (both match E.164 far more reliably than "(503) 555-0142") */
   function phDigits(v){
     var d = String(v || '').replace(/\D/g,'');
     if(d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
