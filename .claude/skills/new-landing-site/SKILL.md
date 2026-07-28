@@ -415,7 +415,7 @@ them silently.
 
 ## CSS traps that produced real bugs here
 
-Four defects on the reference build came from two root causes. Both will recur.
+These came from a handful of root causes, and all of them will recur.
 
 ### 1. Source order decides, because media queries add no specificity
 
@@ -428,6 +428,22 @@ rule from the SVG era overriding the PNG sizes.
 **Read the computed style in the browser, not the stylesheet.** Every one of
 these looked right in the source. `getComputedStyle(el).display` is the only
 thing that settles it.
+
+The reviews band hit the same wall twice in one sitting. A `@media(min-width:900px)`
+rule setting three columns was written next to `.revs` near the top of the file;
+the `@media(min-width:600px)` block a few hundred lines later set two, so two
+columns won at every desktop width. **Put a breakpoint's rules in that
+breakpoint's block near the bottom of the file, next to the other rules for the
+same width** — not beside the base declaration, where they read better and lose.
+
+Then the corollary, which source order does *not* save you from: a rule with
+more compound selectors leaks **upward** out of its band. The 600px
+orphan-centring rule `.revs > figure:last-of-type:nth-child(2n+1)` outweighs
+anything the 900px block can say back, so it kept placing the third review in
+column 2 — on its own row — at 1440px. Whenever a narrow-band rule needs that
+much specificity, **bound it**: `@media (min-width:600px) and (max-width:899px)`.
+Cheap insurance, and the alternative is escalating specificity in every wider
+block forever.
 
 ### 2. A dark band is not always `.sec-dark`
 
@@ -473,6 +489,28 @@ partial rather than patching it twice again.**
 the advance width of "0", far wider than average lowercase. 56ch lands at ~75,
 which is the top of the comfortable range. Measure per line with
 `Range.getBoundingClientRect()` rather than dividing by font size.
+
+### 7. Grid child rules must name the child, not `*`
+
+The card-centring trick these grids use — six tracks, `span 2` per card, an
+explicit `grid-column` on the last one so a short row centres — is written as
+`.grid > *{ grid-column:span 2 }`. That is fine while every child is a card.
+
+`.revs` is not: the last child is the `.rev-foot` attribution line, which
+carries `grid-column:1/-1` to span the row. `.rev-foot` and `.revs > *` have
+identical specificity, so the later one wins — and the media block is later.
+The attribution line was being dealt a column like a card and stretched to card
+height, 439px of empty box, in the 600–899px band.
+
+Scope to the type: `.revs > figure`. Then use `:last-of-type` and
+`:nth-last-of-type()` for the row arithmetic rather than `:last-child` /
+`:nth-last-child()`, so "the last review" keeps meaning the last review no
+matter what trails it in the markup. Anywhere a grid holds a caption, a
+"see all" link or a footnote alongside its cards, this applies.
+
+**Count the children before trusting a `:last-child` rule.** Three review cards
+plus one attribution line is four children, and every `3n+1` in those rules
+means something different than intended once you forget the fourth.
 
 ## Do not invent facts about the business
 
