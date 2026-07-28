@@ -742,11 +742,11 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .gal figcaption{ padding:12px 16px; font-size:.875rem; color:var(--text-muted); }
 
 /* ------------------------------------------------------------ reviews */
+/* One row of three on desktop. The column rules live in the width blocks near
+   the bottom of this file, NOT here — a later `@media (min-width:600px)` sets
+   two columns, and since media queries add no specificity, source order is what
+   decides. A 900px rule written here would simply lose. */
 .revs{ display:grid; grid-template-columns:minmax(0,1fr); gap:16px; }
-/* auto-fit rather than a fixed 3 columns: Google's API returns at most 5 reviews
-   and the 5-star filter can leave us with 2, which would otherwise sit next to an
-   empty third cell looking like a bug. */
-@media (min-width:900px){ .revs{ grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); } }
 
 /* ---- Google listing + map ---- */
 .mapgrid{ display:grid; grid-template-columns:minmax(0,1fr); gap:20px; align-items:stretch; }
@@ -1083,7 +1083,19 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   .grid-3{ grid-template-columns:repeat(4,minmax(0,1fr)); }
   .grid-3 > *{ grid-column:span 2; }
   .grid-3 > :last-child:nth-child(2n+1){ grid-column:2 / span 2; }
-  .revs{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  /* Two columns in the tablet band, with the same stranded-last-card guard the
+     service grid uses above — three reviews divide 2+1 here.
+     Scoped to `figure` on purpose: the last child of .revs is the .rev-foot
+     attribution line, which spans the full row and must not be dealt a column
+     like a card. `:last-of-type` counts figures only, so it keeps pointing at
+     the last review no matter what trails it. */
+  .revs{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .revs > figure{ grid-column:span 2; }
+  /* The matching orphan-centring rule is deliberately NOT here — it needs three
+     compound selectors to express "last review", which outweighs anything the
+     900px block can say back, and it would follow the layout up into desktop
+     and drag the third review onto a second row. It lives in a bounded
+     600–899px block near the end of this stylesheet instead. */
   /* Six columns, three photos per row (span 2 each). The sixths exist purely so
      an incomplete last row can still divide evenly — see the rules below.
      Symmetry cannot depend on somebody remembering to add photos in threes. */
@@ -1130,6 +1142,15 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   /* Last row holds two: centre the pair. */
   .grid-3 > :nth-last-child(2):nth-child(3n+1){ grid-column:2 / span 2; }
   .grid-3 > :last-child:nth-child(3n+2){ grid-column:4 / span 2; }
+  /* Three reviews across in a single row. Same six-track trick, and for the
+     same reason: the Places API returns at most five reviews and the five-star
+     filter can leave two, which would otherwise sit beside an empty third cell
+     looking like a bug. Centre the short row instead. */
+  .revs{ grid-template-columns:repeat(6,minmax(0,1fr)); }
+  .revs > figure{ grid-column:span 2; }
+  .revs > figure:last-of-type:nth-child(3n+1){ grid-column:3 / span 2; }
+  .revs > figure:nth-last-of-type(2):nth-child(3n+1){ grid-column:2 / span 2; }
+  .revs > figure:last-of-type:nth-child(3n+2){ grid-column:4 / span 2; }
   .grid-4{ grid-template-columns:repeat(4,minmax(0,1fr)); }
   .mapgrid{ grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:26px; }
   .steps{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:30px; }
@@ -1252,6 +1273,9 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
    to a column is behind min-width:900px. Functional, but the highest-value
    element on the page reads as a stretched desktop form. */
 @media (min-width:600px) and (max-width:899px){
+  /* Two review columns in this band, so an odd count strands the last card.
+     Centre it. Bounded on purpose — see the note in the 600px block. */
+  .revs > figure:last-of-type:nth-child(2n+1){ grid-column:2 / span 2; }
   .qc{ max-width:560px; margin-inline:auto; }
 }
 
