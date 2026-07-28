@@ -14,14 +14,14 @@ is it on their own property".
 | Legal / trading name | Collision Auto Glass & Calibration |
 | Main site | <https://collisionautoglass.com> (WordPress) |
 | Current ad landing site | <https://collisionglass.co> (GoHighLevel) — **being replaced** |
-| New landing site | subdomain of `collisionautoglass.com` — **exact host TBC** |
+| New landing site | `quote.collisionautoglass.com` — **confirmed by client** |
 | Trade | Auto glass + ADAS calibration |
 | Market | Portland metro, Oregon |
 | Founded | 2008 ("EST. 2008" on the logo, "Locally Owned & Operated Since 2008" on the storefront) |
 
 ### Locations
 
-| | Portland | Tualatin |
+| | Portland (Cedar Mill) | Tualatin |
 |---|---|---|
 | Address | 14201 NW Science Park Dr, Portland, OR 97229 | 19390 SW Mohave Ct, Tualatin, OR 97062 |
 | Phone | (503) 656-3500 — **primary, confirmed by client** | (503) 678-9910 |
@@ -31,6 +31,14 @@ is it on their own property".
 Google Place IDs for both still need resolving via the Places API. Ratings must
 not be published until `check:placeid` confirms each resolves to the right
 business — a wrong Place ID returns perfectly plausible numbers.
+
+**The Portland shop is not in Portland.** OpenStreetMap returns the business by
+name at "14201, Northwest Science Park Drive, Marlene Village, Portland,
+Washington County, Oregon, 97229" — a Portland postal address in Cedar Mill,
+outside the city limits. Geocoded to 45.5277816, -122.8243862; Tualatin to
+45.3800793, -122.7662996. The site says this plainly in `serviceArea.mapNote`,
+on the Portland city page and in the gallery caption, rather than letting an
+embedded map imply premises inside the city.
 
 ---
 
@@ -315,21 +323,70 @@ hand over.
 
 ## Outstanding
 
-**Blocking the build**
+### The five values preflight is holding the build on
 
-- Google Ads final-URL export (keyword, ad and sitelink level)
-- Exact subdomain for the new site
-- GHL inbound webhook URL, `locationId`, `poolId` — note the current GHL site's
-  assets are served from account `x7zUDmT8SJyJMQoyGE9p`, which is a **candidate**
-  for the location ID and must be confirmed, never assumed
-- Google Ads conversion ID, conversion label, lead value
-- `GOOGLE_PLACES_API_KEY` as a GitHub secret
-- Which Google Business Profile drives the rating band (Portland or Tualatin)
-- Contact email for the site
+Everything else is done. `verify` is 0/0, `qa:render` and `qa:tracking` are
+green, and the ads sheet writes. Preflight reports 8 problems and all of them
+reduce to these five fields, because nobody but the client can supply them:
 
-**Judgement, client to decide**
+| Field | Where |
+|---|---|
+| `site.email` | contact address for the site and the legal pages |
+| `site.ads.conversionId` | Ads → Tools → Conversions → the action → Tag setup |
+| `site.ads.conversionLabel` | same place; the part after the slash in `send_to` |
+| `site.ghl.webhook` | HighLevel Inbound Webhook (premium trigger) |
+| `site.ghl.locationId` | HighLevel location |
 
-- Which cities to advertise in — their site lists 12, the old landing site had 5
-- Original high-resolution logo
-- Warranty exclusions, in full
-- Whether they hold any Oregon registration or licence number
+On the location ID: the current GoHighLevel site serves its assets from account
+`x7zUDmT8SJyJMQoyGE9p`, which is a **candidate** and nothing more. It must be
+confirmed against the account, never assumed — a wrong location ID sends this
+client's leads into someone else's CRM and nothing about the page looks wrong
+while it happens. That is the exact failure preflight exists to prevent.
+
+Also worth having but not blocking: `site.ghl.poolId` for dynamic number
+insertion (leave empty until the pool exists — half-configured DNI silently
+shows the wrong number), and `site.ads.leadValue` once an average booked-job
+value is known, which lets Smart Bidding optimise toward revenue.
+
+### Softer, and the site builds without them
+
+- **`GOOGLE_PLACES_API_KEY`** as a GitHub secret, plus a decision on which of the
+  two Google Business Profiles drives the rating band. Portland is the larger
+  listing. With `placeId` empty the site strips every rating claim and omits
+  `aggregateRating` rather than guessing, so nothing is broken meanwhile — run
+  `npm run check:placeid` and read what it returns before trusting it.
+- **The Google Ads final-URL export.** The crawl of collisionglass.co found 22
+  paths and all 19 ad destinations are preserved, but a final URL can be
+  referenced by an ad without being linked anywhere crawlable. Run
+  `npm run check:urls -- --file ads-final-urls.txt` before the cutover.
+- **The original vector or light-background logo** — see the logo section above.
+
+### Questions for the client
+
+- **Warranty exclusions in full.** The page currently states the guarantee covers
+  our workmanship for as long as you own the vehicle, and excludes new impact
+  damage, pre-existing pinch-weld rust and another shop's installation. That is a
+  reasonable reading of "lifetime no-leak guarantee", but it is our reading and
+  it should be their words.
+- **Any Oregon registration or licence number.** The working conclusion is that
+  Oregon licenses neither auto glass nor motor vehicle repair, so the footer
+  registration block correctly stays empty and both legal pages say so plainly.
+  If they hold something we do not know about, section 1 of each legal page and
+  `site.compliance.registration` need revisiting.
+- **The warranty badge.** `landing/img/warranty-badge.png` came from the
+  reference client. Condition one is met — this client genuinely offers the
+  guarantee, and the page defines it in full beside every mention. Condition two
+  is not checked: it may be purchased artwork licensed to one business, and
+  reusing it across a portfolio is a question worth asking before it appears on
+  five sites.
+- **Two claims on their own site we deliberately did not carry across:**
+  "highest-rated auto glass shop in Portland metro" (unqualified superlative) and
+  the six carrier logos (trademark and implied affiliation). They carry the same
+  exposure on collisionautoglass.com today, which is worth mentioning to them.
+
+### Cutover sequence
+
+1. Deploy to `quote.collisionautoglass.com` and confirm all 19 paths serve
+2. Run `check:urls` against the Ads export
+3. Only then repoint the final URLs in Google Ads — a pure domain swap
+4. Leave `collisionglass.co` up until the change has propagated
