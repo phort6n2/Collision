@@ -1,20 +1,39 @@
 <!DOCTYPE html>
 <!-- ============================================================================
-     REPLACE__REVIEW_LEGAL
 
-     This page is a WORKED EXAMPLE, not boilerplate. It was written for one
-     California auto glass business and it describes what THAT site collected,
-     who it shared it with, and which statutes applied.
+     REVIEWED AND REWRITTEN FOR OREGON — 2026-07-28.
 
-     Publishing it unread publishes a false statement about your client's data
-     handling. Read it line by line against:
-       - what this site's form actually collects (see landing/template.html)
-       - what the CRM, tracking and call-recording setup actually does
-       - which privacy statute covers this client's customers
-       - which trade regulator, if any, this client answers to
+     This page began as a worked example written for a California auto glass
+     business. It has been read line by line against this client and rewritten;
+     none of the California material survives. What changed and why:
 
-     Then delete the REPLACE__REVIEW_LEGAL marker on the line above. Preflight
-     refuses to build while it is present.
+       - Governing law and jurisdiction moved from California to Oregon.
+       - California Insurance Code § 758.5 replaced with ORS 746.280, which is
+         the Oregon provision prohibiting an insurer from requiring a
+         particular repair shop. This one matters: it is the most useful thing
+         on the site for a customer being pushed toward a network shop.
+       - Removed the "registered California Automotive Repair Dealer" claim and
+         the Bureau of Automotive Repair registration number. Oregon operates no
+         state licensing or registration scheme for this trade.
+       - The authorisation-and-invoice clause no longer cites a statute as
+         binding us. Oregon's repair-shop provisions at ORS 746.292 are drafted
+         for body and frame shops, and their application to a glass-only
+         business is not clear enough to assert. The obligation is stated as our
+         own practice instead, which is both safer and true.
+       - Liability and non-waivable rights now reference the Oregon Unlawful
+         Trade Practices Act (ORS chapter 646) rather than the California
+         Automotive Repair Act.
+       - Complaints: there is no Oregon auto-glass regulator to escalate to, so
+         the route is the Oregon DOJ Consumer Protection division. The page says
+         plainly that the trade is unlicensed here rather than implying an
+         oversight body that does not exist.
+
+     The deductible-offset prohibition in section 6 is retained as a house rule.
+     Oregon has no direct analogue of California Penal Code § 551(b), but the
+     exposure under ORS 746.230 / 746.240 is real and the clause costs nothing.
+
+     If the client turns out to hold a registration or licence we do not know
+     about, section 1 needs revisiting.
      ============================================================================ -->
 <html lang="en">
 <head>
@@ -28,14 +47,14 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/ASSET/img/icon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/ASSET/img/icon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/ASSET/img/apple-touch-icon.png">
-<meta name="theme-color" content="#0A2650">
+<meta name="theme-color" content="#201414">
 <style>
 :root{
-  --paper:#FFFFFF; --surface-1:#F5FCFE; --surface-2:#EDF9FD;
-  --band-dark-2:#062038; --band-dark-3:#123763;
-  --text:#0B1B2B; --text-2:#2C3B49; --text-muted:#4C5C6B;
-  --text-on-dark-2:#C4D3E4; --navy:#004B81; --cyan:#00ACE4;
-  --line:#DCE7ED; --line-on-dark:#1E416B; --gold-on-dark:#FFC53D;
+  --paper:#FFFFFF; --surface-1:#FDF7F7; --surface-2:#FAF0F0;
+  --band-dark-2:#150D0D; --band-dark-3:#33201F;
+  --text:#1A1212; --text-2:#3D2E2E; --text-muted:#5C4A4A;
+  --text-on-dark-2:#D8C8C8; --brand:#A81818; --accent:#D42222;
+  --line:#EFE2E2; --line-on-dark:#422C2B; --gold-on-dark:#FFC53D;
   --maxw:820px; --r-sm:10px;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
@@ -46,7 +65,7 @@ body{ margin:0; background:var(--paper); color:var(--text); font:400 16px/1.65 v
 .hdr{ border-bottom:1px solid var(--line); background:var(--paper); }
 .hdr .wrap{ display:flex; align-items:center; gap:16px; min-height:64px; }
 .hdr img{ display:block; height:36px; width:auto; }
-.hdr a.back{ margin-left:auto; font-size:.9375rem; font-weight:700; color:var(--navy); text-decoration:none; }
+.hdr a.back{ margin-left:auto; font-size:.9375rem; font-weight:700; color:var(--brand); text-decoration:none; }
 .hdr a.back:hover{ text-decoration:underline; }
 main{ padding:40px 0 64px; }
 h1{ font-size:clamp(1.75rem,1.4rem + 1.6vw,2.5rem); line-height:1.12; font-weight:800; letter-spacing:-.02em; margin:0 0 10px; }
@@ -56,9 +75,9 @@ p,li{ color:var(--text-2); }
 p{ margin:0 0 1em; }
 ul{ margin:0 0 1em; padding-left:1.15em; }
 li{ margin:0 0 .45em; }
-a{ color:var(--navy); text-underline-offset:3px; }
+a{ color:var(--brand); text-underline-offset:3px; }
 .updated{ font-size:.875rem; color:var(--text-muted); margin:0 0 28px; }
-.box{ margin:22px 0; padding:18px 20px; background:var(--surface-2); border:1px solid #C9E9F5; border-left:4px solid var(--cyan); border-radius:var(--r-sm); }
+.box{ margin:22px 0; padding:18px 20px; background:var(--surface-2); border:1px solid #EBD4D4; border-left:4px solid var(--accent); border-radius:var(--r-sm); }
 .box p:last-child{ margin-bottom:0; }
 .box h3{ margin-top:0; }
 .ftr{ background:var(--band-dark-2); color:var(--text-on-dark-2); padding:40px 0 24px; font-size:.9375rem; }
@@ -73,7 +92,7 @@ a{ color:var(--navy); text-underline-offset:3px; }
 .bar{ margin-top:26px; padding:16px 18px; background:var(--band-dark-3); border:1px solid var(--line-on-dark); border-radius:var(--r-sm); font-size:.8125rem; line-height:1.6; }
 .bar b{ color:#fff; } .bar a{ color:var(--gold-on-dark); font-weight:700; }
 .ftr-legal{ margin-top:28px; padding-top:18px; border-top:1px solid var(--line-on-dark); font-size:.78125rem; }
-:focus-visible{ outline:3px solid var(--navy); outline-offset:2px; border-radius:6px; }
+:focus-visible{ outline:3px solid var(--brand); outline-offset:2px; border-radius:6px; }
 @media (min-width:900px){ .ftr-grid{ grid-template-columns:1.6fr 1fr 1fr 1fr; gap:34px; } }
 
 /* ---- mobile parity with the main template -------------------------------
@@ -109,15 +128,15 @@ main p, main li{ max-width:56ch; }
     <h1>Terms &amp; Conditions</h1>
     <p class="updated">Last updated: {{YEAR}} · Applies to {{DOMAIN}}</p>
 
-    <p>These terms cover your use of this website and the auto glass work we perform. By using this site or booking work with us, you agree to them. Nothing here removes any right you have under California law that cannot be waived.</p>
+    <p>These terms cover your use of this website and the auto glass work we perform. By using this site or booking work with us, you agree to them. Nothing here removes any right you have under Oregon law that cannot be waived, including under the Oregon Unlawful Trade Practices Act (ORS chapter 646).</p>
 
     <h2>1. Who you are dealing with</h2>
-    <p>{{LEGAL_NAME}}, a registered California Automotive Repair Dealer. Our registered place of business is {{ADDRESS_STREET}}, {{ADDRESS_CITY}}, {{ADDRESS_REGION}} {{ADDRESS_ZIP}}, and our Bureau of Automotive Repair registration number is shown in the footer of every page on this site.</p>
+    <p>{{LEGAL_NAME}}, a family-owned auto glass and calibration business trading in Oregon since 2008. Our principal place of business is {{ADDRESS_STREET}}, {{ADDRESS_CITY}}, {{ADDRESS_REGION}} {{ADDRESS_ZIP}}, and we operate a second shop in Tualatin. Oregon does not license or register auto glass or motor vehicle repair businesses at state level, so there is no registration number for us to quote.</p>
     <p>{{AREA_NOTE}}</p>
 
     <h2>2. Quotes and estimates</h2>
     <p>Any figure we give you before we have seen the vehicle is an estimate, not a fixed contract price. We work hard to make estimates accurate — that is why we ask for your VIN, which identifies the exact glass your vehicle takes — but the final price depends on the glass actually required and the work actually needed.</p>
-    <p>If we arrive and find the job differs from what was described, we will tell you the revised price and get your authorisation before proceeding. California law requires a repair dealer to obtain your authorisation for the work and its cost, and to provide you with an invoice describing the work performed and the parts supplied. We will not do work you have not agreed to.</p>
+    <p>If we arrive and find the job differs from what was described, we will tell you the revised price and get your authorisation before proceeding. We will not do work you have not agreed to, and you will get an invoice describing the work performed and the parts supplied. Oregon's repair-shop provisions at ORS 746.292 are written for body and frame shops rather than glass specialists, so we do not claim they bind us — we do this because it is how the job should be done, not because a statute makes us.</p>
 
     <div class="box">
       <h3>Repair versus replacement</h3>
@@ -162,14 +181,14 @@ main p, main li{ max-width:56ch; }
       <li><strong>You remain responsible for any amount your insurer does not pay</strong>, including your deductible.</li>
       <li>We do not offer, and cannot lawfully offer, any discount intended to offset your insurance deductible.</li>
     </ul>
-    <p>Under California Insurance Code § 758.5 the choice of repair shop is yours. We describe that statute elsewhere on this site as consumer information; it is not legal advice, and the statute itself governs.</p>
+    <p>Under <strong>ORS 746.280</strong> an insurer may not require you to use a particular motor vehicle repair shop, and must tell you so — the choice of shop is yours. We describe that statute elsewhere on this site as consumer information; it is not legal advice, and the statute itself governs.</p>
 
     <h2>7. Appointments, access and cancellation</h2>
     <p>Because we come to you, we need the vehicle accessible at the agreed time and place, and it must be able to remain stationary through the adhesive cure. Please tell us in advance if the vehicle is in a subterranean garage, a tandem space, a time-limited parking zone, or on a slope — any of those may prevent us working there, and it is better established on the phone than in person.</p>
     <p>We may reschedule for weather. A urethane bond needs a clean, dry surface, and we will move an appointment rather than fit glass we do not trust. If you need to cancel or rearrange, let us know as early as you reasonably can; where we have already specially ordered glass for your vehicle, we may ask you to cover that cost.</p>
 
     <h2>8. Payment</h2>
-    <p>Payment is due on completion unless we are billing your insurer directly, in which case your deductible (if any) is due on completion. We will give you an invoice describing the work performed and the parts supplied, as California law requires.</p>
+    <p>Payment is due on completion unless we are billing your insurer directly, in which case your deductible (if any) is due on completion. We will give you an invoice describing the work performed and the parts supplied.</p>
 
     <h2>9. Use of this website</h2>
     <p>The content of this site is provided for information about our services. Do not use this site to submit false information, to submit someone else's details without their permission, or to attempt to disrupt or gain unauthorised access to it. We may withdraw access for misuse.</p>
@@ -177,14 +196,14 @@ main p, main li{ max-width:56ch; }
 
     <h2>10. Accuracy, and limits on our liability</h2>
     <p>We take care to keep this site accurate, but service availability, coverage areas and pricing change. Nothing on this site is a binding offer, and general guidance here — such as whether a chip is likely repairable — is not a substitute for us actually looking at your vehicle.</p>
-    <p>To the fullest extent permitted by California law, our liability arising out of work we perform is limited to correcting our own workmanship under the warranty in section 4, or to the amount you paid us for the work concerned. We are not liable for indirect or consequential losses such as lost earnings, alternative transport, or time off work. Nothing in these terms excludes liability for death or personal injury caused by our negligence, for fraud, or for anything else that cannot lawfully be excluded — and nothing here limits your rights under the California Automotive Repair Act.</p>
+    <p>To the fullest extent permitted by Oregon law, our liability arising out of work we perform is limited to correcting our own workmanship under the guarantee in section 4, or to the amount you paid us for the work concerned. We are not liable for indirect or consequential losses such as lost earnings, alternative transport, or time off work. Nothing in these terms excludes liability for death or personal injury caused by our negligence, for fraud, or for anything else that cannot lawfully be excluded — and nothing here limits your rights under the Oregon Unlawful Trade Practices Act.</p>
 
     <h2>11. Governing law</h2>
-    <p>These terms are governed by the laws of the State of California, and the courts of California have jurisdiction over any dispute.</p>
+    <p>These terms are governed by the laws of the State of Oregon, and the courts of Oregon have jurisdiction over any dispute.</p>
 
     <h2>12. Complaints</h2>
     <p>If something has gone wrong, tell us first — most issues are fixable and we would rather fix them. Call {{PHONE}} or email <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>.</p>
-    <p>You also have the right to complain to the California Bureau of Automotive Repair, which regulates automotive repair dealers in this state. Their contact details are published at <a href="https://www.bar.ca.gov/" target="_blank" rel="noopener">bar.ca.gov</a>.</p>
+    <p>If we cannot resolve it, Oregon has no auto-glass regulator to escalate to, because the trade is not licensed here. What you can do is file a complaint with the <strong>Oregon Department of Justice Consumer Protection</strong> division, which enforces the Unlawful Trade Practices Act. Their contact details are published at <a href="https://www.doj.state.or.us/consumer-protection/" target="_blank" rel="noopener">doj.state.or.us</a>.</p>
 
     <h2>13. Changes</h2>
     <p>We may update these terms. The version that applies to your job is the one published when you authorised the work.</p>

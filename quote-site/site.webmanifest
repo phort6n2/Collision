@@ -1,19 +1,19 @@
 {
-  "name": "REPLACE__Client Business Name",
-  "short_name": "REPLACE__Client",
+  "name": "Collision Auto Glass & Calibration",
+  "short_name": "Collision",
   "icons": [
     {
-      "src": "/img/icon-192.91c84b7a.png",
+      "src": "/img/icon-192.74920ee2.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/img/icon-512.228f969b.png",
+      "src": "/img/icon-512.84134e13.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
-  "theme_color": "REPLACE__#0A2650",
+  "theme_color": "#201414",
   "background_color": "#FFFFFF",
   "display": "browser",
   "start_url": "/"

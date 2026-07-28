@@ -334,6 +334,26 @@ function icon(name, opts) {
 }
 
 /** Trust strip under the hero. Facts only — see the note in pages.config.cjs. */
+/**
+ * Hero bullets. These were hardcoded in the template until a client build put
+ * six insurance carrier names in the hero of a site whose own compliance rules
+ * ban exactly that — the reference client's copy, shipped verbatim because it
+ * lived in markup nobody thought of as content. They are config now.
+ *
+ * `text` is emitted as HTML so a bullet can carry an em dash and inline markup;
+ * `lead` is the bold opening clause.
+ */
+function heroBulletsHtml() {
+  const items = (cfg.site && cfg.site.heroBullets) || [];
+  if (!items.length) return '';
+  const check = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.6" stroke-linecap="round" ' +
+    'stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  return items
+    .map((b) => '<li>' + check + '<span><strong>' + b.lead + '</strong> ' + b.text + '</span></li>')
+    .join('\n          ');
+}
+
 function trustStripHtml() {
   const items = cfg.trust || [];
   if (!items.length) return '';
@@ -1053,6 +1073,7 @@ function renderPage(page) {
   if (ratingBar) s = region(s, 'RATINGBAR', ratingBar);
   if (hdrRating) s = region(s, 'HDRRATING', hdrRating);
   s = region(s, 'REVIEWS', reviewsSectionHtml());
+  s = region(s, 'HEROBULLETS', heroBulletsHtml());
   s = region(s, 'TRUST', trustStripHtml());
   s = region(s, 'STATS', statBandHtml());
   /* Guarded because section() has already deleted the band — and with it the
@@ -1322,16 +1343,16 @@ function build() {
       '<meta name="robots" content="noindex,follow">\n' +
       '<title>Page not found — ' + esc(site.legalName) + '</title>\n' +
       '<style>\n' +
-      'body{margin:0;background:#F5FCFE;color:#0B1B2B;font:400 17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}\n' +
+      'body{margin:0;background:#FDF7F7;color:#1A1212;font:400 17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}\n' +
       '.w{max-width:640px;margin:0 auto;padding:56px 20px 72px;text-align:center}\n' +
       'h1{font-size:clamp(28px,6vw,40px);line-height:1.15;margin:24px 0 12px;letter-spacing:-.02em}\n' +
-      'p{color:#4C5C6B;margin:0 0 28px}\n' +
+      'p{color:#5C4A4A;margin:0 0 28px}\n' +
       '.cta{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 26px;' +
-      'border-radius:12px;background:#CB4E1A;color:#fff;font-weight:700;text-decoration:none;font-size:18px}\n' +
-      '.cta.alt{background:#fff;color:#0A2650;border:2px solid #C9DCE8;margin-left:10px}\n' +
-      'nav{margin-top:40px;border-top:1px solid #D8E7EF;padding-top:28px}\n' +
-      'nav b{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#4C5C6B;margin-bottom:14px}\n' +
-      'nav a{display:inline-block;margin:0 10px 12px;color:#0A2650;font-weight:600}\n' +
+      'border-radius:12px;background:#A81818;color:#fff;font-weight:700;text-decoration:none;font-size:18px}\n' +
+      '.cta.alt{background:#fff;color:#201414;border:2px solid #E2D0D0;margin-left:10px}\n' +
+      'nav{margin-top:40px;border-top:1px solid #EFE2E2;padding-top:28px}\n' +
+      'nav b{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#5C4A4A;margin-bottom:14px}\n' +
+      'nav a{display:inline-block;margin:0 10px 12px;color:#201414;font-weight:600}\n' +
       '@media(max-width:520px){.cta,.cta.alt{display:flex;margin:0 0 12px}}\n' +
       '</style>\n</head>\n<body>\n<div class="w">\n' +
       /* plain img/… path: applyImageHashes() rewrites it to the content-hashed
