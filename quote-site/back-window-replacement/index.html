@@ -1200,13 +1200,33 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   .pchap-alt{ grid-template-columns:380fr 498fr;
               grid-template-areas:"fig head" "fig prose"; }
   .pchap-fig > h2{ grid-area:head; }
-  .pchap-fig > figure{ grid-area:fig; align-self:center; margin:0; }
+  /* Sticky, not centred. A chapter's prose is routinely three times the height
+     of the photo beside it — the "what we handle" chapter is a bullet list plus
+     a full callout — and centring left the photo marooned in a tall empty rail
+     with several hundred pixels of nothing above and below it. That is what the
+     client saw and reported.
+     Sticky turns that dead rail into the photo tracking the reader down the
+     chapter, which is a deliberate editorial pattern rather than a gap. It is
+     self-limiting: on a chapter no taller than its photo the element never
+     unsticks, so short chapters look exactly as they did.
+     align-self:start is REQUIRED — sticky does nothing inside a stretched or
+     centred grid item, because the item has no free space to move within.
+     top clears the sticky header (72px) plus a breathing gap. */
+  .pchap-fig > figure{
+    grid-area:fig; align-self:start; position:sticky; top:96px; margin:0;
+  }
   .pchap-fig > .prose{ grid-area:prose; max-width:none; }
   /* Portraits otherwise ran to their natural height and towered over the text
      they illustrate — the 440x900 driveway shot was twice the height of its own
      two paragraphs. Cropping to a cap keeps every chapter in proportion
      whichever orientation the client's photo happens to be. */
-  .pchap-fig img{ max-height:470px; object-fit:cover; }
+  /* 620, raised from 470. The original cap existed because portraits ran to
+     their natural height and towered over short chapters — but the fill is
+     orientation-aware now and sends portraits to the LONGEST chapters, where
+     the opposite was true and the rail sat half empty. Landscapes render about
+     333px at this column width, well under the cap, so raising it only affects
+     the portraits that were deliberately placed beside long prose. */
+  .pchap-fig img{ max-height:620px; object-fit:cover; }
   /* Text-only chapters: the same 56ch measure, centred, so both kinds of
      chapter carry balanced margins and neither reads as half-empty.
 
@@ -1518,7 +1538,7 @@ somebody folds the seat down months later.</p>
   give you about it.</p>
 </div>
 </div></div>
-      <div class="pchap pchap-fig"><h2>Weather, cure time and why this one often comes indoors</h2><figure><span class="shot"><img src="/img/tualatin-bay-install.f72f593d.webp" width="1000" height="668" alt="A technician working on a windshield in front of the Tualatin shop window" loading="lazy" decoding="async"></span><figcaption>When the weather is against us we bring your car indoors rather than risk the bond. It costs you nothing extra.</figcaption></figure><div class="prose"><p>Because back glass is bonded, it has the same requirements as a windshield: a
+      <div class="pchap pchap-fig"><h2>Weather, cure time and why this one often comes indoors</h2><figure><span class="shot"><img src="/img/inspection-clipboard.c5bd4abb.webp" width="668" height="1000" alt="A gloved hand filling in a printed vehicle inspection diagram on a clipboard beside a car" loading="lazy" decoding="async"></span><figcaption>We record the damage before we start, so there is never a question about what we found or what we did.</figcaption></figure><div class="prose"><p>Because back glass is bonded, it has the same requirements as a windshield: a
 clean dry bonding surface and a safe drive-away time that stretches as the
 temperature drops. A steady Portland downpour is a poor environment for a
 structural bond you want to last the life of the car.</p>

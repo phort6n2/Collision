@@ -565,11 +565,27 @@ function proseHtml(page) {
    * not for this one. */
   const used = new Set([...byChapter.values()].map((f) => f.src));
   const pool = (cfg.bodyPhotos || []).filter((b) => !used.has(b.src));
-  let nextPhoto = 0;
-  for (let i = 0; i < parts.length; i++) {
-    if (byChapter.has(i) || nextPhoto >= pool.length) continue;
-    byChapter.set(i, { chapter: i, src: pool[nextPhoto++].src });
-  }
+
+  /* Orientation matters more than order here. A chapter's prose is often two or
+     three times the height of the photo beside it — a bullet list plus a
+     callout runs to ~900px against a landscape photo's ~350px — and that leaves
+     the rail visibly empty no matter how the figure is aligned.
+     A portrait photo at the same column width is roughly twice as tall, so it
+     fills that rail properly. Give the longest chapters the portraits and the
+     short ones the landscapes; the fill still never repeats within a page. */
+  const portraits = pool.filter((b) => b.h > b.w);
+  const landscapes = pool.filter((b) => b.h <= b.w);
+  const needFill = [];
+  for (let i = 0; i < parts.length; i++) if (!byChapter.has(i)) needFill.push(i);
+  /* Longest prose first, measured on the chapter text with tags stripped so a
+     markup-heavy callout does not count as length. */
+  const weight = (i) => parts[i].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').length;
+  needFill.sort((a, b) => weight(b) - weight(a));
+  const ordered = portraits.concat(landscapes);
+  needFill.forEach((chapterIndex, n) => {
+    if (n >= ordered.length) return;
+    byChapter.set(chapterIndex, { chapter: chapterIndex, src: ordered[n].src });
+  });
 
   /* Alternation is back, and it is only defensible because every chapter is now
      illustrated. Alternating the photo moves the prose between two positions
