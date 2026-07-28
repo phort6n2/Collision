@@ -94,7 +94,7 @@ module.exports = {
     /* Google Ads call asset. Must never be DNI-swapped and must not equal
      * phoneE164 — the Tualatin shop line is a real number they own and answer,
      * which makes it the honest choice rather than a tracking number. */
-    callAsset: { formatted: '(503) 678-9910', e164: '+15036789910' },
+    callAsset: { formatted: '(503) 832-4376', e164: '+15038324376' },
 
     email: 'glass@collisionautoglass.com',
 
@@ -215,8 +215,8 @@ module.exports = {
 
     ghl: {
       webhook: 'REPLACE__https://services.leadconnectorhq.com/hooks/.../webhook-trigger/...',
-      locationId: 'REPLACE__location-id',
-      poolId: ''
+      locationId: 'x7zUDmT8SJyJMQoyGE9p',
+      poolId: 'KxTryNob1lTv1nAFRiiv'
     },
 
     compliance: {
