@@ -403,6 +403,29 @@ if (home) {
   if (configs <= 2) pass('gtag config calls: ' + configs + ' (Ads and at most one GA4)');
   else fail(configs + ' gtag config calls — an ID is being configured twice');
 
+  /* Clarity records sessions. Two things have to hold or it is a privacy
+     incident rather than an analytics tool.
+
+     The quote form carries a name, an email, a phone number and a VIN. Clarity
+     has a masking mode in its dashboard, but that is a setting somebody can
+     change without touching this repo — so the form is masked at the ELEMENT,
+     where a dashboard toggle cannot reach it.
+
+     And nothing personal may be passed as a custom tag. Tags are stored in the
+     clear and shown in the Clarity UI; they are for campaign, page and outcome,
+     never for who the visitor is. */
+  const clarityOn = /clarity\.ms\/tag/.test(home.html);
+  if (!clarityOn) warn('no Clarity tag — not configured yet');
+  else pass('Clarity tag present');
+  if (/<form[^>]*id="quoteForm"[^>]*data-clarity-mask="true"/.test(home.html))
+    pass('quote form is masked at the element, not by a dashboard setting');
+  else fail('quote form is NOT data-clarity-mask="true" — session replay would record name, email, phone and VIN');
+  const tagKeys = [...home.html.matchAll(/clarity\('set',\s*([A-Za-z_$][\w$]*|'[^']*')/g)].map((m) => m[1]);
+  const banned = /(^|_)(name|email|phone|vin|zip|postal|address)(_|$)/i;
+  const bad = tagKeys.filter((k) => banned.test(k.replace(/'/g, '')));
+  if (bad.length) fail('Clarity custom tag looks personal: ' + bad.join(', '));
+  else pass('no personal data passed as a Clarity tag');
+
   /* The honeypot must be invisible to Chrome's autofill, not just to people.
      An off-screen input named `company` (or address/organization/name/email/
      phone) is filled by Chrome's address-profile autofill, and autocomplete="off"
@@ -538,7 +561,7 @@ head('13. Every region marker is filled');
    request to `?id=REPLACE__...`. Without this exemption every page of a
    half-configured build reports a spurious empty-region failure, which buries
    the real ones. */
-const MAY_BE_EMPTY = new Set(['GTAGSRC']);
+const MAY_BE_EMPTY = new Set(['GTAGSRC', 'CLARITY']);
 
 for (const p of pages) {
   const re = /<!--PAGE:([A-Z_0-9]+)-->([\s\S]*?)<!--\/PAGE:\1-->/g;

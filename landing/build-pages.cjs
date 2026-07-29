@@ -380,6 +380,27 @@ function gtagSrcHtml() {
          encodeURIComponent(primary) + '"></' + 'script>';
 }
 
+/**
+ * Microsoft Clarity. Same rules as the Google tag above it: emitted only when a
+ * real ID is configured, REPLACE__ counts as unconfigured, and it is a static
+ * tag rather than one assembled at runtime.
+ *
+ * `data-clarity-mask` on the form is set in the markup, not in the Clarity
+ * dashboard. The dashboard has a masking mode that somebody can change without
+ * touching this repo, and the form carries a name, an email, a phone number and
+ * a VIN. Masking at the element means a dashboard toggle cannot expose them.
+ */
+function clarityHtml() {
+  const raw = site.ads && site.ads.clarityId;
+  const id = raw && !String(raw).startsWith('REPLACE__') ? String(raw) : '';
+  if (!id) return '';
+  return '<script>(function(c,l,a,r,i,t,y){' +
+    'c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};' +
+    't=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;' +
+    'y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);' +
+    '})(window,document,"clarity","script","' + esc(id) + '");</' + 'script>';
+}
+
 function heroBulletsHtml() {
   const items = (cfg.site && cfg.site.heroBullets) || [];
   if (!items.length) return '';
@@ -1222,6 +1243,7 @@ function renderPage(page) {
   if (hdrRating) s = region(s, 'HDRRATING', hdrRating);
   s = region(s, 'REVIEWS', reviewsSectionHtml());
   s = region(s, 'GTAGSRC', gtagSrcHtml());
+  s = region(s, 'CLARITY', clarityHtml());
   s = region(s, 'HEROBULLETS', heroBulletsHtml());
   s = region(s, 'TRUST', trustStripHtml());
   s = region(s, 'STATS', statBandHtml());

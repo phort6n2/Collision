@@ -1,0 +1,93 @@
+name: Clarity digest
+
+# Pulls Microsoft Clarity's Data Export API once a day and commits the result.
+#
+# Daily, not weekly, and that is forced by the API rather than chosen: numOfDays
+# accepts only 1, 2 or 3, so a weekly job would silently miss four days in seven.
+# This takes one day at a time and accumulates its own history in the repo, which
+# also means the trend survives even if Clarity's retention window does not.
+#
+# Two API calls against a limit of 10 per project per day, so there is room to
+# re-run by hand without tripping it.
+#
+# NOTE: scheduled workflows only run from the DEFAULT branch.
+
+on:
+  schedule:
+    - cron: '40 8 * * *' # daily, 08:40 UTC — after Clarity has closed out the prior day
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: clarity-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Skip cleanly rather than fail red every morning on a site that has not
+      # been given a Clarity token yet. A red tick nobody can act on trains
+      # people to ignore the tab, and then they miss a real one.
+      - name: Check for a token
+        id: gate
+        run: |
+          if [ -z "${{ secrets.CLARITY_API_TOKEN }}" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CLARITY_API_TOKEN is not set — skipping. Add it in Settings → Secrets to enable."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pull Clarity insights
+        if: steps.gate.outputs.run == 'true'
+        env:
+          CLARITY_API_TOKEN: ${{ secrets.CLARITY_API_TOKEN }}
+        run: node landing/clarity-digest.cjs
+
+      - name: Show the digest
+        if: steps.gate.outputs.run == 'true' && always()
+        run: cat docs/clarity/digest.md || echo "(no digest written)"
+
+      - name: Commit if anything changed
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/clarity
+          git diff --cached --quiet && echo "No change." && exit 0
+
+          # [skip ci] matters. This job touches docs/ only — nothing it writes
+          # can change the built site — but every commit to the default branch
+          # otherwise triggers a production deploy. Without this the site would
+          # rebuild and redeploy every single morning to publish identical HTML.
+          git commit -m "Clarity digest $(date -u +%Y-%m-%d) [skip ci]"
+
+          # Same hardening as the reviews job: unattended, weekly-plus, and the
+          # only symptom of a rejected push is a red tick nobody opens. Retry,
+          # and resolve by resetting and re-running rather than merging — the
+          # digest is derived from history.json, so re-running on the new HEAD
+          # is always correct and costs no extra API call.
+          cp docs/clarity/history.json "$RUNNER_TEMP/history.json"
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "Push rejected (attempt $attempt) — resyncing."
+            git fetch origin "$GITHUB_REF_NAME"
+            git reset --hard FETCH_HEAD
+            mkdir -p docs/clarity
+            cp "$RUNNER_TEMP/history.json" docs/clarity/history.json
+            node landing/clarity-digest.cjs --rewrite
+            git add docs/clarity
+            if git diff --cached --quiet; then echo "Nothing left to commit."; exit 0; fi
+            git commit -m "Clarity digest $(date -u +%Y-%m-%d) [skip ci]"
+          done
+          echo "::error::Clarity digest could not be pushed after 3 attempts."
+          exit 1

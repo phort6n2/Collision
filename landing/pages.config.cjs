@@ -213,6 +213,22 @@ module.exports = {
       conversionId: 'AW-954377360',
       conversionLabel: 'SRXQCJfDvdgcEJDJiscD',
       ga4Id: '',
+      /* Microsoft Clarity project ID (Settings -> Overview -> Project ID).
+       * Session replay and heatmaps, used to find what is BREAKING rather than
+       * to A/B test — at ~96 conversions a month across the whole account a
+       * split test on one page would need years to reach significance, so the
+       * value here is qualitative evidence, not experiments.
+       *
+       * Leave empty (or REPLACE__) and no Clarity script is emitted at all.
+       * Adding it means a third party records sessions on this site, so the
+       * privacy policy has to say so before it goes live — see legal-privacy. */
+      /* Optional, and empty rather than REPLACE__ on purpose — same treatment as
+       * ga4Id above. A REPLACE__ here would make preflight fail, and preflight
+       * runs inside `npm run verify`, which the weekly reviews workflow runs:
+       * an optional analytics tool would have broken the review refresh every
+       * Monday. Paste the ID to switch Clarity on; leave it empty and no script
+       * is emitted at all. */
+      clarityId: '',
       leadValue: 0
     },
 

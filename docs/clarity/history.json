@@ -1,0 +1,29 @@
+{
+  "days": [
+    {
+      "date": "2026-07-29",
+      "rows": [
+        {
+          "metric": "RageClickCount",
+          "key": "/windshield-replacement",
+          "value": 7
+        },
+        {
+          "metric": "RageClickCount",
+          "key": "/",
+          "value": 2
+        },
+        {
+          "metric": "DeadClickCount",
+          "key": "/insurance-claims",
+          "value": 5
+        },
+        {
+          "metric": "ScriptErrorCount",
+          "key": "/",
+          "value": 0
+        }
+      ]
+    }
+  ]
+}

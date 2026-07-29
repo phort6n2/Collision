@@ -55,6 +55,8 @@
      safe to deploy before the account exists. Do not hardcode an ID here; it
      would follow the template to the next client. -->
 <!--PAGE:GTAGSRC--><script async src="https://www.googletagmanager.com/gtag/js?id=AW-954377360"></script><!--/PAGE:GTAGSRC-->
+<!-- Microsoft Clarity. Emitted only when a project ID is configured. -->
+<!--PAGE:CLARITY--><!--/PAGE:CLARITY-->
 <script>
   window.SITE_CONFIG = {
     GOOGLE_ADS_ID:    "AW-954377360",
@@ -1444,7 +1446,8 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
                  itself JS. method="post" covers that case: a POST never puts
                  fields in the URL. The <noscript> below sends those visitors to
                  the phone, which is where they need to go anyway. -->
-        <form id="quoteForm" novalidate method="post" onsubmit="return false">
+        <form id="quoteForm" novalidate method="post" onsubmit="return false"
+              data-clarity-mask="true">
           <h2 class="qc-h">Get your free quote</h2>
           <p class="qc-sub">Takes about 30 seconds. We'll confirm your glass and your coverage before anyone is dispatched.</p>
 
@@ -2071,6 +2074,20 @@ Professional, flexible, and they even have a really sweet dog greeting customers
     return store;
   })();
 
+  /* Clarity custom tags. These are what turn session replay from "watch some
+     videos" into "show me the sessions that failed THIS way on THIS campaign".
+     Everything here is data the page already computed for the CRM and for Ads;
+     none of it is new collection, and none of it is personal — no name, email,
+     phone or VIN is ever passed. The form itself is masked at the element.
+     Safe before the library loads: the Clarity snippet defines the queue
+     function synchronously, so calls made now are replayed on load. */
+  function ctag(key, value){
+    try{ if(window.clarity && value) window.clarity('set', key, String(value)); }catch(e){}
+  }
+  function cevent(name){
+    try{ if(window.clarity) window.clarity('event', name); }catch(e){}
+  }
+
   function track(name, params){
     try{
       if(window.gtag){ window.gtag('event', name, params || {}); }
@@ -2144,6 +2161,8 @@ Professional, flexible, and they even have a really sweet dog greeting customers
        now says which one it took. Visitors never open this; whoever is
        verifying the tag always does. */
     try{ console.info('[conv] reported ' + c.GOOGLE_ADS_ID + '/' + c.GOOGLE_ADS_LABEL + ' — txn ' + txnId); }catch(e){}
+    ctag('form_outcome', 'converted');
+    cevent('lead_submitted');
   }
 
   /* ================= lead delivery =================
@@ -2166,6 +2185,21 @@ Professional, flexible, and they even have a really sweet dog greeting customers
     return '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
   }
   function phE164(v){ var d = phDigits(v); return d.length === 10 ? '+1' + d : ''; }
+
+  /* Session context, set once. Campaign and service make replay filterable by
+     the two questions worth asking: which ad group is sending traffic that
+     struggles, and which service page is doing the struggling. `paid` records
+     whether a click ID was present at all, so paid and organic sessions can be
+     separated without storing the click ID itself. */
+  try{
+    ctag('page_kind', (document.querySelector('meta[name="page-kind"]')||{}).content || 'unknown');
+    ctag('page_path', location.pathname);
+    ctag('utm_campaign', attribution.utm_campaign);
+    ctag('utm_term', attribution.utm_term);
+    ctag('paid', (attribution.gclid || attribution.gbraid || attribution.wbraid) ? 'yes' : 'no');
+    var svcEl = document.getElementById('svc');
+    if(svcEl) ctag('service', svcEl.value);
+  }catch(e){}
 
   var phEl = document.getElementById('ph');
   if(phEl){
@@ -2306,6 +2340,9 @@ Professional, flexible, and they even have a really sweet dog greeting customers
       if((hp && hp.value) || !interacted){
         try{ console.info('[conv] NOT reported — submit failed the bot check (honeypot=' +
              !!(hp && hp.value) + ', trusted interaction=' + interacted + ')'); }catch(e){}
+        ctag('form_outcome', 'bot_check');
+        ctag('bot_reason', (hp && hp.value) ? 'honeypot' : 'no_trusted_interaction');
+        cevent('form_dropped_bot_check');
         showSuccess((document.getElementById('nm').value || '').trim().split(/\s+/)[0] || 'there');
         return;
       }
@@ -2323,6 +2360,12 @@ Professional, flexible, and they even have a really sweet dog greeting customers
         if(firstBad) firstBad.focus();
         try{ console.info('[conv] NOT reported — validation stopped the submit: ' +
              bad.map(function(b){ return b.el; }).join(', ')); }catch(e){}
+        /* WHICH field blocked them is the single most actionable thing Clarity
+           can tell us: it turns "the form underperforms" into "filter to
+           sessions where validation stopped on #zip and watch those five". */
+        ctag('form_outcome', 'validation_failed');
+        ctag('validation_field', bad[0].el);
+        cevent('form_validation_failed');
         return;
       }
 
@@ -2418,7 +2461,12 @@ Professional, flexible, and they even have a really sweet dog greeting customers
         if(statusEl) statusEl.textContent = 'Request sent.';
         showSuccess(first);
       })
-      .catch(function(){ clearTimeout(timer); showError(); });
+      .catch(function(){
+        clearTimeout(timer);
+        ctag('form_outcome', 'delivery_failed');
+        cevent('form_delivery_failed');
+        showError();
+      });
     });
   }
 
