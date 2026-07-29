@@ -382,6 +382,39 @@ Required fields must live **outside** the collapsible drawer. A required field
 inside a collapsed section means the visitor presses submit and the error lands
 on something they cannot see. `verify.cjs` asserts this.
 
+### The honeypot must be invisible to Chrome, not just to people
+
+This one shipped and lost real leads before anyone could see it.
+
+The trap was `name="company"` with a `<label>Company</label>`, positioned
+off-screen rather than `display:none` — on the reasoning that `display:none` is
+the first thing a bot checks for. Sound about bots. Catastrophic about browsers.
+
+**Chrome's address-profile autofill skips `display:none` and
+`visibility:hidden`, but fills an off-screen input happily**, and `company` with
+that label is exactly what it targets. `autocomplete="off"` does not stop it;
+Chrome ignores that for profile fields.
+
+So a visitor with a company in their Chrome profile who used autofill tripped
+the trap. The handler returns before the POST and before the conversion — and
+shows the success screen anyway, deliberately, so bots learn nothing. A paid
+click, a customer who believes they have booked, nothing in the CRM, and no
+trace in any log. The symptom is invisible; it is diagnosable only by reading
+the conversion event list and noticing the handler returned before
+`generate_lead`.
+
+Three rules, all asserted by `verify.cjs`:
+
+- **`display:none`.** The only thing Chrome reliably skips.
+- **No `<label>`.** The strongest autofill hint there is.
+- **A name no autofill heuristic recognises.** Not company, organization, name,
+  email, phone, address, city, state, zip, url or website.
+
+Naive fill-everything bots are still caught. Anything clever enough to skip
+`display:none` is caught by the trusted-interaction check, which is the stronger
+of the two signals and — unlike the honeypot — has no false-positive mode. When
+those two disagree about a real customer, the honeypot is the one that is wrong.
+
 ## Tracking
 
 Report form conversions **from the page**, calls from GHL. Never both — GHL's
@@ -389,9 +422,47 @@ Ads integration is offline-import only and does not fire on Inbound Webhook,
 which is exactly why the split exists. If "Add to Google Ads" is left on inside
 the GHL form workflow, every lead counts twice.
 
-The conversion fires only after the webhook confirms delivery, and dedupes on a
-`transaction_id` built from the click ID plus the last 10 digits of the phone.
-Retesting from the same browser with the same phone will fire nothing.
+The conversion fires **on a validated submit**, before delivery is attempted
+and regardless of whether the CRM accepts the lead. A CRM outage must not also
+blank the ad account's conversion feed — that is precisely when smart bidding
+needs the signal. The trade is that a delivery failure counts a lead the shop
+never received; the visitor still sees the error state and is told to call.
+
+If a client instead wants repeat submissions deduped, remember there are **two**
+dedupes and only one is in the page. A browser-side store is the obvious one.
+The other is Google's: **Ads discards a repeated `transaction_id` server-side**,
+so a stable ID (click ID + phone is perfectly stable for one person) silently
+drops repeats no matter what the browser sends. Removing only the browser-side
+one looks like it worked in Tag Assistant and changes nothing in the account.
+
+### Load gtag.js from a STATIC script tag
+
+Building the script element in JS and appending it to the head loads the library
+fine, and Tag Assistant still sees it because Tag Assistant hooks `dataLayer`
+rather than reading markup. What it defeats is anything that reads the **page**:
+Google Ads' site scan crawls the served HTML, so the account reports the tag as
+missing on a site where it works. Unfalsifiable from the Ads UI.
+
+Emit it from the generator with the ID substituted, and emit **nothing** when no
+ID is set — treating a `REPLACE__` placeholder as unset, because it is a
+non-empty string that sails through a truthiness check and produces a real
+request to `?id=REPLACE__AW-0000000000` on every page.
+
+Do not paste the snippet from the Ads UI alongside the existing block. Two
+library loads and two `config` calls for one account — and that snippet omits
+`allow_enhanced_conversions`, so pasting it over yours silently turns enhanced
+conversions off.
+
+### Every silent early return must announce itself
+
+A submit handler has several paths that end in the same success screen —
+conversion reported, duplicate suppressed, bot check tripped, validation failed.
+Identical to the visitor, which is correct. Identical in the console too, which
+makes "Tag Assistant sees nothing" unanswerable without guessing, and cost most
+of a debugging session on this build.
+
+Log which path was taken. `console.info('[conv] …')` on every branch. Visitors
+never open a console; whoever is verifying the tag always does.
 
 Attribution captures 8 click IDs and 5 UTMs into `sessionStorage`. Absent
 parameters are sent as empty strings so the key set stays stable — GHL builds
