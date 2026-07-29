@@ -285,7 +285,12 @@ module.exports = {
       '/auto-glass-repair-beaverton',
       '/auto-glass-repair-hillsboro',
       '/auto-glass-repair-tualatin',
-      '/auto-glass-repair-lake-oswego'
+      '/auto-glass-repair-lake-oswego',
+      /* Second-highest spend in the account ($2,235 in 30 days) and NOTHING on
+       * the old site linked to it — it exists only as a final URL in the Lead
+       * Gen campaign, so the crawl could not see it and only the Ads export
+       * revealed it. It was going to be a hard 404 on cutover day. */
+      '/mobile-windshield-replacement'
     ],
 
     /* The eleven paths consolidated away, 301'd to the page that absorbed them.
@@ -313,7 +318,11 @@ module.exports = {
       { from: '/car-window-replacement',   to: '/side-window-replacement' },
       { from: '/door-glass-repair',        to: '/side-window-replacement' },
       { from: '/back-glass-repair',        to: '/back-window-replacement' },
-      { from: '/mobile-service',           to: '/mobile-auto-glass' },
+      { from: '/mobile-service',           to: '/mobile-windshield-replacement' },
+      /* Zero impressions but the ads are ENABLED, so it is a live liability:
+       * a paused-today ad 404s the day someone re-enables it. Mobile repair
+       * is what the mobile page covers, so the hop lands somewhere honest. */
+      { from: '/mobile-windshield-repair',  to: '/mobile-windshield-replacement' },
       { from: '/auto-insurance',           to: '/insurance-claims' }
     ]
   },
@@ -999,7 +1008,7 @@ say so when you book rather than turning up and changing the plan.</p>
     },
 
     {
-      slug: 'mobile-auto-glass',
+      slug: 'mobile-windshield-replacement',
       card: {
         icon: 'van',
         title: 'Mobile service',

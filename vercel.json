@@ -87,7 +87,12 @@
     },
     {
       "source": "/mobile-service",
-      "destination": "/mobile-auto-glass",
+      "destination": "/mobile-windshield-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/mobile-windshield-repair",
+      "destination": "/mobile-windshield-replacement",
       "permanent": true
     },
     {
