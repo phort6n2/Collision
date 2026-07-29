@@ -402,6 +402,30 @@ if (home) {
   const configs = (home.html.match(/gtag\(\s*['"]config['"]/g) || []).length;
   if (configs <= 2) pass('gtag config calls: ' + configs + ' (Ads and at most one GA4)');
   else fail(configs + ' gtag config calls — an ID is being configured twice');
+
+  /* The honeypot must be invisible to Chrome's autofill, not just to people.
+     An off-screen input named `company` (or address/organization/name/email/
+     phone) is filled by Chrome's address-profile autofill, and autocomplete="off"
+     does not stop it. A filled honeypot is treated as a bot: no lead POSTed, no
+     conversion, and the success screen shown anyway. That silently loses real
+     customers who use autofill, and it is invisible in every log we keep.
+
+     display:none is the one thing Chrome reliably skips. Anything clever enough
+     to notice display:none is caught by the trusted-interaction check instead. */
+  const hpInput = /<div class="hp"[\s\S]*?<\/div>/.exec(home.html);
+  if (!hpInput) warn('no honeypot found in the form');
+  else {
+    const nameAttr = /name="([^"]+)"/.exec(hpInput[0]);
+    const risky = /^(company|organization|org|name|fname|lname|email|phone|tel|address|address1|city|state|zip|postal|country|title|url|website)$/i;
+    if (nameAttr && risky.test(nameAttr[1]))
+      fail('honeypot is named "' + nameAttr[1] + '" — Chrome autofill fills that, and a filled honeypot silently drops a real lead');
+    else pass('honeypot name is not an autofill target');
+    if (/<label/.test(hpInput[0]))
+      fail('honeypot carries a <label> — that is a strong autofill hint');
+    else pass('honeypot has no label to key autofill off');
+    if (/\.hp\{[^}]*display:\s*none/.test(home.html)) pass('honeypot is display:none, which Chrome autofill skips');
+    else fail('honeypot is not display:none — Chrome autofill will fill an off-screen input');
+  }
 }
 
 /* ------------------------------- 10. call-asset number must not be swappable */

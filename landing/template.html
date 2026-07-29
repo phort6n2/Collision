@@ -524,7 +524,10 @@ input,select,textarea,button{ font:inherit; max-width:100%; }
 }
 .qc-noscript a{ font-weight:800; }
 /* Off-screen, not display:none — a bot that skips hidden inputs skips the trap. */
-.hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+/* display:none, not off-screen. See the honeypot comment in the form: an
+   off-screen input is fair game for Chrome's autofill and a display:none one
+   is not, and a honeypot the browser fills is a trap for customers. */
+.hp{ display:none; }
 .qc-row{ display:grid; grid-template-columns:minmax(0,1fr); gap:14px; }
 .qc-row + .qc-row{ margin-top:14px; }
 /* Short laptop viewports (1280x720 and the like) had 2px of headroom below the
@@ -1499,14 +1502,36 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
             </div>
           </div>
 
-          <!-- Honeypot. Real people never see it and never fill it; scripted
-               submitters that render the page fill every input they find.
-               Kept off-screen rather than display:none, which is the first
-               thing a bot checks for. Not a defence against a direct POST to
-               the webhook — nothing on the page can be. -->
+          <!-- Honeypot. Scripted submitters that render the page fill every
+               input they find; a real person never sees this one.
+
+               It was `name="company"` with a visible-to-autofill
+               <label>Company</label>, positioned off-screen rather than
+               display:none — on the reasoning that display:none is the first
+               thing a bot checks for. That reasoning is sound about bots and
+               was catastrophic about browsers: Chrome's address-profile
+               autofill SKIPS display:none and visibility:hidden, but fills an
+               off-screen field happily, and "company" with that label is
+               exactly what it looks for. autocomplete="off" does not stop it —
+               Chrome ignores that for profile fields.
+
+               So any visitor with a company saved in their Chrome profile who
+               used autofill tripped the trap: no lead POSTed, no conversion
+               reported, and — by design, so bots learn nothing — the success
+               screen shown anyway. A paid click, a customer who believes they
+               have booked, and nothing in the CRM.
+
+               Now: no label, a name no autofill heuristic recognises, and
+               display:none, which is the only reliable way to keep Chrome out
+               of it. Naive fill-everything bots are still caught, and anything
+               clever enough to skip display:none is caught by the trusted-
+               interaction check instead — which is the stronger signal of the
+               two and has no false-positive mode.
+
+               Not a defence against a direct POST to the webhook; nothing on
+               the page can be. -->
           <div class="hp" aria-hidden="true">
-            <label for="company">Company</label>
-            <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+            <input id="hp_check" name="hp_check" type="text" tabindex="-1" autocomplete="off">
           </div>
 
           <div style="margin-top:16px">
@@ -2162,7 +2187,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
       /* Show the normal success screen rather than an error — telling a bot why
          it failed is how it learns to pass. Nothing is POSTed and no conversion
          is reported. */
-      var hp = document.getElementById('company');
+      var hp = document.getElementById('hp_check');
       if((hp && hp.value) || !interacted){
         try{ console.info('[conv] NOT reported — submit failed the bot check (honeypot=' +
              !!(hp && hp.value) + ', trusted interaction=' + interacted + ')'); }catch(e){}
@@ -2181,6 +2206,8 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
         if(statusEl) statusEl.textContent = bad.length + (bad.length === 1 ? ' field needs' : ' fields need') + ' attention.';
         var firstBad = document.getElementById(bad[0].el);
         if(firstBad) firstBad.focus();
+        try{ console.info('[conv] NOT reported — validation stopped the submit: ' +
+             bad.map(function(b){ return b.el; }).join(', ')); }catch(e){}
         return;
       }
 
