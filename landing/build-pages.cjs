@@ -354,6 +354,27 @@ function icon(name, opts) {
  * `text` is emitted as HTML so a bullet can carry an em dash and inline markup;
  * `lead` is the bold opening clause.
  */
+/**
+ * The static gtag.js loader.
+ *
+ * One tag per page and one `config` per ID — pasting the snippet from the Ads
+ * UI on top of this is the obvious-looking move and it double-counts: two
+ * loads of the library and two config calls for the same account.
+ *
+ * Ads ID wins when both are set, matching gtag's own guidance that the library
+ * is loaded once with a primary ID and every other destination is configured
+ * against it. Emits nothing when neither is set, so a build with no account yet
+ * ships no tag rather than a request to `?id=`.
+ */
+function gtagSrcHtml() {
+  const ads = (site.ads && site.ads.conversionId) || '';
+  const ga4 = (site.ads && site.ads.ga4Id) || '';
+  const primary = ads || ga4;
+  if (!primary) return '';
+  return '<script async src="https://www.googletagmanager.com/gtag/js?id=' +
+         encodeURIComponent(primary) + '"></' + 'script>';
+}
+
 function heroBulletsHtml() {
   const items = (cfg.site && cfg.site.heroBullets) || [];
   if (!items.length) return '';
@@ -1186,6 +1207,7 @@ function renderPage(page) {
   if (ratingBar) s = region(s, 'RATINGBAR', ratingBar);
   if (hdrRating) s = region(s, 'HDRRATING', hdrRating);
   s = region(s, 'REVIEWS', reviewsSectionHtml());
+  s = region(s, 'GTAGSRC', gtagSrcHtml());
   s = region(s, 'HEROBULLETS', heroBulletsHtml());
   s = region(s, 'TRUST', trustStripHtml());
   s = region(s, 'STATS', statBandHtml());

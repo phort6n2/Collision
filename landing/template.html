@@ -39,6 +39,22 @@
      Guarded on empty values so the page is safe to deploy before
      the IDs exist — with nothing set, all of this is a no-op.
      ============================================================ -->
+<!-- Google tag (gtag.js) — STATIC, and it has to stay that way.
+
+     This used to build the script element in JS and append it to the head.
+     That loads gtag.js perfectly well and Tag Assistant can usually still see
+     it, because Tag Assistant hooks dataLayer rather than reading markup. What
+     it defeats is anything that reads the PAGE: Google Ads' own site scan
+     crawls the served HTML looking for the tag, and a script element created
+     at runtime is not in the served HTML to find. The account then reports the
+     tag as missing on a site where it is working, which is unfalsifiable from
+     the Ads UI and sends you looking for a bug in the wrong place.
+
+     The generator emits the tag below with the ID substituted, or emits
+     nothing at all when no ID is configured — the guard that keeps this page
+     safe to deploy before the account exists. Do not hardcode an ID here; it
+     would follow the template to the next client. -->
+<!--PAGE:GTAGSRC--><!--/PAGE:GTAGSRC-->
 <script>
   window.SITE_CONFIG = {
     GOOGLE_ADS_ID:    "{{ADS_ID}}",
@@ -47,17 +63,16 @@
     LEAD_VALUE:       {{LEAD_VALUE}},
     CURRENCY:         "USD"
   };
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
   (function(){
     var c = window.SITE_CONFIG;
-    var primary = c.GOOGLE_ADS_ID || c.GA4_ID;
-    if(!primary) return;                       // nothing configured → no-op
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function(){ window.dataLayer.push(arguments); };
+    if(!c.GOOGLE_ADS_ID && !c.GA4_ID) return;   // nothing configured → no-op
     gtag('js', new Date());
-    var s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(primary);
-    document.head.appendChild(s);
+    /* allow_enhanced_conversions is NOT in the snippet Google hands you in the
+       Ads UI, and it is required for the hashed email/phone that fireAdsConversion
+       sends later to be accepted. Pasting the UI snippet over this silently
+       turns enhanced conversions off. */
     if(c.GOOGLE_ADS_ID){
       gtag('config', c.GOOGLE_ADS_ID, { allow_enhanced_conversions: true });
     }

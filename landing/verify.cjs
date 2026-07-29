@@ -380,6 +380,25 @@ if (home) {
   else if (/Date\.now\(\)|Math\.random\(\)/.test(txn[1]))
     pass('transaction_id is unique per submission, so Google cannot dedupe a repeat lead');
   else fail('transaction_id looks stable — Google Ads will discard repeat conversions');
+
+  /* The tag has to be readable in the SERVED HTML, and there has to be exactly
+     one of it. Two ways this breaks, both of which look fine in a browser:
+
+     - Built in JS and appended to the head. Loads correctly, Tag Assistant
+       still sees it, but Google Ads' site scan reads the page HTML and reports
+       the tag as missing on a site where it works.
+     - Someone pastes the snippet from the Ads UI on top of this one. Two
+       library loads and two config calls for the same account.  */
+  const loads = (home.html.match(/googletagmanager\.com\/gtag\/js/g) || []).length;
+  if (loads === 1) pass('exactly one gtag.js load, static in the served HTML');
+  else if (loads === 0) fail('no gtag.js in the served HTML — the Ads site scan will not find the tag');
+  else fail(loads + ' gtag.js loads on one page — the tag is duplicated');
+  if (/createElement\(\s*['"]script['"]\s*\)[\s\S]{0,200}googletagmanager/.test(home.html))
+    fail('gtag.js is being injected from JS — it must be a static script tag');
+  else pass('gtag.js is not injected from JS');
+  const configs = (home.html.match(/gtag\(\s*['"]config['"]/g) || []).length;
+  if (configs <= 2) pass('gtag config calls: ' + configs + ' (Ads and at most one GA4)');
+  else fail(configs + ' gtag config calls — an ID is being configured twice');
 }
 
 /* ------------------------------- 10. call-asset number must not be swappable */
