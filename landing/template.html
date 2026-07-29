@@ -1270,7 +1270,11 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
      the opposite was true and the rail sat half empty. Landscapes render about
      333px at this column width, well under the cap, so raising it only affects
      the portraits that were deliberately placed beside long prose. */
-  .pchap-fig img{ max-height:620px; object-fit:cover; }
+  /* --fig-img-h is set per figure by the generator, from the length of the text
+     that chapter carries; 620 is the fallback when it decides no crop is worth
+     it. Consumed only inside this block, so the one-column phone layout below
+     900px keeps its own 340px cap and is unaffected. */
+  .pchap-fig img{ max-height:var(--fig-img-h, 620px); object-fit:cover; }
   /* Text-only chapters: the same 56ch measure, centred, so both kinds of
      chapter carry balanced margins and neither reads as half-empty.
 

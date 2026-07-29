@@ -1270,7 +1270,11 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
      the opposite was true and the rail sat half empty. Landscapes render about
      333px at this column width, well under the cap, so raising it only affects
      the portraits that were deliberately placed beside long prose. */
-  .pchap-fig img{ max-height:620px; object-fit:cover; }
+  /* --fig-img-h is set per figure by the generator, from the length of the text
+     that chapter carries; 620 is the fallback when it decides no crop is worth
+     it. Consumed only inside this block, so the one-column phone layout below
+     900px keeps its own 340px cap and is unaffected. */
+  .pchap-fig img{ max-height:var(--fig-img-h, 620px); object-fit:cover; }
   /* Text-only chapters: the same 56ch measure, centred, so both kinds of
      chapter carry balanced margins and neither reads as half-empty.
 
@@ -1559,7 +1563,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
   <div class="wrap">
     <!-- No .prose wrapper here: the generator emits one .prose per chapter, and
          wrapping the chapter grid in a 56ch box crushes every column inside it. -->
-    <!--PAGE:BODY--><div class="chaps"><div class="pchap pchap-fig"><h2>The 217 factor</h2><figure><span class="shot"><img src="/img/cowl-wiper-detail.ac8cf8f5.webp" width="668" height="1000" alt="A technician working at the base of the windshield where the wiper cowl meets the glass" loading="lazy" decoding="async"></span><figcaption>Wipers and cowl come off every single time. It is the step a rushed job skips, and where leaks begin.</figcaption></figure><div class="prose"><p>Oregon Route 217 — the Beaverton–Tigard Freeway — runs 7.7 miles from the
+    <!--PAGE:BODY--><div class="chaps"><div class="pchap pchap-fig"><h2>The 217 factor</h2><figure style="--fig-img-h:378px"><span class="shot"><img src="/img/cowl-wiper-detail.ac8cf8f5.webp" width="668" height="1000" alt="A technician working at the base of the windshield where the wiper cowl meets the glass" loading="lazy" decoding="async"></span><figcaption>Wipers and cowl come off every single time. It is the step a rushed job skips, and where leaks begin.</figcaption></figure><div class="prose"><p>Oregon Route 217 — the Beaverton–Tigard Freeway — runs 7.7 miles from the
 Sunset Highway at the north end down to Interstate 5 at Tigard. It is short,
 heavily used, and it is the reason a lot of Beaverton drivers spend their commute
 in dense stop-start traffic at close following distances.</p>
@@ -1592,7 +1596,7 @@ car is not needed until evening.</p>
   bring the car into Cedar Mill, which from most of Beaverton is a short run.</p>
 </div>
 </div></div>
-      <div class="pchap pchap-fig"><h2>Getting to us, if it comes to that</h2><figure><span class="shot"><img src="/img/adas-calibration-scan.22da2ba9.webp" width="668" height="1000" alt="A technician operating a calibration tablet plugged into a vehicle at the dashboard" loading="lazy" decoding="async"></span><figcaption>Your camera is recalibrated and confirmed before we leave, so lane-keep and auto-braking work as they should.</figcaption></figure><div class="prose"><p>Some jobs belong indoors — a static calibration that needs a level floor and a
+      <div class="pchap pchap-fig"><h2>Getting to us, if it comes to that</h2><figure style="--fig-img-h:320px"><span class="shot"><img src="/img/adas-calibration-scan.22da2ba9.webp" width="668" height="1000" alt="A technician operating a calibration tablet plugged into a vehicle at the dashboard" loading="lazy" decoding="async"></span><figcaption>Your camera is recalibrated and confirmed before we leave, so lane-keep and auto-braking work as they should.</figcaption></figure><div class="prose"><p>Some jobs belong indoors — a static calibration that needs a level floor and a
 measured target distance, or bonded glass in a downpour. Our Cedar Mill shop is
 just off the Sunset Highway at the top of the 217, which from most of Beaverton
 is a short trip against the traffic rather than with it. See
@@ -1698,11 +1702,11 @@ has a camera behind the glass.</p></div></div></div><!--/PAGE:BODY-->
       <h2>Real vehicles, real driveways</h2>
     </div>
     <div class="gal"><!--PAGE:GALLERY--><figure><span class="shot"><img src="/img/storefront-portland.99f3c859.webp" width="1000" height="668" alt="The Cedar Mill shop from the parking lot, with the red Collision Auto Glass sign above the roller door" loading="lazy" decoding="async"></span><figcaption>Our Cedar Mill shop, a minute off the Sunset Highway. Drop in, or stay put and we come to you.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/storefront-tualatin.2ee95636.webp" width="1000" height="668" alt="Two staff outside the Tualatin shop, the window behind them listing the services offered" loading="lazy" decoding="async"></span><figcaption>Our second shop, in Tualatin. Two locations across the metro means a shorter wait wherever you are.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/van-mobile-install.26507141.webp" width="668" height="1000" alt="A technician setting glass on a car parked beside the branded mobile van" loading="lazy" decoding="async"></span><figcaption>The van brings the glass, the adhesive and the calibration gear to your driveway. No trip, no waiting room.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/windshield-set-bmw.38868e15.webp" width="1000" height="668" alt="Two technicians lowering a windshield onto a car with suction cup setting tools" loading="lazy" decoding="async"></span><figcaption>Two technicians set every windshield. It takes longer, and it is why yours will not leak or whistle later.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/shop-glass-prep.ea843224.webp" width="668" height="1000" alt="A technician priming the edge of a windshield on a glass stand inside the shop" loading="lazy" decoding="async"></span><figcaption>Every windshield is primed before it goes near your car. It is the step that decides whether the bond lasts.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/front-office.4e517db1.webp" width="1000" height="668" alt="Two staff at the front counter of the shop with framed certificates on the wall behind" loading="lazy" decoding="async"></span><figcaption>Call or drop in and someone will tell you honestly whether you need a repair or a full replacement.</figcaption></figure><!--/PAGE:GALLERY--></div>
+        <figure style="--fig-img-h:1px"><span class="shot"><img src="/img/storefront-tualatin.2ee95636.webp" width="1000" height="668" alt="Two staff outside the Tualatin shop, the window behind them listing the services offered" loading="lazy" decoding="async"></span><figcaption>Our second shop, in Tualatin. Two locations across the metro means a shorter wait wherever you are.</figcaption></figure>
+        <figure style="--fig-img-h:2px"><span class="shot"><img src="/img/van-mobile-install.26507141.webp" width="668" height="1000" alt="A technician setting glass on a car parked beside the branded mobile van" loading="lazy" decoding="async"></span><figcaption>The van brings the glass, the adhesive and the calibration gear to your driveway. No trip, no waiting room.</figcaption></figure>
+        <figure style="--fig-img-h:3px"><span class="shot"><img src="/img/windshield-set-bmw.38868e15.webp" width="1000" height="668" alt="Two technicians lowering a windshield onto a car with suction cup setting tools" loading="lazy" decoding="async"></span><figcaption>Two technicians set every windshield. It takes longer, and it is why yours will not leak or whistle later.</figcaption></figure>
+        <figure style="--fig-img-h:4px"><span class="shot"><img src="/img/shop-glass-prep.ea843224.webp" width="668" height="1000" alt="A technician priming the edge of a windshield on a glass stand inside the shop" loading="lazy" decoding="async"></span><figcaption>Every windshield is primed before it goes near your car. It is the step that decides whether the bond lasts.</figcaption></figure>
+        <figure style="--fig-img-h:5px"><span class="shot"><img src="/img/front-office.4e517db1.webp" width="1000" height="668" alt="Two staff at the front counter of the shop with framed certificates on the wall behind" loading="lazy" decoding="async"></span><figcaption>Call or drop in and someone will tell you honestly whether you need a repair or a full replacement.</figcaption></figure><!--/PAGE:GALLERY--></div>
   </div>
 </section>
 

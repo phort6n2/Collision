@@ -1270,7 +1270,11 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
      the opposite was true and the rail sat half empty. Landscapes render about
      333px at this column width, well under the cap, so raising it only affects
      the portraits that were deliberately placed beside long prose. */
-  .pchap-fig img{ max-height:620px; object-fit:cover; }
+  /* --fig-img-h is set per figure by the generator, from the length of the text
+     that chapter carries; 620 is the fallback when it decides no crop is worth
+     it. Consumed only inside this block, so the one-column phone layout below
+     900px keeps its own 340px cap and is unaffected. */
+  .pchap-fig img{ max-height:var(--fig-img-h, 620px); object-fit:cover; }
   /* Text-only chapters: the same 56ch measure, centred, so both kinds of
      chapter carry balanced margins and neither reads as half-empty.
 
@@ -1704,11 +1708,11 @@ coverage genuinely starts to thin.</p></div></div></div><!--/PAGE:BODY-->
       <h2>Real vehicles, real driveways</h2>
     </div>
     <div class="gal"><!--PAGE:GALLERY--><figure><span class="shot"><img src="/img/storefront-portland.99f3c859.webp" width="1000" height="668" alt="The Cedar Mill shop from the parking lot, with the red Collision Auto Glass sign above the roller door" loading="lazy" decoding="async"></span><figcaption>Our Cedar Mill shop, a minute off the Sunset Highway. Drop in, or stay put and we come to you.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/storefront-tualatin.2ee95636.webp" width="1000" height="668" alt="Two staff outside the Tualatin shop, the window behind them listing the services offered" loading="lazy" decoding="async"></span><figcaption>Our second shop, in Tualatin. Two locations across the metro means a shorter wait wherever you are.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/van-mobile-install.26507141.webp" width="668" height="1000" alt="A technician setting glass on a car parked beside the branded mobile van" loading="lazy" decoding="async"></span><figcaption>The van brings the glass, the adhesive and the calibration gear to your driveway. No trip, no waiting room.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/windshield-set-bmw.38868e15.webp" width="1000" height="668" alt="Two technicians lowering a windshield onto a car with suction cup setting tools" loading="lazy" decoding="async"></span><figcaption>Two technicians set every windshield. It takes longer, and it is why yours will not leak or whistle later.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/shop-glass-prep.ea843224.webp" width="668" height="1000" alt="A technician priming the edge of a windshield on a glass stand inside the shop" loading="lazy" decoding="async"></span><figcaption>Every windshield is primed before it goes near your car. It is the step that decides whether the bond lasts.</figcaption></figure>
-        <figure><span class="shot"><img src="/img/front-office.4e517db1.webp" width="1000" height="668" alt="Two staff at the front counter of the shop with framed certificates on the wall behind" loading="lazy" decoding="async"></span><figcaption>Call or drop in and someone will tell you honestly whether you need a repair or a full replacement.</figcaption></figure><!--/PAGE:GALLERY--></div>
+        <figure style="--fig-img-h:1px"><span class="shot"><img src="/img/storefront-tualatin.2ee95636.webp" width="1000" height="668" alt="Two staff outside the Tualatin shop, the window behind them listing the services offered" loading="lazy" decoding="async"></span><figcaption>Our second shop, in Tualatin. Two locations across the metro means a shorter wait wherever you are.</figcaption></figure>
+        <figure style="--fig-img-h:2px"><span class="shot"><img src="/img/van-mobile-install.26507141.webp" width="668" height="1000" alt="A technician setting glass on a car parked beside the branded mobile van" loading="lazy" decoding="async"></span><figcaption>The van brings the glass, the adhesive and the calibration gear to your driveway. No trip, no waiting room.</figcaption></figure>
+        <figure style="--fig-img-h:3px"><span class="shot"><img src="/img/windshield-set-bmw.38868e15.webp" width="1000" height="668" alt="Two technicians lowering a windshield onto a car with suction cup setting tools" loading="lazy" decoding="async"></span><figcaption>Two technicians set every windshield. It takes longer, and it is why yours will not leak or whistle later.</figcaption></figure>
+        <figure style="--fig-img-h:4px"><span class="shot"><img src="/img/shop-glass-prep.ea843224.webp" width="668" height="1000" alt="A technician priming the edge of a windshield on a glass stand inside the shop" loading="lazy" decoding="async"></span><figcaption>Every windshield is primed before it goes near your car. It is the step that decides whether the bond lasts.</figcaption></figure>
+        <figure style="--fig-img-h:5px"><span class="shot"><img src="/img/front-office.4e517db1.webp" width="1000" height="668" alt="Two staff at the front counter of the shop with framed certificates on the wall behind" loading="lazy" decoding="async"></span><figcaption>Call or drop in and someone will tell you honestly whether you need a repair or a full replacement.</figcaption></figure><!--/PAGE:GALLERY--></div>
   </div>
 </section>
 

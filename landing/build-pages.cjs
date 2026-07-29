@@ -480,9 +480,9 @@ function insuranceCardsHtml() {
 /** One photo, card-styled, with the .shot wrapper the watermark anchors to.
  *  Shared by the gallery and by the body chapters so a photo looks the same
  *  either way and only has to be described once in config. */
-function figureHtml(g) {
+function figureHtml(g, imgCapPx) {
   return (
-    '<figure>' +
+    '<figure' + (imgCapPx ? ' style="--fig-img-h:' + Math.round(imgCapPx) + 'px"' : '') + '>' +
     '<span class="shot">' +
     '<img src="' + ASSET_PREFIX + '/img/' + esc(g.src) + '" width="' + esc(g.w) +
     '" height="' + esc(g.h) + '" alt="' + esc(g.alt) + '" loading="lazy" decoding="async">' +
@@ -604,6 +604,35 @@ function proseHtml(page) {
   const CHAR_W = 8.05, LINE_H = 30, HEAD_H = 88;
   const textHeight = (chars) => HEAD_H + Math.ceil(chars / (PROSE_COL / CHAR_W)) * LINE_H;
 
+  /* Per-chapter image cap, emitted as --fig-img-h on the figure.
+   *
+   * The global cap in the CSS was raised 470 -> 620 on the reasoning that
+   * portraits only ever land beside the LONGEST chapters, where a tall photo is
+   * what the rail wants. Pairing does aim for that, but it cannot honour it for
+   * a figure the page pins explicitly — and pinning is an editorial choice about
+   * WHICH photo, not about how tall it should be. The result was a 639px
+   * portrait beside 187px of prose: 452px of empty rail on the Tualatin page,
+   * and twelve more chapters over 150px.
+   *
+   * So the cap becomes per-chapter: crop the photo toward the height of the text
+   * it illustrates. object-fit:cover with the default centre origin, so the crop
+   * takes equal slices off the top and bottom and keeps the subject.
+   *
+   * MIN_IMG_H is the floor. Below roughly this the crop stops reading as a
+   * photograph of anything and starts reading as a letterboxed strip, which is
+   * worse than the gap it fixes. A chapter shorter than that keeps some slack,
+   * and that is the correct trade. */
+  const MIN_IMG_H = 320;
+  const imgCap = (g, chars) => {
+    if (!g || !g.w || !g.h) return 0;
+    const natural = Math.min(g.h / g.w * FIG_COL, CHAP_IMG_MAX_H);
+    const want = textHeight(chars) - CAPTION_H;
+    const capped = Math.max(MIN_IMG_H, Math.min(want, natural));
+    /* Only emit when it actually crops, and only when the saving is worth an
+       inline style — a 20px trim is not worth the attribute on every figure. */
+    return capped < natural - 24 ? capped : 0;
+  };
+
   const needFill = [];
   for (let i = 0; i < parts.length; i++) if (!byChapter.has(i)) needFill.push(i);
   /* Longest prose first, measured on the chapter text with tags stripped so a
@@ -650,7 +679,7 @@ function proseHtml(page) {
     return (
       '<div class="pchap pchap-fig' + alt + '">' +
       heading +
-      figureHtml(galleryEntry(fig.src)) +
+      figureHtml(galleryEntry(fig.src), imgCap(galleryEntry(fig.src), weight(i))) +
       '<div class="prose">' + rest + '</div>' +
       '</div>'
     );
