@@ -2075,16 +2075,35 @@ Professional, flexible, and they even have a really sweet dog greeting customers
      by GHL's Number Pool Calling trigger. Do not let both report forms. */
   function fireAdsConversion(lead){
     var c = window.SITE_CONFIG || {};
-    if(!c.GOOGLE_ADS_ID || !c.GOOGLE_ADS_LABEL || !window.gtag) return;
+    if(!c.GOOGLE_ADS_ID || !c.GOOGLE_ADS_LABEL || !window.gtag){
+      try{ console.info('[conv] NOT reported — Ads ID/label missing, or gtag blocked'); }catch(e){}
+      return;
+    }
 
+    /* EVERY submitted form is a conversion, including a repeat from the same
+       person. That is the client's decision and it removes two separate
+       dedupes, not one — the second is not in this file and is easy to miss:
+
+       1. A browser-side store used to hold a `lp_conv_<txnId>` key and return
+          early on a match. Gone entirely.
+
+       2. Google Ads dedupes server-side on transaction_id. A stable ID — and
+          `lead-<gclid>-<phone>` is perfectly stable for one person — means the
+          second submission is accepted by the browser, sent, and then silently
+          discarded by Google. Removing (1) alone would have looked like it
+          worked and changed nothing in the account.
+
+       So the ID carries a per-submission suffix. It still leads with the click
+       ID and phone, which is what makes it readable next to a CRM record; the
+       suffix only has to make it unique. Timestamp plus a random tail, because
+       two submissions can land in the same millisecond.
+
+       The cost is that a genuine accidental double-submit now counts twice.
+       The re-entrancy guard below still stops one CLICK becoming two, so this
+       is limited to a person deliberately submitting again. */
     var txnId = 'lead-' + (attribution.gclid || attribution.gbraid || attribution.wbraid || 'direct') +
-                '-' + String(lead.phone || '').replace(/\D/g,'').slice(-10);
-    try{
-      var seen = 'lp_conv_' + txnId;
-      var store = window.localStorage || window.sessionStorage;   // localStorage survives new tabs
-      if(store.getItem(seen)) return;                             // already reported
-      store.setItem(seen, '1');
-    }catch(e){}
+                '-' + String(lead.phone || '').replace(/\D/g,'').slice(-10) +
+                '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
     /* Enhanced conversions: gtag.js hashes these in the browser before
        sending — they never leave in the clear — and they raise match rates. */
@@ -2101,6 +2120,14 @@ Professional, flexible, and they even have a really sweet dog greeting customers
       currency: c.CURRENCY || 'USD',
       transaction_id: txnId
     });
+    /* Three separate paths through a submit end in the same success screen —
+       a reported conversion, one suppressed as a duplicate, and one dropped by
+       the bot check. From the visitor's side they are identical, which is
+       correct; from a console they were identical too, which is how "Tag
+       Assistant sees nothing" became unanswerable without guessing. Each path
+       now says which one it took. Visitors never open this; whoever is
+       verifying the tag always does. */
+    try{ console.info('[conv] reported ' + c.GOOGLE_ADS_ID + '/' + c.GOOGLE_ADS_LABEL + ' — txn ' + txnId); }catch(e){}
   }
 
   /* ================= lead delivery =================
@@ -2261,6 +2288,8 @@ Professional, flexible, and they even have a really sweet dog greeting customers
          is reported. */
       var hp = document.getElementById('company');
       if((hp && hp.value) || !interacted){
+        try{ console.info('[conv] NOT reported — submit failed the bot check (honeypot=' +
+             !!(hp && hp.value) + ', trusted interaction=' + interacted + ')'); }catch(e){}
         showSuccess((document.getElementById('nm').value || '').trim().split(/\s+/)[0] || 'there');
         return;
       }

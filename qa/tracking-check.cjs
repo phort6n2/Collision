@@ -182,7 +182,7 @@ const server = http.createServer((req,res)=>{
   if (p.send_to === 'AW-TEST12345/TestLabel_abc') pass('send_to is AdsID/Label');
   else fail('send_to wrong: ' + p.send_to);
   if (String(p.transaction_id).includes('TEST123') && String(p.transaction_id).includes('7145550142'))
-    pass('transaction_id contains the gclid and the phone (dedupe key)');
+    pass('transaction_id leads with the gclid and the phone');
   else fail('transaction_id wrong: ' + p.transaction_id);
   if (p.value === 125 && p.currency === 'USD') pass('conversion carries value 125 USD');
   else fail('value/currency wrong: ' + JSON.stringify(p));
@@ -205,8 +205,15 @@ const server = http.createServer((req,res)=>{
   await page2.click('.qc-submit'); await page2.waitForTimeout(600);
   const dl3 = await page2.evaluate(() => (window.dataLayer||[]).map(a=>Array.from(a)));
   const conv3 = dl3.filter(a => a[0]==='event' && a[1]==='conversion');
-  if (conv3.length === 0) pass('second submit of the same lead fires NO second conversion (deduped)');
-  else fail('duplicate conversion fired on resubmit: ' + JSON.stringify(conv3));
+  /* Repeat submissions COUNT. Client's decision: every form submit is a
+     conversion, including a second one from the same person. */
+  if (conv3.length === 1) pass('resubmit by the same person fires a second conversion (no dedupe)');
+  else fail('expected 1 conversion on resubmit, got ' + conv3.length);
+  /* ...and it must carry a DIFFERENT transaction_id, or Google Ads discards it
+     server-side and the browser-side result above proves nothing. */
+  const t1 = p.transaction_id, t2 = conv3[0] && conv3[0][2] && conv3[0][2].transaction_id;
+  if (t1 && t2 && t1 !== t2) pass('resubmit carries a fresh transaction_id (Google will not dedupe it)');
+  else fail('transaction_id repeated across submissions: ' + t1 + ' / ' + t2);
   // attribution survived navigation to a different page
   const attr = await page2.evaluate(()=>JSON.parse(sessionStorage.getItem('lp_attr')||'{}'));
   if (attr.gclid === 'TEST123' && attr.utm_campaign === 'test-campaign' && attr.utm_term === 'test term')

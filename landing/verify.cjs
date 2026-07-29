@@ -335,7 +335,7 @@ if (home) {
     ['allow_enhanced_conversions', /allow_enhanced_conversions:\s*true/],
     ['attribution keys incl gbraid/wbraid', /gbraid[\s\S]{0,40}wbraid/],
     ['sessionStorage attribution persistence', /sessionStorage\.setItem\(\s*['"]lp_attr/],
-    ['conversion dedupe flag', /lp_conv_/],
+    ['re-entrancy guard (one click cannot become two POSTs)', /submitting\s*=\s*true/],
     ['gtag set user_data', /gtag\('set',\s*'user_data'/],
     ['conversion event', /gtag\('event',\s*'conversion'/],
     ['E.164 normalisation', /\+1'\s*\+\s*d|'\+1'\s*\+/]
@@ -362,6 +362,24 @@ if (home) {
   else if (beforeIdx === -1) fail('conversion is not reported before the webhook POST — a CRM outage would lose it');
   else if (afterIdx !== -1) fail('conversion also fires after the webhook resolves — it would be double-counted');
   else pass('conversion reported on submit, independent of CRM delivery');
+
+  /* Every submission counts, repeats included. Two dedupes had to go for that
+     to be true, and only one of them is visible in this file — Google Ads
+     discards a repeated transaction_id server-side, so a STABLE id would let
+     the browser send a conversion that the account silently drops. That failure
+     shows up as "the numbers are lower than the CRM" weeks later, with nothing
+     in the page to explain it. Assert the id cannot be stable. */
+  /* Quoted literal, not the bare word: the code carries a comment explaining
+     what the old key was and why it went, and matching prose would fail the
+     build for describing the fix. */
+  if (/['"]lp_conv_/.test(home.html))
+    fail('a browser-side conversion dedupe store is back — repeat submissions would be suppressed');
+  else pass('no browser-side conversion dedupe');
+  const txn = /var txnId =([\s\S]{0,320}?);/.exec(home.html);
+  if (!txn) fail('could not find the transaction_id construction');
+  else if (/Date\.now\(\)|Math\.random\(\)/.test(txn[1]))
+    pass('transaction_id is unique per submission, so Google cannot dedupe a repeat lead');
+  else fail('transaction_id looks stable — Google Ads will discard repeat conversions');
 }
 
 /* ------------------------------- 10. call-asset number must not be swappable */
