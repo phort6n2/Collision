@@ -367,9 +367,14 @@ function icon(name, opts) {
  * ships no tag rather than a request to `?id=`.
  */
 function gtagSrcHtml() {
-  const ads = (site.ads && site.ads.conversionId) || '';
-  const ga4 = (site.ads && site.ads.ga4Id) || '';
-  const primary = ads || ga4;
+  /* A REPLACE__ placeholder is a non-empty string and would sail straight
+     through a truthiness check, emitting `?id=REPLACE__AW-0000000000` — a real
+     request to Google carrying a junk ID, on every page of a half-configured
+     build. Preflight blocks the SHIP, not the build, so anyone previewing
+     locally would have been firing those. Unconfigured means empty OR
+     placeholder. */
+  const real = (v) => (v && !String(v).startsWith('REPLACE__') ? String(v) : '');
+  const primary = real(site.ads && site.ads.conversionId) || real(site.ads && site.ads.ga4Id);
   if (!primary) return '';
   return '<script async src="https://www.googletagmanager.com/gtag/js?id=' +
          encodeURIComponent(primary) + '"></' + 'script>';

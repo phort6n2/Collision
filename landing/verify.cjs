@@ -390,7 +390,10 @@ if (home) {
      - Someone pastes the snippet from the Ads UI on top of this one. Two
        library loads and two config calls for the same account.  */
   const loads = (home.html.match(/googletagmanager\.com\/gtag\/js/g) || []).length;
+  const adsConfigured = /GOOGLE_ADS_ID:\s*"(?!"|REPLACE__)[^"]+"/.test(home.html) ||
+                        /GA4_ID:\s*"(?!"|REPLACE__)[^"]+"/.test(home.html);
   if (loads === 1) pass('exactly one gtag.js load, static in the served HTML');
+  else if (loads === 0 && !adsConfigured) warn('no gtag.js — no Ads or GA4 ID configured yet');
   else if (loads === 0) fail('no gtag.js in the served HTML — the Ads site scan will not find the tag');
   else fail(loads + ' gtag.js loads on one page — the tag is duplicated');
   if (/createElement\(\s*['"]script['"]\s*\)[\s\S]{0,200}googletagmanager/.test(home.html))
@@ -505,11 +508,19 @@ pass(hasReviews ? 'live review data present' : 'no review data — no rating cla
 
 head('13. Every region marker is filled');
 
+/* Regions that are legitimately empty on a correctly-built site. GTAGSRC holds
+   the gtag.js tag, which is deliberately omitted when no Google Ads or GA4 ID
+   is configured — a build with no account yet must ship no tag rather than a
+   request to `?id=REPLACE__...`. Without this exemption every page of a
+   half-configured build reports a spurious empty-region failure, which buries
+   the real ones. */
+const MAY_BE_EMPTY = new Set(['GTAGSRC']);
+
 for (const p of pages) {
   const re = /<!--PAGE:([A-Z_0-9]+)-->([\s\S]*?)<!--\/PAGE:\1-->/g;
   let m;
   while ((m = re.exec(p.html))) {
-    if (!m[2].trim()) fail(p.slug + ' has an empty region: ' + m[1]);
+    if (!m[2].trim() && !MAY_BE_EMPTY.has(m[1])) fail(p.slug + ' has an empty region: ' + m[1]);
   }
 }
 
