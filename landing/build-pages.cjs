@@ -44,6 +44,17 @@ const OUTDIR = process.env.OUTDIR
  * work while the built site uses real root-relative (or BASE-prefixed) paths. */
 const ASSET_PREFIX = '/ASSET';
 
+/* Illustrated-chapter geometry, mirrored from the .pchap-fig rules in
+ * template.html. proseHtml() uses these to pair each chapter with a photo whose
+ * rendered height matches the text beside it, so they must be kept in step with
+ * the CSS — if you change the column ratio, the wrap width or the image cap
+ * there, change them here too or the pairing silently drifts. */
+const CHAP_MAX_W = 934;     // .pchap-fig max-width
+const CHAP_GAP = 56;        // .pchap-fig column gap
+const CHAP_TEXT_FR = 498;   // grid-template-columns, text track
+const CHAP_FIG_FR = 380;    //                        figure track
+const CHAP_IMG_MAX_H = 620; // .pchap-fig img max-height
+
 const cfg = require('./pages.config.cjs');
 const site = cfg.site;
 
@@ -566,25 +577,52 @@ function proseHtml(page) {
   const used = new Set([...byChapter.values()].map((f) => f.src));
   const pool = (cfg.bodyPhotos || []).filter((b) => !used.has(b.src));
 
-  /* Orientation matters more than order here. A chapter's prose is often two or
-     three times the height of the photo beside it — a bullet list plus a
-     callout runs to ~900px against a landscape photo's ~350px — and that leaves
-     the rail visibly empty no matter how the figure is aligned.
-     A portrait photo at the same column width is roughly twice as tall, so it
-     fills that rail properly. Give the longest chapters the portraits and the
-     short ones the landscapes; the fill still never repeats within a page. */
-  const portraits = pool.filter((b) => b.h > b.w);
-  const landscapes = pool.filter((b) => b.h <= b.w);
+  /* Pair each chapter with the photo whose RENDERED HEIGHT is closest to the
+     height of the text beside it.
+
+     This used to be `portraits.concat(landscapes)` against chapters sorted
+     longest-first, on the reasoning that long prose needs a tall photo. The
+     reasoning is right and the implementation only half-delivered it: it hands
+     out every portrait before it reaches the first landscape, so on a page with
+     four chapters and four portraits in the pool the SHORTEST chapter got a
+     portrait too. A 640px photo beside 300px of text left 340px of dead rail —
+     the single most-reported layout complaint on this build.
+
+     Both figure heights are derived from the layout rather than hardcoded, so
+     this stays correct if the column ratio or the wrap width changes. */
+  const FIG_COL = (CHAP_MAX_W - CHAP_GAP) * CHAP_FIG_FR / (CHAP_TEXT_FR + CHAP_FIG_FR);
+  const PROSE_COL = (CHAP_MAX_W - CHAP_GAP) * CHAP_TEXT_FR / (CHAP_TEXT_FR + CHAP_FIG_FR);
+  /* Caption is one or two lines at .875rem/1.5 plus 12/16px padding. */
+  const CAPTION_H = 70;
+  const figHeight = (b) => Math.min(b.h / b.w * FIG_COL, CHAP_IMG_MAX_H) + CAPTION_H;
+
+  /* Text height from character count. Calibrated against measured renders on
+     this template: ~62 characters to a 498px line at the prose size, ~30px per
+     line, plus a two-line h2. Crude on purpose — it only ever has to choose
+     between a ~640px portrait and a ~320px landscape, and it is scale-free
+     enough to survive a different type ramp. */
+  const CHAR_W = 8.05, LINE_H = 30, HEAD_H = 88;
+  const textHeight = (chars) => HEAD_H + Math.ceil(chars / (PROSE_COL / CHAR_W)) * LINE_H;
+
   const needFill = [];
   for (let i = 0; i < parts.length; i++) if (!byChapter.has(i)) needFill.push(i);
   /* Longest prose first, measured on the chapter text with tags stripped so a
-     markup-heavy callout does not count as length. */
+     markup-heavy callout does not count as length. Longest-first matters: the
+     tall chapters are the ones with only one good answer, so they choose before
+     the short ones start competing for the same landscape. */
   const weight = (i) => parts[i].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').length;
   needFill.sort((a, b) => weight(b) - weight(a));
-  const ordered = portraits.concat(landscapes);
-  needFill.forEach((chapterIndex, n) => {
-    if (n >= ordered.length) return;
-    byChapter.set(chapterIndex, { chapter: chapterIndex, src: ordered[n].src });
+
+  const remaining = pool.slice();
+  needFill.forEach((chapterIndex) => {
+    if (!remaining.length) return;
+    const want = textHeight(weight(chapterIndex));
+    let best = 0;
+    for (let n = 1; n < remaining.length; n++) {
+      if (Math.abs(figHeight(remaining[n]) - want) < Math.abs(figHeight(remaining[best]) - want)) best = n;
+    }
+    byChapter.set(chapterIndex, { chapter: chapterIndex, src: remaining[best].src });
+    remaining.splice(best, 1);
   });
 
   /* Alternation is back, and it is only defensible because every chapter is now

@@ -1221,7 +1221,18 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
     /* Figure always in the right rail. Heading and prose stack against it in
        the left column. Areas rather than source order: the three are siblings
        precisely so a phone gets heading -> photo -> text from source order. */
-    grid-template-areas:"head fig" "prose fig"; grid-template-rows:auto 1fr;
+    /* Two 1fr spacer rows, one above the heading and one below the prose, so
+       when the photo is taller than the text the slack is split evenly instead
+       of dumped underneath it. This was `auto 1fr`, which gave the whole
+       surplus to the prose row; with align-items:start that pinned the text to
+       the top and left 211px, 260px and 341px of dead rail below it on three of
+       the four chapters. The heading and prose keep their own auto rows, so
+       they stay tight to each other — the slack never opens between them.
+       When the text is TALLER than the photo the 1fr rows collapse to zero and
+       nothing moves, which is the "what we handle" chapter and why the figure
+       below is sticky rather than centred. */
+    grid-template-areas:". fig" "head fig" "prose fig" ". fig";
+    grid-template-rows:1fr auto auto 1fr;
     /* Column gap only. `gap:56px` would also open 56px between the heading row
        and the prose row, which reads as a missing paragraph — the h2's own 12px
        bottom margin is the spacing that belongs there. */
@@ -1231,7 +1242,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
      chapter — see proseHtml. With a mix of illustrated and bare chapters this
      read as text that would not sit still. */
   .pchap-alt{ grid-template-columns:380fr 498fr;
-              grid-template-areas:"fig head" "fig prose"; }
+              grid-template-areas:"fig ." "fig head" "fig prose" "fig ."; }
   .pchap-fig > h2{ grid-area:head; }
   /* Sticky, not centred. A chapter's prose is routinely three times the height
      of the photo beside it — the "what we handle" chapter is a bullet list plus
