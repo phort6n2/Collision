@@ -659,8 +659,17 @@ function proseHtml(page) {
     return capped < natural - 24 ? capped : 0;
   };
 
+  /* Opt-OUT, not opt-in: `bodyPhotoFill !== false` rather than a truthiness
+     test. The template config carries `bodyPhotoFill: true` and this client's
+     does not carry the key at all, so a truthy check would fill one repo and
+     silently stop filling the other — the exact split-brain the shared
+     generator exists to prevent. Absent means on; only an explicit false
+     disables it, for a client whose photo pool is genuinely smaller than its
+     chapter count. */
   const needFill = [];
-  for (let i = 0; i < parts.length; i++) if (!byChapter.has(i)) needFill.push(i);
+  if (cfg.bodyPhotoFill !== false) {
+    for (let i = 0; i < parts.length; i++) if (!byChapter.has(i)) needFill.push(i);
+  }
   /* Longest prose first, measured on the chapter text with tags stripped so a
      markup-heavy callout does not count as length. Longest-first matters: the
      tall chapters are the ones with only one good answer, so they choose before
