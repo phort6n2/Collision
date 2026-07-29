@@ -207,8 +207,11 @@ module.exports = {
     ],
 
     ads: {
-      conversionId: 'REPLACE__AW-0000000000',
-      conversionLabel: 'REPLACE__conversion-label',
+      /* Conversion action "Submit lead form - New landing page conversion page".
+       * A dedicated action rather than the one the main site uses, so smart
+       * bidding on these campaigns optimises against these leads only. */
+      conversionId: 'AW-954377360',
+      conversionLabel: 'SRXQCJfDvdgcEJDJiscD',
       ga4Id: '',
       leadValue: 0
     },
