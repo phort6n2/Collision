@@ -187,10 +187,13 @@ const server = http.createServer((req,res)=>{
   if (p.value === 125 && p.currency === 'USD') pass('conversion carries value 125 USD');
   else fail('value/currency wrong: ' + JSON.stringify(p));
 
-  // conversion must fire only AFTER the webhook resolved
+  // The form submit IS the conversion action, so the conversion is reported on
+  // a validated submit and does NOT depend on the CRM accepting the lead. A GHL
+  // outage must not blank the ad account's conversion feed. Assert the ordering
+  // that proves it: conversion after generate_lead, before the POST resolves.
   const order = dl2.findIndex(a=>a[0]==='event'&&a[1]==='conversion');
   const gl = dl2.findIndex(a=>a[0]==='event'&&a[1]==='generate_lead');
-  if (gl !== -1 && order > gl) pass('conversion fired after lead delivery, not on click');
+  if (gl !== -1 && order > gl) pass('conversion fired on a validated submit, after generate_lead');
   else fail('conversion ordering suspect');
 
   // ---- dedupe: resubmit in a fresh page, same session storage ----
@@ -209,6 +212,45 @@ const server = http.createServer((req,res)=>{
   if (attr.gclid === 'TEST123' && attr.utm_campaign === 'test-campaign' && attr.utm_term === 'test term')
     pass('attribution persisted across pages via sessionStorage (utm_campaign survived a URL without it)');
   else fail('attribution did not persist: ' + JSON.stringify(attr));
+
+  /* ---- CRM outage: the conversion must still be reported ----
+     The form submit is the conversion action, so a GHL failure costs the lead
+     but must not cost the ad signal — that is exactly when smart bidding needs
+     it. Fresh context so the dedupe store is empty, and a different phone so
+     the transaction_id differs from the submissions above. */
+  const ctx3 = await browser.newContext({ viewport:{width:1280,height:900} });
+  await ctx3.route('**/*', route => {
+    const u = route.request().url();
+    if (u.startsWith('http://localhost:8098')) return route.continue();
+    return route.fulfill({ status:200, contentType:'application/javascript', body:'/* stub */' });
+  });
+  let downCalls = 0;
+  await ctx3.route('**services.leadconnectorhq.com/**', route => {
+    downCalls++;
+    return route.fulfill({ status:502, contentType:'text/plain', body:'Bad Gateway' });
+  });
+  await ctx3.route('**googletagmanager.com/**', route =>
+    route.fulfill({ status:200, contentType:'application/javascript', body:'window.__gtagLoaded=true;' }));
+  const page3 = await ctx3.newPage();
+  await page3.goto('http://localhost:8098/?gclid=TEST999', {waitUntil:'load'});
+  await page3.fill('#nm','Jordan Blake');
+  await page3.fill('#ph','7145550188');
+  await page3.fill('#em','jordan@example.com');
+  await page3.fill('#zip','92614');
+  await page3.fill('#veh','2019 Honda CR-V');
+  await page3.click('.qc-submit');
+  await page3.waitForTimeout(900);
+
+  const dl4 = await page3.evaluate(() => (window.dataLayer||[]).map(a=>Array.from(a)));
+  const conv4 = dl4.filter(a => a[0]==='event' && a[1]==='conversion');
+  if (downCalls >= 1) pass('webhook was attempted even though it is failing');
+  else fail('webhook never attempted in the outage case');
+  if (conv4.length === 1) pass('CRM returned 502 — conversion STILL reported (form submit is the conversion)');
+  else fail('expected exactly 1 conversion during a CRM outage, got ' + conv4.length);
+  if (await page3.locator('#quoteSuccess.on').count() === 0)
+    pass('CRM outage still shows the error state, not a false success');
+  else fail('showed success despite the webhook failing');
+  await ctx3.close();
 
   if (!errs.length) pass('no page errors'); else fail('page errors: ' + errs.join('; '));
   await browser.close(); server.close();

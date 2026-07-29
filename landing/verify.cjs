@@ -344,12 +344,24 @@ if (home) {
     if (re.test(home.html)) pass(label);
     else fail('home page missing ' + label);
   }
-  /* the conversion must fire only after delivery is confirmed */
+  /* The form submit IS the conversion action, so the conversion must be
+     reported on a validated submit and must NOT be conditional on the CRM
+     accepting the lead — a GHL outage cannot be allowed to blank the ad
+     account's conversion feed. This asserts the inverse of what it used to:
+     fireAdsConversion has to appear BEFORE the webhook fetch, and must not
+     appear after it.
+
+     GHL reports phone calls from the number pool and nothing else. If form
+     submissions are ever re-enabled as a GHL conversion action, every lead
+     counts twice — that is the failure this pairing guards against, and it is
+     invisible in the ad account until the numbers are already wrong. */
   const submitIdx = home.html.indexOf('fetch(LEAD_WEBHOOK');
-  const thenIdx = home.html.indexOf('fireAdsConversion', submitIdx);
+  const beforeIdx = home.html.lastIndexOf('fireAdsConversion(leadInfo)', submitIdx);
+  const afterIdx = submitIdx === -1 ? -1 : home.html.indexOf('fireAdsConversion(', submitIdx);
   if (submitIdx === -1) warn('no webhook fetch found (webhook may be unconfigured)');
-  else if (thenIdx === -1) fail('conversion is never fired after the webhook POST');
-  else pass('conversion fires after webhook resolves');
+  else if (beforeIdx === -1) fail('conversion is not reported before the webhook POST — a CRM outage would lose it');
+  else if (afterIdx !== -1) fail('conversion also fires after the webhook resolves — it would be double-counted');
+  else pass('conversion reported on submit, independent of CRM delivery');
 }
 
 /* ------------------------------- 10. call-asset number must not be swappable */

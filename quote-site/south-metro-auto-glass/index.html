@@ -2225,9 +2225,31 @@ Professional, flexible, and they even have a really sweet dog greeting customers
 
       track('generate_lead', { form:'quote' });
 
-      /* No webhook configured yet → still report the conversion and show success,
-         so the page is safe to deploy before GHL is wired up. */
-      if(!LEAD_WEBHOOK){ fireAdsConversion(leadInfo); showSuccess(first); return; }
+      /* Report to Google Ads HERE — on a validated submit, before delivery is
+         attempted, and regardless of whether delivery succeeds.
+
+         This used to sit inside the fetch's success handler so that a lead
+         which never reached the CRM was never counted. That is the safer rule
+         for a shop whose CRM is the system of record, and it is deliberately
+         NOT the rule here: the form submit IS the conversion action, and GHL
+         reports only phone calls from the number pool. A CRM outage must not
+         also blank the ad account's conversion feed, because that is precisely
+         when smart bidding needs the signal.
+
+         The trade is real and worth stating: a delivery failure now counts a
+         conversion for a lead the shop never received. fireAdsConversion is
+         deduped on transaction_id, and the bot trap above still gates this, so
+         the exposure is genuine submissions that failed to POST — not retries
+         and not bots. The visitor still sees the error state below and is told
+         to call.
+
+         Do not let GHL also report form submissions, or every lead counts
+         twice. */
+      fireAdsConversion(leadInfo);
+
+      /* No webhook configured yet → the conversion is already reported, so just
+         show success. Keeps the page safe to deploy before GHL is wired up. */
+      if(!LEAD_WEBHOOK){ showSuccess(first); return; }
 
       var insEl = document.querySelector('input[name="insurance"]:checked');
       var payload = {
@@ -2266,9 +2288,10 @@ Professional, flexible, and they even have a really sweet dog greeting customers
          the connection and never answers — slow GHL, flaky mobile radio, captive
          portal, corporate proxy — left the button reading "Sending…" forever,
          with no error, no conversion and no delivered lead. That is the most
-         common real failure for a browser-side POST and every occurrence is a
-         paid click that produced nothing. On abort we fall through to
-         showError(), which tells them to call instead. */
+         common real failure for a browser-side POST. On abort we fall through
+         to showError(), which tells them to call instead. The conversion has
+         already been reported by this point, so an abort costs the lead but
+         not the ad signal. */
       var ctrl = ('AbortController' in window) ? new AbortController() : null;
       var timer = setTimeout(function(){ if(ctrl) ctrl.abort(); }, 10000);
 
@@ -2281,7 +2304,7 @@ Professional, flexible, and they even have a really sweet dog greeting customers
       .then(function(res){
         clearTimeout(timer);
         if(!res.ok) throw new Error('HTTP ' + res.status);
-        fireAdsConversion(leadInfo);   // only count a conversion once the lead landed
+        /* Conversion already reported at submit — see the note above. */
         if(statusEl) statusEl.textContent = 'Request sent.';
         showSuccess(first);
       })
