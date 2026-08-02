@@ -228,6 +228,14 @@ module.exports = {
        * an optional analytics tool would have broken the review refresh every
        * Monday. Paste the ID to switch Clarity on; leave it empty and no script
        * is emitted at all. */
+      /* Calls from a WEBSITE visit — a separate conversion action from the form
+       * one above. Google swaps the displayed number for a forwarding number,
+       * but only for visitors who arrived from an ad; everyone else sees the
+       * real line and calls it directly, untracked. That is accepted here: the
+       * Google Business Profile is not tracked either, so tracking organic
+       * calls would measure a fraction of them and read as a decline. */
+      callConversionLabel: 'HHGvCLiL6NocEJDJiscD',
+
       clarityId: '',
       leadValue: 0
     },

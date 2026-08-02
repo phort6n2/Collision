@@ -115,8 +115,20 @@ const server = http.createServer((req,res)=>{
   else fail('missing gtag config with allow_enhanced_conversions:true — ' + JSON.stringify(cfgEvt));
   if (await page.evaluate(()=>window.__gtagLoaded===true)) pass('gtag.js requested with the Ads ID');
   else fail('gtag.js was never requested');
-  if (await page.evaluate(()=>window.__dniLoaded===true)) pass('GHL number pool DNI script loaded');
-  else fail('DNI script did not load');
+  /* Call tracking is Google's now. The DNI script must be ABSENT: both it and
+     Google's swap rewrite the same tel: links, so running the two means a call
+     is attributed twice or to neither. */
+  if (await page.evaluate(()=>window.__dniLoaded!==true)) pass('no HighLevel DNI script — Google owns call tracking');
+  else fail('HighLevel DNI script loaded — it conflicts with Google number swapping');
+  const callCfg = dl.find(a => a[0]==='config' && /\/.+/.test(String(a[1])) && a[2] && a[2].phone_conversion_number);
+  if (callCfg) pass('calls-from-website config present: ' + callCfg[1]);
+  else fail('no phone_conversion_number config — website calls would not be tracked');
+  if (callCfg && callCfg[2].phone_conversion_css_class) {
+    const cls = callCfg[2].phone_conversion_css_class;
+    const n = await page.locator('.' + cls).count();
+    if (n > 0) pass('swap scoped to .' + cls + ', ' + n + ' element(s) on the page');
+    else fail('phone_conversion_css_class "' + cls + '" matches no element — Google would swap nothing');
+  } else fail('phone_conversion_css_class missing — the footer identity line would be swapped too');
 
   // service pre-selected from the page's svcValue
   const svc = await page.inputValue('#svc');

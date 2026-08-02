@@ -62,6 +62,8 @@
     GOOGLE_ADS_ID:    "{{ADS_ID}}",
     GOOGLE_ADS_LABEL: "{{ADS_LABEL}}",
     GA4_ID:           "{{GA4_ID}}",
+    CALL_LABEL:       "{{CALL_LABEL}}",
+    PHONE_DISPLAY:    "{{PHONE}}",
     LEAD_VALUE:       {{LEAD_VALUE}},
     CURRENCY:         "USD"
   };
@@ -79,6 +81,28 @@
       gtag('config', c.GOOGLE_ADS_ID, { allow_enhanced_conversions: true });
     }
     if(c.GA4_ID){ gtag('config', c.GA4_ID); }
+
+    /* Calls from a website visit. A THIRD config call, and that is the shape
+       Google documents for call tracking — the conversion action's own
+       AW-xxx/LABEL is configured, not an event fired.
+
+       phone_conversion_css_class is the important half. Without it Google
+       replaces EVERY occurrence of the number on the page, including the
+       footer identity line — and Google's own crawler reads that page to
+       verify the call asset. A rendered page showing only forwarding numbers
+       is a page where the crawler cannot find the real one. Scoping the swap
+       to .gcall keeps the CTAs tracked and leaves one honest, un-swapped
+       instance in the footer for verification to land on.
+
+       The corollary is a trap: if no element carries the class, NOTHING is
+       swapped and call tracking silently measures zero. verify asserts the
+       class exists on the page. */
+    if(c.GOOGLE_ADS_ID && c.CALL_LABEL && c.PHONE_DISPLAY){
+      gtag('config', c.GOOGLE_ADS_ID + '/' + c.CALL_LABEL, {
+        phone_conversion_number: c.PHONE_DISPLAY,
+        phone_conversion_css_class: 'gcall'
+      });
+    }
   })();
 </script>
 
@@ -1376,7 +1400,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
          phone, and the second line is what used to push the phone number into a
          mid-number break. The short form still says mobile + we come to you. -->
     <span class="util-note">{{UTIL_NOTE}}<span class="util-more"> {{UTIL_NOTE_MORE}}</span></span>
-    <span class="util-call"><span class="util-call-lbl">Call</span> <a href="tel:{{PHONE_E164}}">{{PHONE}}</a></span>
+    <span class="util-call"><span class="util-call-lbl">Call</span> <a class="gcall" href="tel:{{PHONE_E164}}">{{PHONE}}</a></span>
   </div>
 </div>
 
@@ -1392,7 +1416,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
          see reviewsSectionHtml() and section() in build-pages.cjs. -->
     <!--SECTION:HDRRATING--><!--PAGE:HDRRATING--><!--/PAGE:HDRRATING--><!--/SECTION:HDRRATING-->
     <div class="hdr-cta">
-      <a class="callbtn" href="tel:{{PHONE_E164}}" aria-label="Call {{LEGAL_NAME}} at {{PHONE}}">
+      <a class="gcall callbtn" href="tel:{{PHONE_E164}}" aria-label="Call {{LEGAL_NAME}} at {{PHONE}}">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
         <span class="cb-num">{{PHONE}}</span><span class="sr-only">Call us</span>
       </a>
@@ -1420,7 +1444,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
         <!--/PAGE:HEROBULLETS--></ul>
 
         <div class="hero-actions">
-          <a class="btn btn-call" href="tel:{{PHONE_E164}}">
+          <a class="gcall btn btn-call" href="tel:{{PHONE_E164}}">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
             Call {{PHONE}}
           </a>
@@ -1451,7 +1475,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
                someone fill in six fields and lose them. -->
           <noscript>
             <p class="qc-noscript">This form needs JavaScript to send. Call
-              <a href="tel:{{PHONE_E164}}">{{PHONE}}</a> and we'll take the details
+              <a class="gcall" href="tel:{{PHONE_E164}}">{{PHONE}}</a> and we'll take the details
               over the phone.</p>
           </noscript>
 
@@ -1585,7 +1609,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
           </div>
           <h3 tabindex="-1" id="okHead">You're all set, <span id="echoName">there</span>.</h3>
           <p>We've got your request. A {{BRAND_SHORT}} tech will call you shortly to confirm the glass, your coverage and a time that works.</p>
-          <p style="margin-top:16px"><a class="btn btn-primary btn-block" href="tel:{{PHONE_E164}}">Call us now — {{PHONE}}</a></p>
+          <p style="margin-top:16px"><a class="gcall btn btn-primary btn-block" href="tel:{{PHONE_E164}}">Call us now — {{PHONE}}</a></p>
         </div>
       </div>
     </div>
@@ -1786,7 +1810,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
       <p class="lead" style="color:var(--text-on-dark-2)">Send the form and we'll confirm your glass, your coverage and a time — or just call and talk to somebody now.</p>
       <div class="final-actions">
         <a class="btn btn-primary" href="#quote">Get my free quote</a>
-        <a class="btn btn-call" href="tel:{{PHONE_E164}}">Call {{PHONE}}</a>
+        <a class="gcall btn btn-call" href="tel:{{PHONE_E164}}">Call {{PHONE}}</a>
       </div>
     </div>
   </div>
@@ -1801,7 +1825,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
         <img src="/ASSET/img/{{LOGO}}" width="234" height="96" alt="{{LEGAL_NAME}}" loading="lazy" decoding="async">
         <p>{{FOOTER_BLURB}}</p>
         <p style="margin-top:12px">
-          <a class="ftr-tel" href="tel:{{PHONE_E164}}">{{PHONE}}</a><br>
+          <a class="gcall ftr-tel" href="tel:{{PHONE_E164}}">{{PHONE}}</a><br>
           <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>
         </p>
       </div>
@@ -1868,7 +1892,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 
 <!-- sticky mobile action bar -->
 <div class="sticky" id="stickybar" aria-hidden="true">
-  <a class="btn btn-primary" href="tel:{{PHONE_E164}}">
+  <a class="gcall btn btn-primary" href="tel:{{PHONE_E164}}">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
     Call now
   </a>
@@ -2190,7 +2214,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
          "Sending your request…" contradicting the alert box. */
       if(statusEl) statusEl.textContent = '';
       errBox.innerHTML = 'Sorry — that didn’t go through. Please call ' +
-        '<a href="tel:{{PHONE_E164}}" style="color:var(--error);font-weight:800">{{PHONE}}</a> and we’ll take the details over the phone.';
+        '<a class="gcall" href="tel:{{PHONE_E164}}" style="color:var(--error);font-weight:800">{{PHONE}}</a> and we’ll take the details over the phone.';
       errBox.classList.add('on');
     }
 
@@ -2456,22 +2480,32 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 </script>
 
 <!-- ============================================================
-     DNI — HighLevel dynamic number insertion.
-     Swaps the header / CTA numbers for a rotating pool number so GHL can
-     tie a call back to the visitor's session and report call conversions
-     to Google Ads via its Number Pool Calling trigger.
+     Call tracking is Google's now, not HighLevel's.
 
-     Loaded last so every number is in the DOM before the swap runs.
+     This block used to load HighLevel's number-pool scripts, which swapped
+     the CTA numbers for a rotating pool number so GHL could tie a call to a
+     session and report it to Ads through its Number Pool Calling trigger.
 
-     The BAR-registered number in the footer compliance block carries
-     .ghl-no-swap / data-no-swap and must NEVER be rewritten — see the
-     note on that block. Verify after every deploy that it still reads
-     the registered number.
+     Three things made that the wrong trade once Google shipped call
+     recording (US/CA, 2026):
+       - Google records calls itself now, and returns the caller's callback
+         number on anything over 15 seconds. Those were the two reasons to
+         keep GHL in the call path.
+       - Google's AI-qualified conversions classify a recorded call as a real
+         lead and feed THAT to Smart Bidding. GHL's offline import cannot.
+       - A pool can exhaust. Above its size two visitors share a number and
+         attribution degrades silently, on exactly the busiest days.
+
+     Both mechanisms work by rewriting the same tel: links, so they cannot
+     coexist — running both means a call attributed twice or not at all.
+     The swap now happens in the gtag config at the top of this file, scoped
+     to .gcall.
+
+     The trade, stated: calls from visitors who did NOT arrive from a Google
+     ad are no longer tracked at all. That is accepted here because the
+     client's Google Business Profile has no tracking number either, so
+     organic call volume was already unmeasured.
      ============================================================ -->
-<!--DNI-->
-<script src="https://backend.leadconnectorhq.com/appengine/loc/{{GHL_LOCATION_ID}}/pool/{{GHL_POOL_ID}}/number_pool.js"></script>
-<script src="https://backend.leadconnectorhq.com/appengine/js/user_session.js"></script>
-<!--/DNI-->
 
 <!--PAGE:JSONLD--><!--/PAGE:JSONLD-->
 </body>

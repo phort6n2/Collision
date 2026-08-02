@@ -62,6 +62,8 @@
     GOOGLE_ADS_ID:    "AW-954377360",
     GOOGLE_ADS_LABEL: "SRXQCJfDvdgcEJDJiscD",
     GA4_ID:           "",
+    CALL_LABEL:       "HHGvCLiL6NocEJDJiscD",
+    PHONE_DISPLAY:    "(503) 656-3500",
     LEAD_VALUE:       0,
     CURRENCY:         "USD"
   };
@@ -79,6 +81,28 @@
       gtag('config', c.GOOGLE_ADS_ID, { allow_enhanced_conversions: true });
     }
     if(c.GA4_ID){ gtag('config', c.GA4_ID); }
+
+    /* Calls from a website visit. A THIRD config call, and that is the shape
+       Google documents for call tracking — the conversion action's own
+       AW-xxx/LABEL is configured, not an event fired.
+
+       phone_conversion_css_class is the important half. Without it Google
+       replaces EVERY occurrence of the number on the page, including the
+       footer identity line — and Google's own crawler reads that page to
+       verify the call asset. A rendered page showing only forwarding numbers
+       is a page where the crawler cannot find the real one. Scoping the swap
+       to .gcall keeps the CTAs tracked and leaves one honest, un-swapped
+       instance in the footer for verification to land on.
+
+       The corollary is a trap: if no element carries the class, NOTHING is
+       swapped and call tracking silently measures zero. verify asserts the
+       class exists on the page. */
+    if(c.GOOGLE_ADS_ID && c.CALL_LABEL && c.PHONE_DISPLAY){
+      gtag('config', c.GOOGLE_ADS_ID + '/' + c.CALL_LABEL, {
+        phone_conversion_number: c.PHONE_DISPLAY,
+        phone_conversion_css_class: 'gcall'
+      });
+    }
   })();
 </script>
 
@@ -1376,7 +1400,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
          phone, and the second line is what used to push the phone number into a
          mid-number break. The short form still says mobile + we come to you. -->
     <span class="util-note">Free mobile service<span class="util-more">  — we come to your home or workplace</span></span>
-    <span class="util-call"><span class="util-call-lbl">Call</span> <a href="tel:+15036563500">(503) 656-3500</a></span>
+    <span class="util-call"><span class="util-call-lbl">Call</span> <a class="gcall" href="tel:+15036563500">(503) 656-3500</a></span>
   </div>
 </div>
 
@@ -1395,7 +1419,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
          see reviewsSectionHtml() and section() in build-pages.cjs. -->
     <!--PAGE:HDRRATING--><span class="hdr-rating" aria-label="4.9 out of 5 stars from 362 Google reviews"><span class="hr-top" aria-hidden="true"><svg class="hr-g" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24s.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg><span class="hr-score">4.9</span><span class="stars"><span class="star" aria-hidden="true">★</span><span class="star" aria-hidden="true">★</span><span class="star" aria-hidden="true">★</span><span class="star" aria-hidden="true">★</span><span class="star" aria-hidden="true">★</span></span></span><span class="hr-sub" aria-hidden="true">362 Google reviews</span></span><!--/PAGE:HDRRATING-->
     <div class="hdr-cta">
-      <a class="callbtn" href="tel:+15036563500" aria-label="Call Collision Auto Glass &amp; Calibration at (503) 656-3500">
+      <a class="gcall callbtn" href="tel:+15036563500" aria-label="Call Collision Auto Glass &amp; Calibration at (503) 656-3500">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
         <span class="cb-num">(503) 656-3500</span><span class="sr-only">Call us</span>
       </a>
@@ -1424,7 +1448,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
           <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>Lifetime no-leak guarantee</strong> on our workmanship, for as long as you own the vehicle</span></li><!--/PAGE:HEROBULLETS--></ul>
 
         <div class="hero-actions">
-          <a class="btn btn-call" href="tel:+15036563500">
+          <a class="gcall btn btn-call" href="tel:+15036563500">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
             Call (503) 656-3500
           </a>
@@ -1455,7 +1479,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
                someone fill in six fields and lose them. -->
           <noscript>
             <p class="qc-noscript">This form needs JavaScript to send. Call
-              <a href="tel:+15036563500">(503) 656-3500</a> and we'll take the details
+              <a class="gcall" href="tel:+15036563500">(503) 656-3500</a> and we'll take the details
               over the phone.</p>
           </noscript>
 
@@ -1589,7 +1613,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
           </div>
           <h3 tabindex="-1" id="okHead">You're all set, <span id="echoName">there</span>.</h3>
           <p>We've got your request. A Collision Auto Glass tech will call you shortly to confirm the glass, your coverage and a time that works.</p>
-          <p style="margin-top:16px"><a class="btn btn-primary btn-block" href="tel:+15036563500">Call us now — (503) 656-3500</a></p>
+          <p style="margin-top:16px"><a class="gcall btn btn-primary btn-block" href="tel:+15036563500">Call us now — (503) 656-3500</a></p>
         </div>
       </div>
     </div>
@@ -1915,7 +1939,7 @@ Professional, flexible, and they even have a really sweet dog greeting customers
       <p class="lead" style="color:var(--text-on-dark-2)">Send the form and we'll confirm your glass, your coverage and a time — or just call and talk to somebody now.</p>
       <div class="final-actions">
         <a class="btn btn-primary" href="#quote">Get my free quote</a>
-        <a class="btn btn-call" href="tel:+15036563500">Call (503) 656-3500</a>
+        <a class="gcall btn btn-call" href="tel:+15036563500">Call (503) 656-3500</a>
       </div>
     </div>
   </div>
@@ -1930,7 +1954,7 @@ Professional, flexible, and they even have a really sweet dog greeting customers
         <img src="/img/logo-wordmark.72f604d6.png" width="234" height="96" alt="Collision Auto Glass &amp; Calibration" loading="lazy" decoding="async">
         <p>Windshield replacement, chip and crack repair, side and back glass, and in-house ADAS camera calibration. Family owned and operated in the Portland metro since 2008.</p>
         <p style="margin-top:12px">
-          <a class="ftr-tel" href="tel:+15036563500">(503) 656-3500</a><br>
+          <a class="gcall ftr-tel" href="tel:+15036563500">(503) 656-3500</a><br>
           <a href="mailto:glass@collisionautoglass.com">glass@collisionautoglass.com</a>
         </p>
       </div>
@@ -2007,7 +2031,7 @@ Professional, flexible, and they even have a really sweet dog greeting customers
 
 <!-- sticky mobile action bar -->
 <div class="sticky" id="stickybar" aria-hidden="true">
-  <a class="btn btn-primary" href="tel:+15036563500">
+  <a class="gcall btn btn-primary" href="tel:+15036563500">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
     Call now
   </a>
@@ -2329,7 +2353,7 @@ Professional, flexible, and they even have a really sweet dog greeting customers
          "Sending your request…" contradicting the alert box. */
       if(statusEl) statusEl.textContent = '';
       errBox.innerHTML = 'Sorry — that didn’t go through. Please call ' +
-        '<a href="tel:+15036563500" style="color:var(--error);font-weight:800">(503) 656-3500</a> and we’ll take the details over the phone.';
+        '<a class="gcall" href="tel:+15036563500" style="color:var(--error);font-weight:800">(503) 656-3500</a> and we’ll take the details over the phone.';
       errBox.classList.add('on');
     }
 
@@ -2595,22 +2619,32 @@ Professional, flexible, and they even have a really sweet dog greeting customers
 </script>
 
 <!-- ============================================================
-     DNI — HighLevel dynamic number insertion.
-     Swaps the header / CTA numbers for a rotating pool number so GHL can
-     tie a call back to the visitor's session and report call conversions
-     to Google Ads via its Number Pool Calling trigger.
+     Call tracking is Google's now, not HighLevel's.
 
-     Loaded last so every number is in the DOM before the swap runs.
+     This block used to load HighLevel's number-pool scripts, which swapped
+     the CTA numbers for a rotating pool number so GHL could tie a call to a
+     session and report it to Ads through its Number Pool Calling trigger.
 
-     The BAR-registered number in the footer compliance block carries
-     .ghl-no-swap / data-no-swap and must NEVER be rewritten — see the
-     note on that block. Verify after every deploy that it still reads
-     the registered number.
+     Three things made that the wrong trade once Google shipped call
+     recording (US/CA, 2026):
+       - Google records calls itself now, and returns the caller's callback
+         number on anything over 15 seconds. Those were the two reasons to
+         keep GHL in the call path.
+       - Google's AI-qualified conversions classify a recorded call as a real
+         lead and feed THAT to Smart Bidding. GHL's offline import cannot.
+       - A pool can exhaust. Above its size two visitors share a number and
+         attribution degrades silently, on exactly the busiest days.
+
+     Both mechanisms work by rewriting the same tel: links, so they cannot
+     coexist — running both means a call attributed twice or not at all.
+     The swap now happens in the gtag config at the top of this file, scoped
+     to .gcall.
+
+     The trade, stated: calls from visitors who did NOT arrive from a Google
+     ad are no longer tracked at all. That is accepted here because the
+     client's Google Business Profile has no tracking number either, so
+     organic call volume was already unmeasured.
      ============================================================ -->
-<!--DNI-->
-<script src="https://backend.leadconnectorhq.com/appengine/loc/x7zUDmT8SJyJMQoyGE9p/pool/KxTryNob1lTv1nAFRiiv/number_pool.js"></script>
-<script src="https://backend.leadconnectorhq.com/appengine/js/user_session.js"></script>
-<!--/DNI-->
 
 <!--PAGE:JSONLD--><script type="application/ld+json">{"@context":"https://schema.org","@type":"AutoGlassShop","@id":"https://collisionglass.co/#business","name":"Collision Auto Glass & Calibration","telephone":"+15036563500","url":"https://collisionglass.co/windshield-repair","image":"https://collisionglass.co/img/og-image.3444f44c.png","priceRange":"$$","address":{"@type":"PostalAddress","streetAddress":"14201 NW Science Park Dr","addressLocality":"Portland","addressRegion":"OR","postalCode":"97229","addressCountry":"US"},"geo":{"@type":"GeoCoordinates","latitude":45.5277816,"longitude":-122.8243862},"areaServed":[{"@type":"City","name":"Portland"},{"@type":"City","name":"Beaverton"},{"@type":"City","name":"Hillsboro"},{"@type":"City","name":"Tualatin"},{"@type":"City","name":"Lake Oswego"},{"@type":"City","name":"Tigard"},{"@type":"City","name":"Aloha"},{"@type":"City","name":"Sherwood"},{"@type":"City","name":"Wilsonville"},{"@type":"City","name":"West Linn"},{"@type":"City","name":"Cornelius"},{"@type":"City","name":"Newberg"}],"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"07:30","closes":"16:30"}],"email":"glass@collisionautoglass.com","hasMap":"https://maps.google.com/?cid=13824994568758034170&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA","sameAs":["https://collisionautoglass.com/"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"362","bestRating":"5","worstRating":"1"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Will the repair be invisible?","acceptedAnswer":{"@type":"Answer","text":"No. It will be much less noticeable and it will stop spreading, but there will be a faint mark where the break was. How faint depends on the break type — a clean bullseye fills better than a dirty star break that has been there through a winter. Anyone promising invisible has not told you the truth about the other things either."}},{"@type":"Question","name":"How soon should I get a chip looked at?","acceptedAnswer":{"@type":"Answer","text":"Sooner is genuinely better, and not as a sales line. Dirt and moisture get into the break and reduce how well resin bonds, and temperature swings drive cracks outward from the chip. A chip repaired in its first week comes out substantially better than the same chip three months later."}},{"@type":"Question","name":"The crack is only four inches. Can you fix it?","acceptedAnswer":{"@type":"Answer","text":"Possibly, and the length is the least important part of the answer. What matters more is whether either end has reached the edge of the glass, whether it crosses your primary sightline, and how long it has been open. A four-inch crack starting at the edge is a replacement; the same crack in the middle of the passenger side may not be."}},{"@type":"Question","name":"There are three chips. Is that still a repair?","acceptedAnswer":{"@type":"Answer","text":"Often yes. Three separate, individually repairable chips in different parts of the glass is a straightforward job. What changes the answer is clustering — several breaks close enough that their repairs interact — or one of the three sitting somewhere disqualifying, like the sightline or the edge."}},{"@type":"Question","name":"What does a repair cost compared with replacement?","acceptedAnswer":{"@type":"Answer","text":"A repair is a fraction of a replacement, and many carriers treat the two differently because a repair costs them so much less. We are not going to invent a figure on a web page — call with the year, make and model and we will quote both, so you can see the gap for your car."}},{"@type":"Question","name":"Is it illegal to drive with a cracked windshield in Oregon?","acceptedAnswer":{"@type":"Answer","text":"Oregon does not set a specific crack length in law. ORS 815.220 makes it unlawful to drive with anything obstructing the windshield that impairs the driver's view, which is a judgement about your specific damage rather than a measurement. A crack across the driver's side is the kind that attracts attention."}},{"@type":"Question","name":"Is a repair warranted?","acceptedAnswer":{"@type":"Answer","text":"Our workmanship carries the same lifetime no-leak guarantee. What a repair specifically cannot be warranted against is the break running later from a fresh impact or an extreme temperature swing — that is new damage. If a repair we did fails on its own, we credit it against the replacement."}}]}</script>

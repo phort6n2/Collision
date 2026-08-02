@@ -399,9 +399,15 @@ if (home) {
   if (/createElement\(\s*['"]script['"]\s*\)[\s\S]{0,200}googletagmanager/.test(home.html))
     fail('gtag.js is being injected from JS — it must be a static script tag');
   else pass('gtag.js is not injected from JS');
-  const configs = (home.html.match(/gtag\(\s*['"]config['"]/g) || []).length;
-  if (configs <= 2) pass('gtag config calls: ' + configs + ' (Ads and at most one GA4)');
-  else fail(configs + ' gtag config calls — an ID is being configured twice');
+  /* Three config calls is correct now, not a duplicate: the Ads ID, the GA4
+     branch, and the calls-from-website conversion action — Google documents
+     call tracking as a `config` against AW-xxx/LABEL rather than an event.
+     The check that matters is that no single DESTINATION is configured twice,
+     which is what actually double-counts. */
+  const configIds = [...home.html.matchAll(/gtag\(\s*['"]config['"]\s*,\s*([^,)]+)/g)].map((m) => m[1].trim());
+  const dupes = configIds.filter((id, i) => configIds.indexOf(id) !== i);
+  if (dupes.length) fail('the same destination is configured twice: ' + dupes.join(', '));
+  else pass('gtag config calls: ' + configIds.length + ', no destination configured twice');
 
   /* Clarity records sessions. Two things have to hold or it is a privacy
      incident rather than an analytics tool.
@@ -425,6 +431,32 @@ if (home) {
   const bad = tagKeys.filter((k) => banned.test(k.replace(/'/g, '')));
   if (bad.length) fail('Clarity custom tag looks personal: ' + bad.join(', '));
   else pass('no personal data passed as a Clarity tag');
+
+  /* Call tracking moved from HighLevel's number pool to Google's own swap.
+     Two things have to hold, and both fail silently rather than loudly.
+
+     phone_conversion_css_class scopes the swap to .gcall. If no element on
+     the page carries that class, Google swaps NOTHING and call tracking
+     measures zero — an outcome indistinguishable from "nobody called".
+
+     And the swap must NOT reach the footer identity line. Google's own
+     crawler reads this page to verify the call asset; if every instance of
+     the number were swapped, a rendering crawler would find only forwarding
+     numbers and verification would fail, taking the call button with it. */
+  if (!/backend\.leadconnectorhq\.com/.test(home.html))
+    pass('no HighLevel number-pool script — Google owns call tracking now');
+  else fail('HighLevel DNI script is back — it and Google both rewrite tel: links, so a call gets attributed twice or not at all');
+  const swapCfg = /phone_conversion_number/.test(home.html);
+  if (!swapCfg) warn('no phone_conversion_number — website call tracking is not configured');
+  else {
+    const cls = /phone_conversion_css_class:\s*'([^']+)'/.exec(home.html);
+    if (!cls) fail('phone_conversion_number set without phone_conversion_css_class — Google would swap the footer identity line too');
+    else {
+      const n = (home.html.match(new RegExp('class="[^"]*\\b' + cls[1] + '\\b', 'g')) || []).length;
+      if (n > 0) pass('call swap scoped to .' + cls[1] + ', present on ' + n + ' element(s)');
+      else fail('phone_conversion_css_class is "' + cls[1] + '" but no element carries it — Google would swap nothing and call tracking would silently measure zero');
+    }
+  }
 
   /* The honeypot must be invisible to Chrome's autofill, not just to people.
      An off-screen input named `company` (or address/organization/name/email/

@@ -1322,6 +1322,7 @@ function renderPage(page) {
     .replace(/\{\{LEAD_WEBHOOK\}\}/g, site.ghl.webhook)
     .replace(/\{\{ADS_ID\}\}/g, esc(site.ads.conversionId))
     .replace(/\{\{ADS_LABEL\}\}/g, esc(site.ads.conversionLabel))
+    .replace(/\{\{CALL_LABEL\}\}/g, esc(site.ads.callConversionLabel || ''))
     .replace(/\{\{GA4_ID\}\}/g, esc(site.ads.ga4Id))
     .replace(/\{\{LEAD_VALUE\}\}/g, String(Number(site.ads.leadValue) || 0))
     .replace(/\{\{PAGE_KIND\}\}/g, esc(page.kind))
