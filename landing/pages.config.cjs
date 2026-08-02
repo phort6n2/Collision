@@ -86,15 +86,18 @@ module.exports = {
 
     sourceTag: 'landing:collision-portland-metro',
 
-    /* Cedar Mill shop line — the primary number on their own site and the one
-     * the client confirmed. This is the number the CRM pool swaps for DNI. */
+    /* Cedar Mill shop line, and now the ONLY number on the site. It is what the
+     * Google Ads call asset is configured with, what Google's website call
+     * tracking swaps for a forwarding number on the .gcall CTAs, and what the
+     * footer identity line shows un-swapped so asset verification always finds
+     * a real number.
+     *
+     * There used to be a separate `callAsset` key here holding a HighLevel
+     * tracking number. It is gone: the asset now uses this line directly, and a
+     * second key holding the same idea is a drift waiting to happen — the two
+     * would disagree the first time somebody updated one of them. */
     phoneFormatted: '(503) 656-3500',
     phoneE164: '+15036563500',
-
-    /* Google Ads call asset. Must never be DNI-swapped and must not equal
-     * phoneE164 — the Tualatin shop line is a real number they own and answer,
-     * which makes it the honest choice rather than a tracking number. */
-    callAsset: { formatted: '(503) 832-4376', e164: '+15038324376' },
 
     email: 'glass@collisionautoglass.com',
 

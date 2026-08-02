@@ -173,14 +173,15 @@ main p, main li{ max-width:56ch; }
     </div>
 
     <h2>4. Call tracking and dynamic phone numbers</h2>
-    <p>Some phone numbers displayed on this site are <strong>tracking numbers</strong> that may change between visitors. This is how we tell which advertising generated a phone call. When you call a tracking number, our call platform records call metadata — the number you dialled, your caller ID, the date, time and duration of the call, and which advertising source your visit was attributed to — and connects you to us.</p>
+    <p>If you arrived here by clicking a Google ad, the call buttons on this page display a <strong>Google forwarding number</strong> rather than our own line. It connects straight through to us. This is how we tell which advertising produced a phone call. If you did <em>not</em> arrive from an ad, you see our real number and the call is not tracked at all.</p>
+    <p>When you call a forwarding number, Google records call metadata — the date, time and duration, your area code, and in most cases your call-back number — and reports it against the ad that brought you. <strong>These calls are also recorded as audio.</strong> You will hear an automated message telling you so at the start of the call, before you speak to anyone. Google's handling of that data is governed by its own <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">privacy policy</a>.</p>
     <h3>Microsoft Clarity — session recording and heatmaps</h3>
     <p>We use <a href="https://clarity.microsoft.com/" target="_blank" rel="noopener">Microsoft Clarity</a> to understand how this site is actually used, so we can fix what is confusing or broken. Clarity records a reconstruction of your visit: the pages you viewed, where you moved and clicked, how far you scrolled, and how long you stayed. It is a re-drawn playback built from those events, not a video or a screen capture of your device.</p>
     <p><strong>What it does not record.</strong> Everything you type into the quote form is masked before it leaves your browser. Your name, email address, phone number, postcode, vehicle and VIN are not captured by Clarity and are not visible in any recording. The masking is applied to the form itself in this site's code, not by a setting in Clarity's dashboard, so it cannot be switched off by changing an account preference.</p>
     <p>We also attach a small number of non-personal labels to each session so recordings can be filtered usefully — which page you were on, which advertising campaign brought you, which service was pre-selected, and whether the form submitted successfully or was stopped by a validation error. None of these identify you.</p>
     <p>Microsoft's handling of Clarity data is governed by its own <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">privacy statement</a>. If you would prefer not to be recorded, the opt-outs in section 8 apply, and Clarity honours the <a href="https://globalprivacycontrol.org/" target="_blank" rel="noopener">Global Privacy Control</a> signal if your browser sends one.</p>
 
-    <p>The number shown in the footer identity block is a real shop line and is deliberately <em>not</em> a tracking number. It is the number we give Google for its call asset, and it is excluded from the number-swapping described above so that it always reaches us directly.</p>
+    <p>The number shown in the footer identity block is our real shop line and is deliberately <em>never</em> replaced with a forwarding number. If you would rather not be routed through call tracking at all, dial the number in the footer and it will always reach us directly.</p>
     <p>Regardless of what Oregon law requires of us, our own commitment is simpler: if a call is being recorded you will be told at the start of it, and you may decline and speak to us on an unrecorded line instead.</p>
 
     <h2>5. Who we share your information with</h2>
@@ -189,9 +190,9 @@ main p, main li{ max-width:56ch; }
       <table>
         <thead><tr><th>Recipient</th><th>What they get</th><th>Why</th></tr></thead>
         <tbody>
-          <tr><td>HighLevel (our CRM and call platform)</td><td>Your form submission, the attribution identifiers above, and call metadata</td><td>To store your enquiry, contact you, and route your job</td></tr>
+          <tr><td>HighLevel (our CRM)</td><td>Your form submission and the attribution identifiers above</td><td>To store your enquiry, contact you, and route your job</td></tr>
           <tr><td>Microsoft (Clarity)</td><td>A reconstruction of your visit — pages, clicks, scrolling and timing — with all form input masked</td><td>To find and fix usability problems on this site</td></tr>
-          <tr><td>Google (Google Ads / Analytics)</td><td>The fact a conversion occurred, the click identifier, and hashed email and phone</td><td>To measure and optimise our advertising</td></tr>
+          <tr><td>Google (Google Ads / Analytics)</td><td>The fact a conversion occurred, the click identifier, hashed email and phone, and — for calls placed from a Google ad — call metadata and an audio recording of the call</td><td>To measure and optimise our advertising</td></tr>
           <tr><td>Your insurance carrier</td><td>Only what is needed to verify coverage or file a claim, and only if you ask us to</td><td>To confirm your coverage and bill your claim</td></tr>
           <tr><td>Glass suppliers</td><td>Vehicle details only — never your contact information</td><td>To source the correct glass for your vehicle</td></tr>
           <tr><td>Our hosting provider</td><td>Standard server request data, including IP address</td><td>To serve the site and protect it from abuse</td></tr>
@@ -259,8 +260,8 @@ main p, main li{ max-width:56ch; }
     <div class="bar">
       <div class="bar-id">
         <b>{{LEGAL_NAME}}</b> · {{REG_AUTHORITY}} {{REG_LABEL}} <b>{{REG_NUMBER}}</b><br>
-        Registered telephone: <a class="ghl-no-swap" data-no-swap="true" href="tel:{{REG_PHONE_E164}}">{{REG_PHONE}}</a><br>
-        {{AREA_SHORT}}: <a class="ghl-no-swap" data-no-swap="true" href="tel:{{CALL_ASSET_E164}}">{{CALL_ASSET}}</a><br>
+        Registered telephone: <a href="tel:{{REG_PHONE_E164}}">{{REG_PHONE}}</a><br>
+        {{AREA_SHORT}}: <a href="tel:{{PHONE_E164}}">{{PHONE}}</a><br>
         {{ADDRESS_STREET}}, {{ADDRESS_CITY}}, {{ADDRESS_REGION}} {{ADDRESS_ZIP}}
       </div>
       <!--PAGE:BARTRUST--><!--/PAGE:BARTRUST-->

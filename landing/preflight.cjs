@@ -33,7 +33,6 @@ const REQUIRED = [
   ['site.email',             site.email],
   ['site.phoneFormatted',    site.phoneFormatted],
   ['site.phoneE164',         site.phoneE164],
-  ['site.callAsset.e164',    site.callAsset && site.callAsset.e164],
   ['site.address.street',    site.address && site.address.street],
   ['site.address.city',      site.address && site.address.city],
   ['site.address.zip',       site.address && site.address.zip],
@@ -55,9 +54,6 @@ for (const [name, value] of REQUIRED) {
 if (site.phoneE164 && !/^\+1\d{10}$/.test(site.phoneE164)) {
   fail('site.phoneE164 must be +1 then 10 digits, got: ' + site.phoneE164);
 }
-if (site.callAsset && site.callAsset.e164 && !/^\+1\d{10}$/.test(site.callAsset.e164)) {
-  fail('site.callAsset.e164 must be +1 then 10 digits, got: ' + site.callAsset.e164);
-}
 if (site.ads && site.ads.conversionId && !/^AW-\d{9,12}$/.test(site.ads.conversionId)) {
   fail('site.ads.conversionId must look like AW-1234567890, got: ' + site.ads.conversionId);
 }
@@ -68,12 +64,15 @@ if (site.domain && /^https?:/.test(site.domain)) {
   fail('site.domain should be a bare hostname, not a URL: ' + site.domain);
 }
 
-/* The call asset must be a different number from the DNI-swapped one. If they
-   match, Google's forwarding number and the number pool fight over the same
-   line and call attribution silently becomes meaningless. */
-if (site.callAsset && site.callAsset.e164 && site.callAsset.e164 === site.phoneE164) {
-  fail('site.callAsset.e164 is the same as site.phoneE164 — the Google call asset must be its own number');
-}
+/* There used to be a rule here requiring the call-asset number to DIFFER from
+   the site's number, because HighLevel's pool swapped the site number and a
+   Google forwarding number pointed at the same line would have made attribution
+   meaningless. That is now backwards. Google does the swapping, the asset is
+   configured with the site's own number, and the two being identical is the
+   design rather than a fault. Removed rather than inverted — there is nothing
+   left to assert at config level; the invariant that matters is "one un-swapped
+   instance on the page", and verify checks that against the built output where
+   it can actually be seen. */
 
 /* Geo defaults are easy to leave at whatever the previous client had. */
 if (!site.geo || typeof site.geo.lat !== 'number' || typeof site.geo.lng !== 'number') {

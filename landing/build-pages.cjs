@@ -1283,8 +1283,6 @@ function renderPage(page) {
     .replace(/\{\{PHONE_E164\}\}/g, esc(site.phoneE164))
     .replace(/\{\{PHONE\}\}/g, esc(site.phoneFormatted))
     .replace(/\{\{PHONE_DIGITS\}\}/g, esc(site.phoneE164.replace(/\D/g, '')))
-    .replace(/\{\{CALL_ASSET_E164\}\}/g, esc(site.callAsset.e164))
-    .replace(/\{\{CALL_ASSET\}\}/g, esc(site.callAsset.formatted))
     .replace(/\{\{REG_PHONE_E164\}\}/g, esc(REG.phoneE164 || site.phoneE164))
     .replace(/\{\{REG_PHONE\}\}/g, esc(REG.phoneFormatted || site.phoneFormatted))
     .replace(/\{\{BRAND_SHORT\}\}/g, esc(site.brandShort || site.legalName))
@@ -1474,8 +1472,6 @@ function build() {
     s = s
       .replace(/\{\{PHONE_E164\}\}/g, esc(site.phoneE164))
       .replace(/\{\{PHONE\}\}/g, esc(site.phoneFormatted))
-      .replace(/\{\{CALL_ASSET_E164\}\}/g, esc(site.callAsset.e164))
-      .replace(/\{\{CALL_ASSET\}\}/g, esc(site.callAsset.formatted))
       .replace(/\{\{REG_PHONE_E164\}\}/g, esc(REG.phoneE164 || site.phoneE164))
       .replace(/\{\{REG_PHONE\}\}/g, esc(REG.phoneFormatted || site.phoneFormatted))
       .replace(/\{\{BRAND_SHORT\}\}/g, esc(site.brandShort || site.legalName))

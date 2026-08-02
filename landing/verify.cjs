@@ -485,31 +485,44 @@ if (home) {
 
 /* ------------------------------- 10. call-asset number must not be swappable */
 
-head('10. Google call-asset number is present and excluded from DNI');
+head('10. One un-swapped instance of the real number on every page');
 
-/* Google verifies the call-asset number appears on the site. If DNI ever rewrote
- * it, or it silently dropped out of the footer, call-asset verification fails —
- * and nothing on the page would look broken. Assert it explicitly. */
+/* Google verifies the call asset by crawling the site for the number the asset
+ * is configured with — which is now the main line, the same number the CTAs
+ * display. Every CTA carries .gcall and is replaced client-side with a
+ * forwarding number, so if EVERY instance were swapped a rendering crawler
+ * would find no real number anywhere and verification would fail. Nothing on
+ * the page would look broken; the ad's call button would simply stop serving.
+ *
+ * So: at least one tel: link to the real number, without .gcall, on every page.
+ * The footer identity line is that instance by design.
+ *
+ * This replaces a check that asserted a SEPARATE call-asset number carrying
+ * ghl-no-swap. That number was a HighLevel tracking line; the asset now points
+ * at the main number and HighLevel is out of the call path entirely. */
 const cfgSite = require('./pages.config.cjs').site;
-const assetDigits = String(cfgSite.callAsset.e164).replace(/\D/g, '');
-for (const p of contentPages) {
-  const tel = new RegExp('<a[^>]*href="tel:\\+?' + assetDigits + '"[^>]*>', 'i');
-  const m = p.html.match(tel);
-  if (!m) fail(p.slug + ' does not display the Google call-asset number ' + cfgSite.callAsset.formatted);
-  else if (!/ghl-no-swap|data-no-swap/.test(m[0])) {
-    fail(p.slug + ' shows the call-asset number but it is NOT marked no-swap — DNI would rewrite it');
-  }
-}
-pass('call-asset number present and no-swap on every content page');
-
+const mainDigits = String(cfgSite.phoneE164).replace(/\D/g, '');
+let unswappedOk = true;
 for (const p of pages) {
-  const callAssetLinks = p.html.match(/<a[^>]*href="tel:\+1[0-9]+"[^>]*>/g) || [];
-  const noSwap = callAssetLinks.filter((a) => /ghl-no-swap|data-no-swap/.test(a));
-  if (p.slug !== 'privacy' && p.slug !== 'terms' && !noSwap.length) {
-    warn(p.slug + ' has no ghl-no-swap tel link (expected on the footer call-asset number)');
+  const links = p.html.match(new RegExp('<a[^>]*href="tel:\\+?' + mainDigits + '"[^>]*>', 'gi')) || [];
+  if (!links.length) {
+    fail(p.slug + ' does not display the real number ' + cfgSite.phoneFormatted + ' at all');
+    unswappedOk = false;
+    continue;
+  }
+  const unswapped = links.filter((a) => !/class="[^"]*\bgcall\b/.test(a));
+  if (!unswapped.length) {
+    fail(p.slug + ' shows the real number only on .gcall links — Google would swap every instance and call-asset verification would find no real number');
+    unswappedOk = false;
   }
 }
-pass('call-asset markers checked');
+if (unswappedOk) pass('every page keeps at least one un-swapped instance of ' + cfgSite.phoneFormatted);
+
+/* And the reverse: a stale ghl-no-swap marker means somebody re-added a
+   HighLevel-era exclusion to a page where nothing swaps numbers but Google. */
+const stale = pages.filter((p) => /ghl-no-swap|data-no-swap/.test(p.html)).map((p) => p.slug);
+if (stale.length) warn('stale HighLevel no-swap markers on: ' + stale.join(', '));
+else pass('no stale HighLevel no-swap markers');
 
 /* -------------------------------------------------- 11. accessibility basics */
 

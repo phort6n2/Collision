@@ -1058,7 +1058,8 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .ftr-links{ display:flex; flex-wrap:wrap; gap:16px; }
 /* BAR compliance block — 16 CCR 3371.2. The phone number here is the number on
    file with the Bureau and is deliberately excluded from dynamic number
-   insertion; see the .ghl-no-swap markers and the DNI note at end of body. */
+   insertion; nothing on this page swaps numbers but Google, and it is scoped
+   to .gcall, which this link deliberately does not carry. */
 .bar{
   margin-top:26px; padding:16px 18px; background:var(--band-dark-3);
   border:1px solid var(--line-on-dark); border-radius:var(--r-sm);
@@ -1951,22 +1952,31 @@ Professional, flexible, and they even have a really sweet dog greeting customers
          electrical, pest control and locksmiths have equivalents in most
          states — check the client's, do not assume there is none.
 
-         The registered number is DELIBERATELY EXCLUDED from dynamic
-         number insertion: it carries .ghl-no-swap / data-no-swap. A
-         tracking number that differs from the registered number may be
-         treated as misleading, so DNI is confined to the header and CTA
-         numbers and must never rewrite this one. The Google call-asset
-         number is excluded for the same mechanical reason: Google
-         verifies that exact number appears on the site.
+         The registered number is DELIBERATELY EXCLUDED from number
+         swapping — it simply does not carry .gcall, which is what scopes
+         Google's swap. A tracking number that differs from the registered
+         number may be treated as misleading, so swapping is confined to the
+         header and CTA numbers and must never reach this one.
 
          With site.compliance.registration.number empty the generator
          removes the registration and registered-telephone lines and this
-         degrades to name / call number / address.
+         degrades to name / phone / address.
+
+         THIS PHONE LINK MUST NOT CARRY .gcall. It is the one un-swapped
+         instance of the real number on the page, and it is load-bearing:
+         Google verifies the call asset by crawling this page for the number
+         configured in the asset. Every other instance is swapped client-side
+         for a forwarding number, so if this one were swapped too a rendering
+         crawler would find no real number anywhere and the asset would fail
+         verification — taking the ad's call button down with it.
+
+         It also happens to be the right editorial choice. This is an identity
+         line stating who the business is and how to reach it, not a CTA.
          ============================================================ -->
     <div class="bar">
       <div class="bar-id">
         <b>Collision Auto Glass &amp; Calibration</b><br>
-        Serving the Portland metro: <a class="ghl-no-swap" data-no-swap="true" href="tel:+15038324376">(503) 832-4376</a><br>
+        Serving the Portland metro: <a href="tel:+15036563500">(503) 656-3500</a><br>
         14201 NW Science Park Dr, Portland, OR 97229
       </div>
       <!-- Restates claims made further up this page. Never a third-party mark.
