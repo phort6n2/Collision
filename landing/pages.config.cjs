@@ -86,18 +86,27 @@ module.exports = {
 
     sourceTag: 'landing:collision-portland-metro',
 
-    /* Cedar Mill shop line, and now the ONLY number on the site. It is what the
-     * Google Ads call asset is configured with, what Google's website call
-     * tracking swaps for a forwarding number on the .gcall CTAs, and what the
-     * footer identity line shows un-swapped so asset verification always finds
-     * a real number.
+    /* The HighLevel tracking line, and the ONLY number on the site.
      *
-     * There used to be a separate `callAsset` key here holding a HighLevel
-     * tracking number. It is gone: the asset now uses this line directly, and a
-     * second key holding the same idea is a drift waiting to happen — the two
-     * would disagree the first time somebody updated one of them. */
-    phoneFormatted: '(503) 656-3500',
-    phoneE164: '+15036563500',
+     * Every call routes through it, whatever the source, and that is the point:
+     * HighLevel records the call and creates the contact for ALL of them, not
+     * just the ones that came from an ad.
+     *
+     *   ad button   -> Google forwarding number -> this line -> shop
+     *   ad -> site  -> Google swaps a .gcall CTA -> forwarding -> this -> shop
+     *   organic/GBP -> this line directly                      -> shop
+     *
+     * So it is three things at once and they must all agree: the number the
+     * Google Ads call asset is configured with, the phone_conversion_number
+     * Google's website swap looks for, and the number the footer shows
+     * UN-swapped so asset verification can find it.
+     *
+     * The Cedar Mill shop line is (503) 656-3500 and is deliberately NOT shown
+     * — a call to it would be recorded by nobody and attributed to nothing.
+     * Keep this HighLevel number provisioned for as long as the site is live:
+     * releasing it sends a returning customer to whoever gets it next. */
+    phoneFormatted: '(503) 832-4376',
+    phoneE164: '+15038324376',
 
     email: 'glass@collisionautoglass.com',
 
