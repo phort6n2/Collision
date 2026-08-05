@@ -2431,6 +2431,13 @@ Professional, flexible, and they even have a really sweet dog greeting customers
         insurance: insEl ? insEl.value : '',
         carrier: document.getElementById('carrier').value || '',
         source: 'landing:collision-portland-metro',
+        /* GHL standard field — becomes the contact's Source in the CRM. */
+        contact_source: 'Google Ads',
+        /* The honest version of the same question, for workflow conditions.
+           contact_source says what this DOMAIN is for; paid_click says whether
+           this particular visitor actually arrived on an ad click. The two
+           disagree for direct traffic, and only this one can tell you so. */
+        paid_click: (attribution.gclid || attribution.gbraid || attribution.wbraid) ? 'yes' : 'no',
         page_path: '/insurance-claims',
         page: location.href,
         submitted_at: new Date().toISOString()

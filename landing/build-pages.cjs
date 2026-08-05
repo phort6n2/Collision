@@ -1325,7 +1325,8 @@ function renderPage(page) {
     .replace(/\{\{LEAD_VALUE\}\}/g, String(Number(site.ads.leadValue) || 0))
     .replace(/\{\{PAGE_KIND\}\}/g, esc(page.kind))
     .replace(/\{\{PAGE_PATH\}\}/g, esc(page.slug === '/' ? '/' : '/' + page.slug))
-    .replace(/\{\{SOURCE_TAG\}\}/g, esc(site.sourceTag));
+    .replace(/\{\{SOURCE_TAG\}\}/g, esc(site.sourceTag))
+    .replace(/\{\{LEAD_SOURCE\}\}/g, esc(site.leadSource || ''));
 
   /* ---- GHL number pool: only emit the DNI scripts once configured ---- */
   if (!site.ghl.locationId || !site.ghl.poolId) {

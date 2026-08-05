@@ -2338,6 +2338,13 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
         insurance: insEl ? insEl.value : '',
         carrier: document.getElementById('carrier').value || '',
         source: '{{SOURCE_TAG}}',
+        /* GHL standard field — becomes the contact's Source in the CRM. */
+        contact_source: '{{LEAD_SOURCE}}',
+        /* The honest version of the same question, for workflow conditions.
+           contact_source says what this DOMAIN is for; paid_click says whether
+           this particular visitor actually arrived on an ad click. The two
+           disagree for direct traffic, and only this one can tell you so. */
+        paid_click: (attribution.gclid || attribution.gbraid || attribution.wbraid) ? 'yes' : 'no',
         page_path: '{{PAGE_PATH}}',
         page: location.href,
         submitted_at: new Date().toISOString()

@@ -12,12 +12,44 @@ through the config to find which subaccount a lead landed in.
 
 ---
 
+## Two lead paths, one CRM — and how to tell them apart
+
+This client runs two sources into the same subaccount:
+
+| Path | Property | `contact_source` |
+|---|---|---|
+| This quote form | `collisionglass.co` (ads only) | **Google Ads** |
+| HighLevel survey | `collisionautoglass.com` (main site) | **Organic** — set on the survey side |
+
+`contact_source` is a GHL **standard** field, so map it to the contact's **Source**.
+That is the designation the client asked for and the one the CRM shows at a glance.
+
+Set the survey's equivalent to `Organic` in its own workflow, or every lead in the
+account reads as one channel and the split is invisible.
+
+**`paid_click` is the honest companion to it.** `contact_source` describes what the
+DOMAIN is for; `paid_click` (`yes`/`no`) records whether that specific visitor actually
+arrived on a click ID. They disagree for someone who typed the domain directly. Use
+`contact_source` for the Source field and reporting; use `paid_click` in a workflow
+condition when you need the truth about an individual lead.
+
+Do NOT derive Source from `paid_click` instead. A contact Source that says "Google Ads"
+on Tuesday and something else on Wednesday, for leads off the same page, is worse than
+one that simply names the channel.
+
+**Tag as well as Source, if you want filtering.** GHL filters and workflow triggers key
+off tags far more easily than off the Source field. Adding a `landing-page` tag in the
+Create/Update Contact action costs nothing and makes close-rate-by-source answerable —
+which is the number that actually says whether these pages earn their spend.
+
+---
+
 ## 0. Capture the schema FIRST — with every key populated
 
 Read this before mapping anything. It is the one step that silently breaks the rest.
 
 The Inbound Webhook trigger builds its list of mappable variables from the **sample
-request** it captured. The form always sends all 31 keys, but a submission made from a
+request** it captured. The form always sends all 33 keys, but a submission made from a
 direct visit — no `?gclid=…&utm_…` in the URL — sends the click-ID and UTM keys as
 **empty strings**, because the payload builder does `payload[k] = attribution[k] || ''`.
 GHL routinely omits empty-valued keys from the mapping picker, so if the captured sample

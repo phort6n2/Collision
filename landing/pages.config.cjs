@@ -86,6 +86,23 @@ module.exports = {
 
     sourceTag: 'landing:collision-portland-metro',
 
+    /* Goes into GHL's STANDARD `contact_source` field, which is what the CRM
+     * shows as a contact's Source. This client runs two lead paths into one
+     * CRM and needs to tell them apart at a glance:
+     *
+     *   collisionglass.co   (this site, ads only)  -> 'Google Ads'
+     *   collisionautoglass.com (main site, survey) -> 'Organic'
+     *
+     * Deliberately a blunt label rather than a derived one. This domain exists
+     * to receive ad clicks, so "Google Ads" is true of essentially all of its
+     * traffic — and a contact Source that sometimes says one thing and
+     * sometimes another is worse than one that is simply the channel.
+     *
+     * The nuance is not lost: `paid_click` in the payload records whether a
+     * click ID was actually present, so a direct visit to this domain is still
+     * identifiable in a workflow condition without changing what Source says. */
+    leadSource: 'Google Ads',
+
     /* The HighLevel tracking line, and the ONLY number on the site.
      *
      * Every call routes through it, whatever the source, and that is the point:
