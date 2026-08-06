@@ -426,6 +426,34 @@ if (home) {
   if (/<form[^>]*id="quoteForm"[^>]*data-clarity-mask="true"/.test(home.html))
     pass('quote form is masked at the element, not by a dashboard setting');
   else fail('quote form is NOT data-clarity-mask="true" — session replay would record name, email, phone and VIN');
+
+  /* A <noscript> in <head> may only hold link, style and meta. Fraud Blocker's
+     vendor snippet puts an <a><img> pixel there, and with JavaScript DISABLED
+     the parser closes <head> at the <a> and dumps everything after it into
+     <body> — title, description, canonical, page-kind, OG tags, JSON-LD. Tested
+     directly: head truncates to 84 characters and the title is gone.
+
+     Any crawler that does not run JS then sees an untitled page with no
+     structured data, including the one Google uses to verify the call asset.
+     The pixel belongs at the top of <body>, which is where GTM puts its own.
+
+     Checked on EVERY page, not just the home page, because the legal pages are
+     hand-synced and are exactly where a re-paste would land unnoticed. */
+  for (const p of pages) {
+    const h = p.html.slice(0, p.html.indexOf('</head>'));
+    if (/<noscript/i.test(h)) {
+      fail(p.slug + ' has a <noscript> inside <head> — with JS disabled this closes the head early and pushes title, canonical and JSON-LD into the body');
+    }
+  }
+  pass('no <noscript> in any page head');
+  const fbHead = /monitor\.fraudblocker\.com\/fbt\.js/.test(home.html);
+  const fbPixel = /monitor\.fraudblocker\.com\/fbt\.gif/.test(home.html);
+  if (!fbHead && !fbPixel) warn('no Fraud Blocker tag — not configured');
+  else if (fbHead && fbPixel) {
+    const bodyStart = home.html.indexOf('<body');
+    if (home.html.indexOf('fbt.gif') > bodyStart) pass('Fraud Blocker: script in head, pixel in body');
+    else fail('Fraud Blocker pixel is above <body>');
+  } else fail('Fraud Blocker is half-installed: script ' + fbHead + ', pixel ' + fbPixel);
   const tagKeys = [...home.html.matchAll(/clarity\('set',\s*([A-Za-z_$][\w$]*|'[^']*')/g)].map((m) => m[1]);
   const banned = /(^|_)(name|email|phone|vin|zip|postal|address)(_|$)/i;
   const bad = tagKeys.filter((k) => banned.test(k.replace(/'/g, '')));
@@ -606,7 +634,7 @@ head('13. Every region marker is filled');
    request to `?id=REPLACE__...`. Without this exemption every page of a
    half-configured build reports a spurious empty-region failure, which buries
    the real ones. */
-const MAY_BE_EMPTY = new Set(['GTAGSRC', 'CLARITY']);
+const MAY_BE_EMPTY = new Set(['GTAGSRC', 'CLARITY', 'FBHEAD', 'FBBODY']);
 
 for (const p of pages) {
   const re = /<!--PAGE:([A-Z_0-9]+)-->([\s\S]*?)<!--\/PAGE:\1-->/g;

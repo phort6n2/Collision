@@ -38,6 +38,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- Fraud Blocker. First thing after charset so a bounced visit is still
+     counted. The noscript pixel is NOT here — see fraudBlockerHeadHtml. -->
+<!--PAGE:FBHEAD--><!--/PAGE:FBHEAD-->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Terms &amp; Conditions | {{LEGAL_NAME}}</title>
 <meta name="description" content="Terms for using this site and for auto glass work performed by {{LEGAL_NAME}}, including what the workmanship warranty covers and what it does not.">
@@ -114,6 +117,7 @@ main p, main li{ max-width:56ch; }
 </style>
 </head>
 <body>
+<!--PAGE:FBBODY--><!--/PAGE:FBBODY-->
 <header class="hdr">
   <div class="wrap">
     <a href="/ASSET/" aria-label="{{LEGAL_NAME}} — home">

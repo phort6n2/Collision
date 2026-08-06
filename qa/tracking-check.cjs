@@ -101,6 +101,14 @@ const server = http.createServer((req,res)=>{
     route.fulfill({ status:200, contentType:'application/javascript', body:'window.__gtagLoaded=true;' }));
   await ctx.route('**backend.leadconnectorhq.com/**', route =>
     route.fulfill({ status:200, contentType:'application/javascript', body:'window.__dniLoaded=true;' }));
+  /* Fraud Blocker ships two tags: fbt.js on every page view, ctrack.js only on
+     a conversion. Counting them separately is the whole point — ctrack firing
+     on a page view would report a conversion for every visitor. */
+  let fbtHits = 0, ctrackHits = 0;
+  await ctx.route('**fraudblocker.com/**', route => {
+    if (route.request().url().includes('ctrack')) ctrackHits++; else fbtHits++;
+    return route.fulfill({ status:200, contentType:'application/javascript', body:'/* stub */' });
+  });
 
   const page = await ctx.newPage();
   const errs = [];
@@ -149,6 +157,8 @@ const server = http.createServer((req,res)=>{
     document.getElementById('quoteForm').requestSubmit();
   });
   await page.waitForTimeout(400);
+  if (ctrackHits === 0) pass('Fraud Blocker conversion tag did NOT fire for a scripted submit');
+  else fail('Fraud Blocker ctrack fired for a bot — ' + ctrackHits + ' hit(s)');
   if (webhookCalls === 0) pass('scripted submit with no user interaction is dropped (bot trap)');
   else fail('scripted submit reached the webhook — the interaction trap is not working');
 
@@ -165,6 +175,10 @@ const server = http.createServer((req,res)=>{
   await page.click('.qc-submit');
   await page.waitForTimeout(600);
 
+  if (ctrackHits === 1) pass('Fraud Blocker conversion tag fired once on a real submit');
+  else fail('expected 1 Fraud Blocker ctrack hit after a real submit, got ' + ctrackHits);
+  if (fbtHits >= 1) pass('Fraud Blocker page tag loaded on view');
+  else fail('Fraud Blocker fbt.js never loaded');
   if (await page.locator('#quoteSuccess.on').count()) pass('success panel shown after submit');
   else fail('success panel did not appear');
 

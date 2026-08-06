@@ -354,6 +354,54 @@ function icon(name, opts) {
  * `text` is emitted as HTML so a bullet can carry an em dash and inline markup;
  * `lead` is the bold opening clause.
  */
+/** Empty and REPLACE__ both mean "not configured". A placeholder is a
+ *  non-empty string and sails through a truthiness test — that is how a build
+ *  once emitted a real request to `?id=REPLACE__AW-0000000000`. */
+function realId(v) {
+  return v && !String(v).startsWith('REPLACE__') ? String(v) : '';
+}
+
+/**
+ * Fraud Blocker, split deliberately across two regions.
+ *
+ * The vendor snippet puts the <script> and a <noscript> fallback pixel together
+ * at the top of <head>. The script belongs there — it should run before
+ * anything else so a bounced visit is still counted — but the noscript CANNOT.
+ *
+ * A <noscript> inside <head> may only contain link, style and meta. This one
+ * holds an <a> and an <img>, and with JavaScript disabled the parser hits the
+ * <a>, closes <head> early, and pushes EVERYTHING after it into <body>. Tested:
+ * title, meta description, canonical, page-kind, OG tags and JSON-LD all end up
+ * outside the head. Any crawler that does not execute JS — including the one
+ * Google uses to verify the call asset — sees an untitled page with no
+ * structured data.
+ *
+ * So the pixel goes at the top of <body> instead, which is where Google Tag
+ * Manager puts its own noscript iframe for exactly the same reason.
+ */
+function fraudBlockerHeadHtml() {
+  const id = realId(site.ads && site.ads.fraudBlockerId);
+  if (!id) return '';
+  return '<!-- Fraud Blocker Tracker -->\n' +
+    '<script type="text/javascript">\n' +
+    '(function () {\n' +
+    "  var h = document.getElementsByTagName('head')[0];\n" +
+    "  var s = document.createElement('script');\n" +
+    '  s.async = 1;\n' +
+    '  s.src = "https://monitor.fraudblocker.com/fbt.js?sid=' + esc(id) + '";\n' +
+    '  h.appendChild(s);\n' +
+    '})();\n' +
+    '</' + 'script>';
+}
+
+function fraudBlockerBodyHtml() {
+  const id = realId(site.ads && site.ads.fraudBlockerId);
+  if (!id) return '';
+  return '<noscript><a href="https://fraudblocker.com" rel="nofollow">' +
+    '<img src="https://monitor.fraudblocker.com/fbt.gif?sid=' + esc(id) +
+    '" alt="Fraud Blocker" width="1" height="1"></a></noscript>';
+}
+
 /**
  * The static gtag.js loader.
  *
@@ -1242,6 +1290,8 @@ function renderPage(page) {
   if (ratingBar) s = region(s, 'RATINGBAR', ratingBar);
   if (hdrRating) s = region(s, 'HDRRATING', hdrRating);
   s = region(s, 'REVIEWS', reviewsSectionHtml());
+  s = region(s, 'FBHEAD', fraudBlockerHeadHtml());
+  s = region(s, 'FBBODY', fraudBlockerBodyHtml());
   s = region(s, 'GTAGSRC', gtagSrcHtml());
   s = region(s, 'CLARITY', clarityHtml());
   s = region(s, 'HEROBULLETS', heroBulletsHtml());
@@ -1321,6 +1371,7 @@ function renderPage(page) {
     .replace(/\{\{ADS_ID\}\}/g, esc(site.ads.conversionId))
     .replace(/\{\{ADS_LABEL\}\}/g, esc(site.ads.conversionLabel))
     .replace(/\{\{CALL_LABEL\}\}/g, esc(site.ads.callConversionLabel || ''))
+    .replace(/\{\{FB_ID\}\}/g, esc(realId(site.ads && site.ads.fraudBlockerId)))
     .replace(/\{\{GA4_ID\}\}/g, esc(site.ads.ga4Id))
     .replace(/\{\{LEAD_VALUE\}\}/g, String(Number(site.ads.leadValue) || 0))
     .replace(/\{\{PAGE_KIND\}\}/g, esc(page.kind))

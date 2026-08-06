@@ -80,6 +80,15 @@ const server = http.createServer((req,res)=>{
       contentType: 'application/javascript', body: '/* stub */' }));
     await page.route('**googletagmanager.com/**', r => r.fulfill({ status: 200,
       contentType: 'application/javascript', body: 'window.__gtagStubbed=true;' }));
+    /* Every third-party the page loads has to be stubbed, not just the ones we
+       happened to add first. The sandbox has no outbound network, so an
+       un-stubbed host raises requestfailed and turns this gate permanently red
+       — which is worse than not having the gate, because a red check nobody can
+       act on is a red check nobody reads. */
+    await page.route('**clarity.ms/**', r => r.fulfill({ status: 200,
+      contentType: 'application/javascript', body: '/* stub */' }));
+    await page.route('**fraudblocker.com/**', r => r.fulfill({ status: 200,
+      contentType: 'application/javascript', body: '/* stub */' }));
     page.on('console', m => { if (m.type()==='error') errors.push(`${slug} ${w}px CONSOLE: ${m.text()}`); });
     page.on('requestfailed', r => errors.push(`${slug} ${w}px REQFAIL: ${r.url()} :: ${(r.failure()||{}).errorText}`));
     page.on('pageerror', e => errors.push(`${slug} ${w}px PAGEERROR: ${e.message}`));

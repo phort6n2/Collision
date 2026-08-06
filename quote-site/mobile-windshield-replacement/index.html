@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- Fraud Blocker. First thing after charset so a bounced visit is still
+     counted. The noscript pixel is NOT here — see fraudBlockerHeadHtml. -->
+<!--PAGE:FBHEAD--><!-- Fraud Blocker Tracker -->
+<script type="text/javascript">
+(function () {
+  var h = document.getElementsByTagName('head')[0];
+  var s = document.createElement('script');
+  s.async = 1;
+  s.src = "https://monitor.fraudblocker.com/fbt.js?sid=_lX7ZSDTk0dlryam5lH61";
+  h.appendChild(s);
+})();
+</script><!--/PAGE:FBHEAD-->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mobile Auto Glass Service | Portland Metro, Oregon</title>
 <meta name="description" content="Free mobile auto glass service across the Portland metro. What the van needs from your driveway or car park, and when the shop is better.">
@@ -63,6 +75,7 @@
     GOOGLE_ADS_LABEL: "SRXQCJfDvdgcEJDJiscD",
     GA4_ID:           "",
     CALL_LABEL:       "HHGvCLiL6NocEJDJiscD",
+    FB_ID:            "_lX7ZSDTk0dlryam5lH61",
     PHONE_DISPLAY:    "(503) 832-4376",
     LEAD_VALUE:       0,
     CURRENCY:         "USD"
@@ -1393,6 +1406,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 </style>
 </head>
 <body>
+<!--PAGE:FBBODY--><noscript><a href="https://fraudblocker.com" rel="nofollow"><img src="https://monitor.fraudblocker.com/fbt.gif?sid=_lX7ZSDTk0dlryam5lH61" alt="Fraud Blocker" width="1" height="1"></a></noscript><!--/PAGE:FBBODY-->
 <a class="skip" href="#quote">Skip to quote form</a>
 
 <div class="util">
@@ -2105,6 +2119,33 @@ Professional, flexible, and they even have a really sweet dog greeting customers
      allowlisted set of triggers that does NOT include Inbound Webhook —
      which is exactly why forms are reported here and calls are reported
      by GHL's Number Pool Calling trigger. Do not let both report forms. */
+  /* Fraud Blocker conversion tracker.
+     
+     The vendor ships this as a snippet for a thank-you PAGE. This site has no
+     thank-you page — the form swaps in an inline success panel and the URL never
+     changes — so there is no document load to attach it to. Injecting it at the
+     moment the success state is reached is the same event, just without a
+     navigation.
+     
+     Called from fireAdsConversion, NOT from showSuccess. showSuccess is also
+     what the bot trap calls to show a scripted submitter a convincing success
+     screen; firing a fraud vendor's conversion pixel for a bot would be an
+     unusually silly way to poison their data.
+     
+     Guarded so a resubmit in the same page cannot inject it twice. */
+  var fbFired = false;
+  function fireFraudBlockerConversion(){
+    var c = window.SITE_CONFIG || {};
+    if(!c.FB_ID || fbFired) return;
+    fbFired = true;
+    try{
+      var s = document.createElement('script');
+      s.async = 1;
+      s.src = 'https://monitor.fraudblocker.com/ctrack.js?sid=' + encodeURIComponent(c.FB_ID);
+      document.head.appendChild(s);
+    }catch(e){}
+  }
+
   function fireAdsConversion(lead){
     var c = window.SITE_CONFIG || {};
     if(!c.GOOGLE_ADS_ID || !c.GOOGLE_ADS_LABEL || !window.gtag){
@@ -2162,6 +2203,7 @@ Professional, flexible, and they even have a really sweet dog greeting customers
     try{ console.info('[conv] reported ' + c.GOOGLE_ADS_ID + '/' + c.GOOGLE_ADS_LABEL + ' — txn ' + txnId); }catch(e){}
     ctag('form_outcome', 'converted');
     cevent('lead_submitted');
+    fireFraudBlockerConversion();
   }
 
   /* ================= lead delivery =================

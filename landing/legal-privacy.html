@@ -32,6 +32,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- Fraud Blocker. First thing after charset so a bounced visit is still
+     counted. The noscript pixel is NOT here — see fraudBlockerHeadHtml. -->
+<!--PAGE:FBHEAD--><!--/PAGE:FBHEAD-->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Privacy Policy | {{LEGAL_NAME}}</title>
 <meta name="description" content="What {{LEGAL_NAME}} collects through this site, who we share it with, and your privacy rights under the Oregon Consumer Privacy Act.">
@@ -116,6 +119,7 @@ main p, main li{ max-width:56ch; }
 </style>
 </head>
 <body>
+<!--PAGE:FBBODY--><!--/PAGE:FBBODY-->
 <header class="hdr">
   <div class="wrap">
     <a href="/ASSET/" aria-label="{{LEGAL_NAME}} — home">

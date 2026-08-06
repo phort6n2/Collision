@@ -265,6 +265,11 @@ module.exports = {
        * calls would measure a fraction of them and read as a decline. */
       callConversionLabel: 'HHGvCLiL6NocEJDJiscD',
 
+      /* Fraud Blocker site ID. Click-fraud filtering for the Google Ads spend —
+       * it watches traffic and feeds an IP exclusion list back to the account.
+       * Empty (or REPLACE__) emits nothing at all. */
+      fraudBlockerId: '_lX7ZSDTk0dlryam5lH61',
+
       clarityId: '',
       leadValue: 0
     },
