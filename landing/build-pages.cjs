@@ -1516,6 +1516,12 @@ function build() {
     let s = fs.readFileSync(src, 'utf8');
     /* Same generated link lists as every other page, so the legal pages can't
      * silently fall out of the internal link graph when a slug is added. */
+    /* Legal pages are standalone files with their own build path, so every
+       region they carry has to be filled HERE too. Adding a marker to the
+       template and forgetting this is silent: the marker renders empty and the
+       page just quietly lacks the tag. */
+    s = region(s, 'FBHEAD', fraudBlockerHeadHtml());
+    s = region(s, 'FBBODY', fraudBlockerBodyHtml());
     s = region(s, 'FOOTER_SERVICES', footerServices);
     s = region(s, 'FOOTER_AREA_A', footerAreaA);
     s = region(s, 'FOOTER_AREA_B', footerAreaB);

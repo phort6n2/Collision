@@ -636,11 +636,27 @@ head('13. Every region marker is filled');
    the real ones. */
 const MAY_BE_EMPTY = new Set(['GTAGSRC', 'CLARITY', 'FBHEAD', 'FBBODY']);
 
+/* The exemption above means "may be empty when the thing is not configured" —
+   NOT "may always be empty". Blanket-exempting a region hides the case this
+   check exists for: a marker added to a page whose build path never fills it.
+   That is exactly how Fraud Blocker shipped on 15 pages and silently not on the
+   two legal ones. So: if a region is filled ANYWHERE, it must be filled
+   EVERYWHERE it appears. */
+const regionFilledSomewhere = new Set();
+for (const p of pages) {
+  const re = /<!--PAGE:([A-Z_0-9]+)-->([\s\S]*?)<!--\/PAGE:\1-->/g;
+  let m;
+  while ((m = re.exec(p.html))) if (m[2].trim()) regionFilledSomewhere.add(m[1]);
+}
+
 for (const p of pages) {
   const re = /<!--PAGE:([A-Z_0-9]+)-->([\s\S]*?)<!--\/PAGE:\1-->/g;
   let m;
   while ((m = re.exec(p.html))) {
-    if (!m[2].trim() && !MAY_BE_EMPTY.has(m[1])) fail(p.slug + ' has an empty region: ' + m[1]);
+    if (!m[2].trim() && (!MAY_BE_EMPTY.has(m[1]) || regionFilledSomewhere.has(m[1]))) {
+      fail(p.slug + ' has an empty region: ' + m[1] +
+           (regionFilledSomewhere.has(m[1]) ? ' — it is filled on other pages, so this page\'s build path is missing it' : ''));
+    }
   }
 }
 

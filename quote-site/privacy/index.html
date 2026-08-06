@@ -34,7 +34,16 @@
 <meta charset="utf-8">
 <!-- Fraud Blocker. First thing after charset so a bounced visit is still
      counted. The noscript pixel is NOT here — see fraudBlockerHeadHtml. -->
-<!--PAGE:FBHEAD--><!--/PAGE:FBHEAD-->
+<!--PAGE:FBHEAD--><!-- Fraud Blocker Tracker -->
+<script type="text/javascript">
+(function () {
+  var h = document.getElementsByTagName('head')[0];
+  var s = document.createElement('script');
+  s.async = 1;
+  s.src = "https://monitor.fraudblocker.com/fbt.js?sid=_lX7ZSDTk0dlryam5lH61";
+  h.appendChild(s);
+})();
+</script><!--/PAGE:FBHEAD-->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Privacy Policy | Collision Auto Glass &amp; Calibration</title>
 <meta name="description" content="What Collision Auto Glass &amp; Calibration collects through this site, who we share it with, and your privacy rights under the Oregon Consumer Privacy Act.">
@@ -119,7 +128,7 @@ main p, main li{ max-width:56ch; }
 </style>
 </head>
 <body>
-<!--PAGE:FBBODY--><!--/PAGE:FBBODY-->
+<!--PAGE:FBBODY--><noscript><a href="https://fraudblocker.com" rel="nofollow"><img src="https://monitor.fraudblocker.com/fbt.gif?sid=_lX7ZSDTk0dlryam5lH61" alt="Fraud Blocker" width="1" height="1"></a></noscript><!--/PAGE:FBBODY-->
 <header class="hdr">
   <div class="wrap">
     <a href="/" aria-label="Collision Auto Glass &amp; Calibration — home">
