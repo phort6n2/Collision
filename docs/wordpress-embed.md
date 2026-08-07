@@ -100,9 +100,10 @@ that specific visitor actually arrived on a click ID, so a visitor who clicked a
 ad and then browsed to the main site is still identifiable — see
 `docs/ghl-field-mapping.md`.
 
-Everything else is the same: the same six required fields, the same phone/ZIP/VIN
-formatting, the same honeypot and trusted-interaction bot trap, the same 10-second
-timeout, the same click-ID and UTM capture.
+Everything else is the same: the same six required fields, the same free-text
+`notes` box, the same phone/ZIP/VIN formatting, the same honeypot and
+trusted-interaction bot trap, the same 10-second timeout, the same click-ID and
+UTM capture.
 
 ## What it does not send
 
