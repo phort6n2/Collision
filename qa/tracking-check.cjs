@@ -202,6 +202,7 @@ const server = http.createServer((req,res)=>{
   await page.click('#qcExpand');
   await page.check('#ins-y');
   await page.selectOption('#carrier','GEICO');
+  await page.fill('#notes', 'Rock hit it on I-5 this morning.\nCrack runs from the passenger side toward the middle.');
   await page.click('.qc-submit');
   await page.waitForTimeout(600);
 
@@ -253,6 +254,14 @@ const server = http.createServer((req,res)=>{
   /* Additive means additive — the app reports on the raw values. */
   if (w.service && w.insurance && w.source) pass('raw values unchanged alongside the labels');
   else fail('a raw value went missing when the labels were added');
+  /* Free-text box. Newlines must survive — a customer describing damage writes
+     in lines, and flattening it silently edits what they said. */
+  if (/Rock hit it on I-5/.test(w.notes || '') && /\n/.test(w.notes || ''))
+    pass('notes carried through with its line breaks intact');
+  else fail('notes wrong: ' + JSON.stringify(w.notes));
+  if (!/Rock hit it/.test(w.lead_summary || '')) pass('notes is kept out of lead_summary');
+  else fail('notes leaked into lead_summary');
+
   const sum = w.lead_summary || '';
   console.log('  SUMMARY: ' + sum);
   if (sum && /^[A-Z]/.test(sum) && sum.endsWith('.') && !/\s{2,}/.test(sum) &&

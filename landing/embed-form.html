@@ -138,6 +138,7 @@
     '  background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235C4A4A\' stroke-width=\'2.2\' stroke-linecap=\'round\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E");',
     '  background-repeat:no-repeat; background-position:right 12px center; padding-right:42px;',
     '}',
+    'textarea.input{ min-height:96px; resize:vertical; line-height:1.5; padding-top:11px; }',
     '.input::placeholder{ color:var(--text-placeholder); opacity:1; }',
     '.input:hover{ border-color:#6E5B5B; }',
     '.input:focus{ border-color:var(--brand); box-shadow:0 0 0 3px rgba(168,24,24,.16); outline:none; }',
@@ -271,7 +272,7 @@
         '<div style="margin-top:16px">' +
           '<button type="button" class="qc-more-btn" id="qcExpand" aria-expanded="false" aria-controls="qcMore">' +
             '<span><span class="qc-more-t">Speed up my quote <span class="opt">(optional)</span></span><br>' +
-            '<span class="qc-more-s">Add your VIN and insurance for an exact price</span></span>' +
+            '<span class="qc-more-s">VIN, insurance, and anything else about the damage</span></span>' +
             '<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
           '</button>' +
           '<div id="qcMore" hidden>' +
@@ -291,6 +292,11 @@
                 '<option>AAA</option><option>USAA</option><option>Farmers</option>' +
                 '<option>Allstate</option><option>Mercury</option><option>Other</option>' +
               '</select></div>' +
+            '<div class="field">' +
+              '<label class="label" for="notes">Anything else? <span class="opt">&mdash; optional</span></label>' +
+              '<textarea class="input" id="notes" name="notes" rows="3" maxlength="1000" ' +
+                'placeholder="How it happened, where the damage is, anything unusual about the vehicle"></textarea>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<div class="form-error" id="quoteError" role="alert"></div>' +
@@ -590,6 +596,14 @@
     var vehVal  = ($('veh').value || '').trim();
     var vinVal  = (vinEl.value || '').trim();
     var carVal  = $('carrier').value || '';
+    /* Free text, so bound it. maxlength stops a human at 1000, but the attribute
+       is trivially removed and this posts to two write endpoints that take no
+       key — so the cap is re-applied here, where it cannot be edited away from
+       the console. Control characters are stripped for the same reason: they
+       render as mojibake in a CRM field and an email. */
+    var notesVal = ($('notes').value || '')
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+      .trim().slice(0, 1000);
     var insVal  = insEl ? insEl.value : '';
     var payload = {
       full_name: fullName,
@@ -604,6 +618,10 @@
       service: svcVal,
       insurance: insVal,
       carrier: carVal,
+      /* Whatever the customer wanted to say. Deliberately NOT folded into
+         lead_summary — that is one sentence, and a paragraph of free text inside
+         it stops being a summary. It gets its own line in the email. */
+      notes: notesVal,
       /* ---- readable companions to the four raw values above ----
          ADDITIVE. Every raw key keeps its exact value; downstream reporting
          depends on them being stable, and the app stores them. These exist so

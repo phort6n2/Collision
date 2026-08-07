@@ -49,7 +49,7 @@ which is the number that actually says whether these pages earn their spend.
 Read this before mapping anything. It is the one step that silently breaks the rest.
 
 The Inbound Webhook trigger builds its list of mappable variables from the **sample
-request** it captured. The form always sends all 37 keys, but a submission made from a
+request** it captured. The form always sends all 38 keys, but a submission made from a
 direct visit — no `?gclid=…&utm_…` in the URL — sends the click-ID and UTM keys as
 **empty strings**, because the payload builder does `payload[k] = attribution[k] || ''`.
 GHL routinely omits empty-valued keys from the mapping picker, so if the captured sample
@@ -170,7 +170,14 @@ ZIP:       {{contact.postal_code}}
 Service:   {{contact.service_label}}
 Insurance: {{contact.insurance_label}}
 Came from: {{contact.source_label}}
+
+Their notes:
+{{contact.notes}}
 ```
+
+Leave the notes block last and on its own lines — it is free text and can run
+to a paragraph. GHL renders an empty merge field as nothing, so a submission
+without notes just ends after "Came from".
 
 Drop any standalone `VIN:` and `Carrier:` lines — the summary includes them when
 present and omits them when not, which is the dangling-empty-line problem those
@@ -209,6 +216,7 @@ lines create.
 | `vehicle` | Vehicle | Free text, e.g. `2021 Toyota RAV4` |
 | `vin` | VIN | 17 chars, validated and uppercased on the page. **This is the field that tells you whether there is a camera behind the glass** — i.e. whether it is a high-value ADAS job. |
 | `insurance` | Using Insurance | `yes`, `no`, `not-sure` |
+| `notes` | Notes / Damage Details | Free text, max 1000 chars. **Create this as Multi-line text.** |
 | `carrier` | Insurance Carrier | State Farm, GEICO, Progressive, AAA, USAA, Farmers, Allstate, Mercury, Other |
 
 > `service` and `insurance` could be Single Options dropdowns instead of Text. **Use

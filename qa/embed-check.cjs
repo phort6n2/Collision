@@ -208,6 +208,7 @@ async function fillValid(p, over) {
   else fail('carrier field cannot be hidden once shown');
   await p.check('input[name="insurance"][value="yes"]');
   await p.selectOption('#carrier', 'GEICO');
+  await p.fill('#notes', 'Rock hit it on I-5 this morning.\nCrack runs from the passenger side toward the middle.');
   /* Change the service away from the default, so service_label is proven to
      track the SELECTION rather than happening to match the first option. */
   await p.selectOption('#svc', 'door-side-glass');
@@ -257,8 +258,8 @@ async function fillValid(p, over) {
      captured sample of them. A key that silently stops being sent does not
      error — it just arrives blank on every contact from then on. */
   const keys = Object.keys(a.state.crm || {});
-  if (keys.length === 37) pass('payload carries all 37 keys');
-  else fail('payload has ' + keys.length + ' keys, expected 37: ' + keys.join(','));
+  if (keys.length === 38) pass('payload carries all 38 keys');
+  else fail('payload has ' + keys.length + ' keys, expected 38: ' + keys.join(','));
 
   /* ---- readable labels ----
      These exist so the CRM's notification email needs no conditionals. The
@@ -277,6 +278,16 @@ async function fillValid(p, over) {
   else fail('a raw value changed: service=' + lead.service + ' insurance=' + lead.insurance);
   /* No stringified undefined/null anywhere. One of these in a lead email is
      the kind of thing a client forwards back with a question mark. */
+  /* The free-text box. Newlines have to survive — a customer describing damage
+     writes in lines, and flattening it is a silent edit of what they said. */
+  if (/Rock hit it on I-5/.test(lead.notes || '') && /\n/.test(lead.notes || ''))
+    pass('notes carried through with its line breaks intact');
+  else fail('notes wrong: ' + JSON.stringify(lead.notes));
+  /* lead_summary is ONE sentence. Free text belongs on its own line in the
+     email, not spliced into the middle of a summary. */
+  if (!/Rock hit it/.test(lead.lead_summary || '')) pass('notes is kept out of lead_summary');
+  else fail('notes leaked into lead_summary: ' + JSON.stringify(lead.lead_summary));
+
   const junk = Object.entries(lead).filter(([, v]) => v === 'undefined' || v === 'null' || /\bundefined\b/.test(String(v)));
   if (!junk.length) pass('no "undefined" or "null" strings in the payload');
   else fail('payload carries literal undefined/null: ' + JSON.stringify(junk));
@@ -342,6 +353,32 @@ async function fillValid(p, over) {
   if (/ADAS/.test(sum)) pass('acronym in the service label is not lowercased');
   else fail('acronym was mangled by sentence-casing: ' + JSON.stringify(sum));
   await m.ctx.close();
+
+  /* ---------------- 1c. notes cannot be used as an unbounded write ----------
+     maxlength stops a person at 1000 characters and stops nobody else — it is
+     one devtools edit away from gone. This posts to two endpoints that take no
+     key, so the cap has to hold in JS as well. Strip the attribute, paste 5000
+     characters, and check what actually leaves the browser. */
+  const n = await makeCtx(browser);
+  const pn = await n.ctx.newPage();
+  await pn.goto(URL_BASE, { waitUntil: 'load' });
+  await fillValid(pn, { nm: 'Casey Lin', ph: '5035550166', em: 'casey@example.com' });
+  await pn.click('#qcExpand');
+  /* $eval pierces the shadow root, so this does not need the mount id — which
+     differs between this repo and the template and would silently null here. */
+  await pn.$eval('#notes', (t) => {
+    t.removeAttribute('maxlength');
+    t.value = 'A'.repeat(5000) + '\u0007bell';
+    t.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await pn.click('.qc-submit');
+  await pn.waitForTimeout(900);
+  const sent = (n.state.crm || {}).notes || '';
+  if (sent.length === 1000) pass('notes capped at 1000 chars even with maxlength removed');
+  else fail('notes cap did not hold: ' + sent.length + ' chars reached the webhook');
+  if (!/\u0007/.test(sent)) pass('control characters stripped from notes');
+  else fail('a control character survived into the payload');
+  await n.ctx.close();
 
   /* ---------------- 2. leads app down, CRM fine ----------------
      The app post swallows its own errors by construction, so if it could reach
