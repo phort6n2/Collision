@@ -394,10 +394,14 @@ if (home) {
     /* The endpoint takes no secret, and the page is public. A key in the URL
        here would be readable by anyone who views source. */
     const appUrl = /var LEAD_APP_WEBHOOK = "([^"]*)"/.exec(home.html);
-    if (appUrl && /[?&]key=/.test(appUrl[1]))
+    const appVal = appUrl ? appUrl[1] : '';
+    if (!appVal) warn('leads-app URL is empty — no second copy of the lead is being sent');
+    else if (/[?&]key=/.test(appVal))
       fail('leads-app URL carries a key parameter — the page is public, nothing secret belongs in it');
-    else if (appUrl && appUrl[1] && !/[?&]client=[^&]+/.test(appUrl[1]))
+    else if (!/[?&]client=[^&]+/.test(appVal))
       fail('leads-app URL has no client parameter — the endpoint would 404 and every lead would be lost silently');
+    else if (/REPLACE__/.test(appVal))
+      fail('leads-app URL still holds a placeholder — every submit would 404 and the page cannot tell');
     else pass('leads-app URL carries a client slug and no secret');
   }
 
