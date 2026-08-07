@@ -38,12 +38,17 @@ const PORT = 8099;
 const results = [];
 const fail = (m) => results.push('FAIL  ' + m);
 const pass = (m) => results.push('ok    ' + m);
+/* Not a failure — both states are legitimate for some clients, but both are
+   worth seeing rather than passing silently. */
+const warnish = (m) => results.push('warn  ' + m);
 
 /* Read BEFORE the config is patched. Hardcoding the expected Source here would
    make the gate pass only for the client it was written against. */
 const siteCfg = require(path.join(__dirname, '..', 'landing', 'pages.config.cjs')).site;
 const EMBED_SOURCE = (siteCfg.embed && siteCfg.embed.leadSource) || '';
 const EMBED_TERMS = (siteCfg.embed && siteCfg.embed.termsUrl) || '';
+const EMBED_PHONE = (siteCfg.embed && siteCfg.embed.phoneE164) || '';
+const SITE_PHONE = siteCfg.phoneE164 || '';
 const LANDING_SOURCE = siteCfg.leadSource || '';
 
 const cfgPath = path.join(__dirname, '..', 'landing', 'pages.config.cjs');
@@ -254,6 +259,25 @@ async function fillValid(p, over) {
 
   if (await p.isVisible('#quoteSuccess')) pass('success panel shown');
   else fail('no success panel after a valid submit');
+
+  /* Which number the embed prints is a real decision, and an empty
+     embed.phoneE164 silently falls back to site.phoneE164 — the tracking line
+     the landing pages use. On the client's own site that is wrong twice over:
+     it contradicts the number printed everywhere else on the page, and it
+     routes organic callers through a line that exists to attribute ad spend
+     there is none of here. Assert the rendered links are the configured value,
+     not the fallback. */
+  const tels = [...new Set(await p.$$eval('a[href^="tel:"]', (as) =>
+    as.map((a) => a.getAttribute('href').replace('tel:', ''))))];
+  if (!EMBED_PHONE) {
+    warnish('embed.phoneE164 is unset — the embed is falling back to the landing site number');
+  } else if (tels.length && tels.every((t) => t === EMBED_PHONE)) {
+    pass('every call link uses the configured embed number (' + EMBED_PHONE + ')');
+  } else {
+    fail('call links do not match embed.phoneE164 (' + EMBED_PHONE + '): ' + JSON.stringify(tels));
+  }
+  if (EMBED_PHONE && SITE_PHONE && EMBED_PHONE === SITE_PHONE)
+    warnish('embed and landing site share a number — intended only if the landing number is the real business line');
 
   /* No conversion, by decision. Ads point at the landing domain; a submission
      here has no click ID, and enhanced conversions could otherwise match the

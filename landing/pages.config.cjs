@@ -334,14 +334,32 @@ module.exports = {
       leadSource: 'Organic',
       sourceTag: 'website:collisionautoglass.com',
 
-      /* Number shown in the embed's error and success states. Defaults to the
-       * site phone if left empty. Worth a decision rather than a default: the
-       * site phone is a HighLevel tracking line that records the call, so using
-       * it here means main-site calls get recorded too — good for the client,
-       * but it changes what their organic call volume looks like. Set the shop's
-       * own line instead if they would rather leave organic calls untracked. */
-      phoneFormatted: '',
-      phoneE164: '',
+      /* Number shown in the embed's error and success states.
+       *
+       * The MAIN BUSINESS LINE, deliberately — not site.phoneFormatted, which is
+       * the HighLevel tracking number the landing pages use. Two reasons:
+       *
+       *   - The main site already shows this number everywhere. A form in the
+       *     middle of that page printing a different one reads as a mistake, and
+       *     a visitor who compares the two has no way to know which is real.
+       *   - The tracking line exists to attribute AD spend. There is no ad spend
+       *     on this domain, so routing organic callers through it buys nothing
+       *     and quietly changes what the client's organic call volume looks like.
+       *
+       * Confirmed against collisionautoglass.com on 2026-08-07: this is the
+       * organization-level `telephone` in the site's own JSON-LD, on the Portland
+       * / Cedar Mill address. (503) 678-9910 is a secondary contact point named
+       * Tualatin and is NOT the main line.
+       *
+       * The trade, stated: calls placed from this form are not recorded and not
+       * attributed. That is correct here — the form is the tracked path, the
+       * phone number is the fallback for when it fails.
+       *
+       * Empty falls back to site.phoneFormatted / site.phoneE164, which would
+       * silently reintroduce the tracking number. embed-check asserts the
+       * rendered links match this value. */
+      phoneFormatted: '(503) 656-3500',
+      phoneE164: '+15036563500',
 
       /* Absolute, because a root-relative path resolves against the host site.
        * These point at the MAIN site's own policies, which is the right choice
