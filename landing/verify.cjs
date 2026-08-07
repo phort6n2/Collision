@@ -405,6 +405,61 @@ if (home) {
     else pass('leads-app URL carries a client slug and no secret');
   }
 
+  /* ---- the embeddable form must not drift from this one ----
+     The embed is a SEPARATE source file that gets PASTED into WordPress, so it
+     has two ways to go wrong that nothing else here has. This catches the one
+     that is catchable: the two files diverging in the repo. It cannot see what
+     is actually live in WordPress — nothing can, which is why the build stamps
+     a date into the snippet.
+
+     Field ids and payload keys only. Not markup, not copy: the embed is
+     deliberately different in look-adjacent ways (no .gcall, absolute URLs, its
+     own success panel), and asserting sameness there would fail on every
+     legitimate edit until someone deleted the check. */
+  const embedSrc = path.join(ROOT, 'landing', 'embed-form.html');
+  if (!fs.existsSync(embedSrc)) {
+    warn('no landing/embed-form.html — no embeddable form is being built');
+  } else {
+    const embed = fs.readFileSync(embedSrc, 'utf8');
+    /* Required fields, keyed off the validation table both files carry. */
+    /* Capture group, not a slice off the raw match. An index-based slice here
+       reduced both 'nm' and 'em' to 'm', which still caught a REMOVED field by
+       count but would have passed a RENAMED one silently. */
+    const ruleIds = (t) => [...t.matchAll(/\{ el:'([a-z_]+)'/g)].map((m) => m[1]).sort().join(',');
+    if (ruleIds(home.html) && ruleIds(home.html) === ruleIds(embed))
+      pass('embed validates the same field set as the landing form');
+    else fail('embed and landing form validate different fields: [' +
+      ruleIds(home.html) + '] vs [' + ruleIds(embed) + ']');
+
+    /* Payload keys. A key that quietly stops being sent does not error — it
+       arrives blank on every contact from then on, and the CRM mapping was
+       built from a sample that had it. */
+    const payloadKeys = (t) => {
+      const m = /var payload = \{([\s\S]*?)\n    \};|var payload = \{([\s\S]*?)\n      \};/.exec(t);
+      if (!m) return '';
+      return (m[0].match(/^\s{6,8}([a-z_]+):/gm) || []).map((x) => x.trim().slice(0, -1)).sort().join(',');
+    };
+    const a = payloadKeys(home.html), b = payloadKeys(embed);
+    if (a && b && a === b) pass('embed posts the same payload keys as the landing form');
+    else fail('embed and landing form build different payloads: [' + a + '] vs [' + b + ']');
+
+    /* The embed runs on a page whose gtag we do not own. A conversion here
+       would be unattributable at best and would credit the landing pages for an
+       organic lead at worst. */
+    if (/googletagmanager|gtag\(|fireAdsConversion/.test(embed))
+      fail('the embed loads or calls a Google tag — it must report no conversion');
+    else pass('embed reports no Ads conversion');
+
+    /* A root-relative URL in the embed resolves against the client's site, not
+       ours. Checked on the SOURCE, where a bad link is still a token. */
+    const relHref = [...new Set([...embed.matchAll(/href=\\?["'](\/[^"'\\]*)/g)].map((m) => m[1]))];
+    if (relHref.length) fail('embed has root-relative URL(s), which resolve against the host site: ' + relHref.join(', '));
+    else pass('every URL in the embed is absolute');
+
+    if (/attachShadow/.test(embed)) pass('embed isolates itself in a shadow root');
+    else fail('embed does not use a shadow root — the host theme would style it');
+  }
+
   /* Every submission counts, repeats included. Two dedupes had to go for that
      to be true, and only one of them is visible in this file — Google Ads
      discards a repeated transaction_id server-side, so a STABLE id would let

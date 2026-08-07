@@ -305,6 +305,50 @@ module.exports = {
       clientSlug: 'collision-auto-glass-and-calibration'
     },
 
+    /* ------------------------------------------------------------------
+     * Embeddable copy of the quote form, for the client's MAIN site.
+     *
+     * Built to quote-site/embed/form.html. That file is the paste-in snippet
+     * and also renders as a working preview at /embed/form.html.
+     *
+     * It posts to the same two destinations as the landing form and reports NO
+     * Google Ads conversion. Ads point at this domain, not the main site, so a
+     * submission there has no click ID and Google discards it — except where
+     * enhanced conversions match the person to an older ad click, which would
+     * credit the landing pages for a lead they did not earn. The leads app
+     * measures organic volume properly; Google can only ever see the fraction
+     * it manages to attribute.
+     *
+     * TWO THINGS TO CHECK BEFORE IT WORKS:
+     *   1. The main site's origin (apex AND www) must be on the leads app's
+     *      CORS allowlist. Only collisionglass.co is on it today, so the second
+     *      post will fail its preflight until that is added. It fails silently
+     *      by design — the CRM post is unaffected and the visitor sees success.
+     *   2. HighLevel's inbound webhook accepts any origin, so that half works
+     *      immediately.
+     * ---------------------------------------------------------------- */
+    embed: {
+      /* Contact Source in the CRM. The whole point of the split: this reads
+       * Organic, the landing form reads Google Ads, and the contact list shows
+       * which is which at a glance. */
+      leadSource: 'Organic',
+      sourceTag: 'website:collisionautoglass.com',
+
+      /* Number shown in the embed's error and success states. Defaults to the
+       * site phone if left empty. Worth a decision rather than a default: the
+       * site phone is a HighLevel tracking line that records the call, so using
+       * it here means main-site calls get recorded too — good for the client,
+       * but it changes what their organic call volume looks like. Set the shop's
+       * own line instead if they would rather leave organic calls untracked. */
+      phoneFormatted: '',
+      phoneE164: '',
+
+      /* Absolute, because a root-relative path would resolve against the main
+       * site. Points at this site's policy by default; swap it for the main
+       * site's own if that is the one the client maintains. */
+      privacyUrl: ''
+    },
+
     compliance: {
       /* Oregon has no auto-glass registration-number-in-advertising rule.
        * California's 16 CCR § 3371.2 is unusual, and Oregon operates no state

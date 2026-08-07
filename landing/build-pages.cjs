@@ -1578,6 +1578,42 @@ function build() {
     writeFile(legal.slug + '/index.html', s);
   }
 
+  /* ---- embeddable quote form for the client's main site ----
+   *
+   * Emitted as a plain .html file, deliberately NOT index.html. verify walks
+   * the output for index.html and treats each one as a page — an embed under
+   * that name would be checked for a canonical, a unique title and inbound
+   * links from every other page, none of which it has or should have.
+   *
+   * The output IS the paste-in snippet. It renders standalone when the URL is
+   * opened, which makes it its own preview: the same code that goes into
+   * WordPress can be exercised end-to-end from an origin already on the leads
+   * app's allowlist, so a failure there is the code's fault and a failure on
+   * WordPress is the allowlist's.
+   */
+  const embedSrc = path.join(__dirname, 'embed-form.html');
+  if (fs.existsSync(embedSrc)) {
+    const em = site.embed || {};
+    /* Stamped so the pasted copy can be identified. A paste-in snippet drifts by
+     * construction — this is the only way to tell whether what is live in
+     * WordPress is what is in this repo. */
+    const stamp = '<!-- Collision quote form embed · built ' +
+      new Date().toISOString().slice(0, 10) + ' · source: landing/embed-form.html\n' +
+      '     Paste this ENTIRE file into a WordPress "Custom HTML" block.\n' +
+      '     Re-paste after any change to the source, or WordPress keeps the old copy. -->\n';
+    const s = stamp + fs.readFileSync(embedSrc, 'utf8')
+      .replace(/\{\{LEAD_WEBHOOK\}\}/g, site.ghl.webhook)
+      .replace(/\{\{LEAD_APP_WEBHOOK\}\}/g, leadsAppUrl())
+      .replace(/\{\{EMBED_LEAD_SOURCE\}\}/g, esc(em.leadSource || ''))
+      .replace(/\{\{EMBED_SOURCE_TAG\}\}/g, esc(em.sourceTag || site.sourceTag))
+      .replace(/\{\{EMBED_PHONE_E164\}\}/g, esc(em.phoneE164 || site.phoneE164))
+      .replace(/\{\{EMBED_PHONE\}\}/g, esc(em.phoneFormatted || site.phoneFormatted))
+      .replace(/\{\{EMBED_PRIVACY_URL\}\}/g, esc(em.privacyUrl || absUrl('privacy')))
+      .replace(/\{\{BRAND_SHORT\}\}/g, esc(site.brandShort || site.legalName));
+    writeFile('embed/form.html', s);
+    console.log('[build] embed form → ' + (leadsAppUrl() ? 'CRM + leads app' : 'CRM only'));
+  }
+
   /* 404 — Vercel serves /404.html for any unmatched path. A typo'd final URL or
      an expired ad otherwise lands on Vercel's generic page: no logo, no phone,
      no way back, which on a paid click is a guaranteed bounce. Deliberately

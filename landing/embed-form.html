@@ -1,0 +1,600 @@
+<!-- ============================================================================
+     EMBEDDABLE QUOTE FORM — source
+
+     Built by build-pages.cjs into quote-site/embed/form.html. That output IS
+     the paste-in snippet: copy the whole file into a WordPress "Custom HTML"
+     block. Loading the URL renders a working preview of the same code.
+
+     WHY THIS FILE EXISTS SEPARATELY FROM template.html
+
+     The landing form lives inside a page we control end to end. This one is
+     dropped into somebody else's WordPress theme, and that changes three things
+     it cannot share:
+
+       - It renders into a SHADOW ROOT. WordPress themes and page builders style
+         `input`, `button`, `select` and `.form-control` globally and with high
+         specificity. Scoped class names are not enough — a theme that sets
+         `input { width: 100% !important }` wins against any prefix we pick.
+         A shadow root is the only isolation that holds in both directions.
+       - Every URL is ABSOLUTE. There is no /ASSET/ rewrite on a foreign origin,
+         and a root-relative /privacy would resolve against the WordPress site.
+       - It reports NO Google Ads conversion and loads no gtag. Ads point at the
+         landing domain; a submission here has no click ID, so Google would
+         discard it — except where enhanced conversions match the person to an
+         older ad click, which would credit the landing page for a lead it did
+         not earn. Measuring organic volume is the leads app's job.
+
+     THE DRIFT PROBLEM, STATED
+
+     This is a paste-in snippet, so the copy living in WordPress is a SNAPSHOT.
+     Change this file and WordPress keeps serving the old one until someone
+     re-pastes. Two things make that survivable and neither removes the risk:
+
+       - The build stamps a version comment at the top of the output. Compare it
+         against what is in WordPress to know whether they match.
+       - verify.cjs asserts this file's field set and payload keys against the
+         landing form's, so the two cannot silently diverge IN THE REPO. It
+         cannot see what is actually pasted into WordPress. Nothing can.
+
+     Anything changed here needs re-pasting. Say so when you change it.
+     ============================================================================ -->
+<div id="cag-quote-form"></div>
+<noscript>
+  <p style="background:#FDEEEC;border:1px solid #D89A94;border-radius:10px;padding:12px 14px;font:600 15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1A1212;max-width:560px">
+    This quote form needs JavaScript. Please call <a href="tel:{{EMBED_PHONE_E164}}" style="color:#8F2018">{{EMBED_PHONE}}</a> and we'll take the details over the phone.
+  </p>
+</noscript>
+<script>
+(function(){
+  'use strict';
+
+  /* Idempotent. A page builder that renders the same block twice — or a preview
+     pane that re-runs the script — would otherwise mount two forms, and the
+     second would capture the ids the first is using. */
+  var MOUNT = document.getElementById('cag-quote-form');
+  if(!MOUNT || MOUNT.shadowRoot) return;
+
+  var LEAD_WEBHOOK     = "{{LEAD_WEBHOOK}}";
+  var LEAD_APP_WEBHOOK = "{{LEAD_APP_WEBHOOK}}";
+
+  /* Contact Source in the CRM. Deliberately different from the landing page's:
+     this domain is the organic path, and the whole point of the split is being
+     able to tell the two apart in the contact list at a glance. */
+  var CONTACT_SOURCE = "{{EMBED_LEAD_SOURCE}}";
+  var SOURCE_TAG     = "{{EMBED_SOURCE_TAG}}";
+
+  var PHONE_E164 = "{{EMBED_PHONE_E164}}";
+  var PHONE_DISP = "{{EMBED_PHONE}}";
+  var PRIVACY_URL = "{{EMBED_PRIVACY_URL}}";
+  var BRAND_SHORT = "{{BRAND_SHORT}}";
+
+  /* ---------------------------------------------------------------- styles
+     Only the tokens this form actually uses, copied from the landing page so
+     the two look identical. Declared on :host so nothing leaks out and the
+     WordPress theme's cascade cannot reach in.
+
+     The font stack is the system stack the landing page uses. It reads as
+     native on almost any theme; override --cag-font on the host element if the
+     client wants it to match their body copy instead. */
+  var CSS = [
+    ':host{',
+    '  all:initial;',
+    '  display:block;',
+    '  --paper:#FFFFFF; --surface-1:#FDF7F7; --tint-accent:#F6E7E7;',
+    '  --text:#1A1212; --text-2:#3D2E2E; --text-muted:#5C4A4A; --text-placeholder:#6E5B5B;',
+    '  --brand:#A81818; --cta:#A81818; --cta-hover:#8C1212; --cta-active:#6E0E0E;',
+    '  --line-card:#E2D0D0; --border-field:#8A7373;',
+    '  --success:#0F7A3D; --success-tint:#ECFDF3; --success-line:#8CCBA6;',
+    '  --error:#8F2018; --error-tint:#FDEEEC; --error-line:#D89A94;',
+    '  --ring:#1A1212; --ring-w:3px; --ring-offset-w:2px;',
+    '  --r-xs:6px; --r-sm:10px; --r-md:14px; --r-lg:20px;',
+    '  --sh-xs:0 1px 2px rgba(26,18,18,.05);',
+    '  --sh-sm:0 1px 2px rgba(26,18,18,.06), 0 1px 3px rgba(26,18,18,.04);',
+    '  --sh-cta:0 1px 1px rgba(60,8,8,.18), 0 6px 14px -4px rgba(168,24,24,.34);',
+    '  --sh-cta-hover:0 1px 1px rgba(60,8,8,.22), 0 10px 22px -6px rgba(168,24,24,.42);',
+    '  --t:.18s; --ease:cubic-bezier(.4,0,.2,1);',
+    '  --font:var(--cag-font,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif);',
+    '}',
+    /* all:initial on :host resets inheritance INTO the root, so everything
+       inside has to be re-established rather than inherited. */
+    '*,*::before,*::after{ box-sizing:border-box; }',
+    '.wrap{',
+    '  font-family:var(--font); font-size:16px; line-height:1.5; color:var(--text);',
+    '  background:var(--paper); border:1px solid var(--line-card); border-radius:var(--r-lg);',
+    '  padding:24px; max-width:560px; text-align:left;',
+    '}',
+    'form{ margin:0; }',
+    '.qc-h{ font-size:1.25rem; font-weight:800; letter-spacing:-.02em; margin:0 0 4px; color:var(--text); }',
+    '.qc-sub{ font-size:.875rem; color:var(--text-muted); margin:0 0 18px; }',
+    '.qc-row{ display:grid; grid-template-columns:minmax(0,1fr); gap:14px; }',
+    '.qc-row + .qc-row{ margin-top:14px; }',
+    '@media (min-width:520px){ .qc-row-2{ grid-template-columns:repeat(2,minmax(0,1fr)); } }',
+    '.field{ display:grid; gap:6px; min-width:0; }',
+    '.label{ font-size:.875rem; font-weight:600; color:var(--text); }',
+    '.label .req{ color:var(--cta); margin-left:2px; }',
+    '.opt{ color:var(--text-muted); font-weight:400; }',
+    '.input{',
+    '  width:100%; font:inherit; font-size:1rem; color:var(--text); background:var(--paper);',
+    '  border:1px solid var(--border-field); border-radius:var(--r-sm); padding:13px 14px;',
+    '  min-height:48px; transition:border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);',
+    '  -webkit-appearance:none; appearance:none;',
+    '}',
+    'select.input{',
+    /* The native arrow goes with -webkit-appearance:none, so it is drawn back
+       in. Without it a select is indistinguishable from a text input. */
+    '  background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235C4A4A\' stroke-width=\'2.2\' stroke-linecap=\'round\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E");',
+    '  background-repeat:no-repeat; background-position:right 12px center; padding-right:42px;',
+    '}',
+    '.input::placeholder{ color:var(--text-placeholder); opacity:1; }',
+    '.input:hover{ border-color:#6E5B5B; }',
+    '.input:focus{ border-color:var(--brand); box-shadow:0 0 0 3px rgba(168,24,24,.16); outline:none; }',
+    '.input[aria-invalid="true"]{ border-color:var(--error); background:var(--error-tint); }',
+    '.hint{ font-size:.8125rem; color:var(--text-muted); margin:0; }',
+    '.err{ display:none; font-size:.84375rem; font-weight:600; color:var(--error); margin:0; }',
+    '.err.on{ display:flex; gap:6px; align-items:flex-start; }',
+    '.hp{ display:none; }',
+    '.qc-more-btn{',
+    '  width:100%; display:flex; align-items:center; gap:12px; text-align:left; cursor:pointer;',
+    '  font:inherit; background:var(--surface-1); border:1px solid var(--line-card);',
+    '  border-radius:var(--r-sm); padding:12px 14px; color:var(--text);',
+    '}',
+    '.qc-more-btn:hover{ background:var(--tint-accent); }',
+    '.qc-more-btn[aria-expanded="true"]{ background:var(--tint-accent); border-bottom-left-radius:0; border-bottom-right-radius:0; }',
+    '.qc-more-t{ font-size:.9375rem; font-weight:600; color:var(--text); }',
+    '.qc-more-s{ font-size:.8125rem; color:var(--text-muted); }',
+    '.qc-more-btn .chev{ margin-left:auto; flex:0 0 auto; color:var(--text-muted); transition:transform var(--t) var(--ease); }',
+    '.qc-more-btn[aria-expanded="true"] .chev{ transform:rotate(180deg); }',
+    '#qcMore{ border:1px solid var(--line-card); border-top:0; border-radius:0 0 var(--r-sm) var(--r-sm);',
+    '  padding:16px 14px; display:grid; gap:14px; }',
+    '.radios{ display:flex; flex-wrap:wrap; gap:8px; border:0; padding:0; margin:0; }',
+    '.radios legend{ font-size:.875rem; font-weight:600; padding:0; margin:0 0 8px; color:var(--text); }',
+    '.radio{ display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:.9375rem;',
+    '  border:1px solid var(--line-card); border-radius:var(--r-pill,999px); padding:9px 14px; min-height:44px; }',
+    '.radio input{ width:18px; height:18px; accent-color:var(--cta); margin:0; }',
+    '.btn{',
+    '  display:inline-flex; align-items:center; justify-content:center; gap:10px; font:inherit;',
+    '  font-weight:700; border-radius:var(--r-sm); border:1px solid transparent; cursor:pointer;',
+    '  text-decoration:none; transition:background var(--t) var(--ease), box-shadow var(--t) var(--ease), transform var(--t) var(--ease);',
+    '}',
+    '.btn-primary{ background:var(--cta); color:#fff; box-shadow:var(--sh-cta); padding:14px 22px; }',
+    '.btn-primary:hover{ background:var(--cta-hover); box-shadow:var(--sh-cta-hover); transform:translateY(-1px); color:#fff; }',
+    '.btn-primary:active{ background:var(--cta-active); transform:translateY(0); }',
+    '.btn-block{ width:100%; }',
+    '.qc-submit{ width:100%; margin-top:18px; min-height:56px; font-size:1.09375rem; }',
+    '.qc-submit[aria-disabled="true"]{ opacity:.72; }',
+    '.qc-micro{ margin:12px 0 0; font-size:.8125rem; line-height:1.5; color:var(--text-muted); text-align:center; }',
+    '.qc-consent{ margin:12px 0 0; font-size:.75rem; line-height:1.5; color:var(--text-muted); }',
+    '.qc-consent a{ color:var(--brand); }',
+    '.qc-noscript{ background:var(--error-tint); border:1px solid var(--error-line); border-radius:var(--r-sm);',
+    '  padding:12px 14px; font-size:.875rem; color:var(--text); margin:0 0 16px; }',
+    '.form-error{ display:none; margin-top:14px; background:var(--error-tint); border:1px solid var(--error-line);',
+    '  border-radius:var(--r-sm); padding:12px 14px; font-size:.875rem; color:var(--text); }',
+    '.form-error.on{ display:block; }',
+    '.form-error a{ color:var(--error); font-weight:800; }',
+    '.qc-ok{ display:none; }',
+    '.qc-ok.on{ display:block; text-align:center; }',
+    '.qc-ok-i{ width:56px; height:56px; margin:0 auto 14px; border-radius:999px; display:grid; place-items:center;',
+    '  background:var(--success-tint); border:1px solid var(--success-line); color:var(--success); }',
+    '.qc-ok h3{ margin:0 0 8px; font-size:1.25rem; font-weight:800; color:var(--text); }',
+    '.qc-ok h3:focus{ outline:none; }',
+    '.qc-ok p{ font-size:1rem; color:var(--text-2); margin:0; }',
+    /* A focus ring that only exists on some surfaces is a keyboard trap. One
+       value, high contrast on everything in here. */
+    ':is(input,select,button,a):focus-visible{',
+    '  outline:var(--ring-w) solid var(--ring); outline-offset:var(--ring-offset-w);',
+    '}',
+    '.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;',
+    '  clip:rect(0 0 0 0); white-space:nowrap; border:0; }',
+    '@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }'
+  ].join('\n');
+
+  /* ---------------------------------------------------------------- markup */
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  var callLink = PHONE_E164
+    ? '<a href="tel:' + esc(PHONE_E164) + '">' + esc(PHONE_DISP) + '</a>'
+    : '';
+
+  var HTML =
+    '<div class="wrap">' +
+      '<form id="quoteForm" novalidate method="post">' +
+        '<h2 class="qc-h">Get your free quote</h2>' +
+        '<p class="qc-sub">Takes about 30 seconds. We\'ll confirm your glass and your coverage before anyone is dispatched.</p>' +
+        '<div class="qc-row qc-row-2">' +
+          '<div class="field"><label class="label" for="nm">Full name<span class="req" aria-hidden="true">*</span></label>' +
+            '<input class="input" id="nm" name="name" type="text" autocomplete="name" required placeholder="Alex Ramirez">' +
+            '<p class="err" id="nm-err"></p></div>' +
+          '<div class="field"><label class="label" for="ph">Mobile phone<span class="req" aria-hidden="true">*</span></label>' +
+            '<input class="input" id="ph" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(503) 555-0142">' +
+            '<p class="err" id="ph-err"></p></div>' +
+        '</div>' +
+        '<div class="qc-row qc-row-2">' +
+          '<div class="field"><label class="label" for="em">Email<span class="req" aria-hidden="true">*</span></label>' +
+            '<input class="input" id="em" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com">' +
+            '<p class="err" id="em-err"></p></div>' +
+          '<div class="field"><label class="label" for="zip">Service ZIP<span class="req" aria-hidden="true">*</span></label>' +
+            '<input class="input" id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" required placeholder="97229">' +
+            '<p class="err" id="zip-err"></p></div>' +
+        '</div>' +
+        /* Service and vehicle are required, so they stay in the always-visible
+           part. A required field inside a collapsed drawer is a trap: you press
+           submit and the error is on something you cannot see. */
+        '<div class="qc-row qc-row-2">' +
+          '<div class="field"><label class="label" for="svc">What do you need?<span class="req" aria-hidden="true">*</span></label>' +
+            '<select class="input" id="svc" name="service">' +
+              '<option value="windshield-replacement">Windshield replacement</option>' +
+              '<option value="chip-crack-repair">Windshield chip or crack repair</option>' +
+              '<option value="back-glass">Back glass / rear window</option>' +
+              '<option value="door-side-glass">Door or side window glass</option>' +
+              '<option value="adas-calibration">ADAS camera recalibration</option>' +
+              '<option value="not-sure">Not sure &mdash; help me work it out</option>' +
+            '</select><p class="err" id="svc-err"></p></div>' +
+          '<div class="field"><label class="label" for="veh">Vehicle<span class="req" aria-hidden="true">*</span></label>' +
+            '<input class="input" id="veh" name="vehicle" type="text" autocomplete="off" placeholder="2021 Toyota RAV4">' +
+            '<p class="err" id="veh-err"></p></div>' +
+        '</div>' +
+        /* Honeypot. display:none is load-bearing, not incidental: Chrome's
+           address-profile autofill SKIPS display:none and visibility:hidden but
+           fills an off-screen field happily, and autocomplete="off" does not
+           stop it for profile fields. An off-screen honeypot with a recognisable
+           name silently ate real leads on the landing build and showed those
+           visitors a success screen that lied. No label, a name no autofill
+           heuristic recognises, display:none. */
+        '<div class="hp" aria-hidden="true">' +
+          '<input id="hp_check" name="hp_check" type="text" tabindex="-1" autocomplete="off">' +
+        '</div>' +
+        '<div style="margin-top:16px">' +
+          '<button type="button" class="qc-more-btn" id="qcExpand" aria-expanded="false" aria-controls="qcMore">' +
+            '<span><span class="qc-more-t">Speed up my quote <span class="opt">(optional)</span></span><br>' +
+            '<span class="qc-more-s">Add your VIN and insurance for an exact price</span></span>' +
+            '<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
+          '</button>' +
+          '<div id="qcMore" hidden>' +
+            '<div class="field"><label class="label" for="vin">VIN <span class="opt">&mdash; optional, gets us the exact glass</span></label>' +
+              '<input class="input" id="vin" name="vin" type="text" maxlength="17" autocapitalize="characters" spellcheck="false" placeholder="JTMRFREV7HD000000">' +
+              '<p class="hint" id="vinHint" style="display:none"></p></div>' +
+            '<fieldset class="radios"><legend>Filing through insurance?</legend>' +
+              '<label class="radio"><input type="radio" name="insurance" value="yes"> Yes</label>' +
+              '<label class="radio"><input type="radio" name="insurance" value="no"> Self-pay</label>' +
+              '<label class="radio"><input type="radio" name="insurance" value="not-sure" checked> Not sure yet</label>' +
+            '</fieldset>' +
+            '<div class="field" id="carrierField" hidden>' +
+              '<label class="label" for="carrier">Your carrier</label>' +
+              '<select class="input" id="carrier" name="carrier">' +
+                '<option value="">Select your carrier</option>' +
+                '<option>State Farm</option><option>GEICO</option><option>Progressive</option>' +
+                '<option>AAA</option><option>USAA</option><option>Farmers</option>' +
+                '<option>Allstate</option><option>Mercury</option><option>Other</option>' +
+              '</select></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="form-error" id="quoteError" role="alert"></div>' +
+        '<button type="submit" class="btn btn-primary qc-submit"><span class="btn-label">Get my free quote</span></button>' +
+        '<p class="qc-micro">No obligation &middot; We confirm your coverage before dispatch</p>' +
+        '<p class="qc-consent">By submitting this form you agree we may contact you by phone, text or email about your quote. ' +
+          'Message rates may apply.' + (PRIVACY_URL ? ' See our <a href="' + esc(PRIVACY_URL) + '">Privacy Policy</a>.' : '') + '</p>' +
+        '<p class="sr-only" role="status" aria-live="polite" id="qcStatus"></p>' +
+      '</form>' +
+      '<div class="qc-ok" id="quoteSuccess" role="status" aria-live="polite">' +
+        '<div class="qc-ok-i"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>' +
+        '<h3 tabindex="-1" id="okHead">You\'re all set, <span id="echoName">there</span>.</h3>' +
+        '<p>We\'ve got your request. A ' + esc(BRAND_SHORT) + ' tech will call you shortly to confirm the glass, your coverage and a time that works.</p>' +
+        (callLink ? '<p style="margin-top:16px"><a class="btn btn-primary btn-block" href="tel:' + esc(PHONE_E164) + '">Call us now &mdash; ' + esc(PHONE_DISP) + '</a></p>' : '') +
+      '</div>' +
+    '</div>';
+
+  var root = MOUNT.attachShadow({ mode:'open' });
+  var style = document.createElement('style');
+  style.textContent = CSS;
+  root.appendChild(style);
+  var host = document.createElement('div');
+  host.innerHTML = HTML;
+  root.appendChild(host);
+
+  /* Everything below queries the SHADOW ROOT, never the document. getElementById
+     does not exist on a shadow root and document.getElementById cannot see into
+     one — this is the single most likely way an edit ported from the landing
+     page breaks here, and it breaks silently: the query returns null and the
+     field simply stops validating. */
+  function $(id){ return root.getElementById ? root.getElementById(id) : root.querySelector('#' + id); }
+
+  var form      = $('quoteForm');
+  var submitBtn = form.querySelector('.qc-submit');
+  var btnLabel  = submitBtn.querySelector('.btn-label');
+  var origLabel = btnLabel ? btnLabel.textContent : 'Get my free quote';
+  var statusEl  = $('qcStatus');
+  var errBox    = $('quoteError');
+
+  /* --------------------------------------------------------- attribution
+     Same capture as the landing page. Kept even though this domain receives no
+     ad traffic: a stray click ID still tells the truth about that visitor, and
+     paid_click is how a workflow can tell a genuinely organic lead from one
+     that arrived on an ad despite the domain. Namespaced key — sessionStorage
+     is per-origin and this origin belongs to somebody else's site. */
+  var ATTR_KEYS = ['gclid','gbraid','wbraid','gclsrc','msclkid','fbclid','ttclid','li_fat_id',
+                   'utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+  var attribution = (function(){
+    var store = {};
+    try{ store = JSON.parse(sessionStorage.getItem('cag_attr') || '{}'); }catch(e){ store = {}; }
+    var qs = new URLSearchParams(location.search), touched = false;
+    ATTR_KEYS.forEach(function(k){
+      var v = qs.get(k);
+      if(v){ store[k] = v; touched = true; }      // newest click wins
+    });
+    if(!store.landing_page){ store.landing_page = location.href.split('#')[0]; touched = true; }
+    if(!store.referrer){ store.referrer = document.referrer || ''; touched = true; }
+    if(touched){ try{ sessionStorage.setItem('cag_attr', JSON.stringify(store)); }catch(e){} }
+    return store;
+  })();
+
+  /* ------------------------------------------------------------ formatting */
+  function phDigits(v){
+    var d = String(v || '').replace(/\D/g,'');
+    if(d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
+    return d.slice(0,10);
+  }
+  function phFormat(d){
+    if(!d) return '';
+    if(d.length < 4) return '(' + d;
+    if(d.length < 7) return '(' + d.slice(0,3) + ') ' + d.slice(3);
+    return '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
+  }
+  function phE164(v){ var d = phDigits(v); return d.length === 10 ? '+1' + d : ''; }
+
+  var phEl = $('ph');
+  phEl.setAttribute('maxlength','14');
+  phEl.addEventListener('input', function(){ this.value = phFormat(phDigits(this.value)); });
+  $('zip').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,5); });
+
+  /* VIN: real VINs are uppercase and never contain I, O or Q — they would be
+     mistaken for 1 and 0 — so filter those as they type. */
+  var vinEl = $('vin'), vinHint = $('vinHint');
+  vinEl.addEventListener('input', function(){
+    var v = this.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'').slice(0,17);
+    this.value = v;
+    if(!v){ vinHint.style.display = 'none'; this.style.borderColor = ''; return; }
+    vinHint.style.display = 'block';
+    if(v.length === 17){
+      this.style.borderColor = 'var(--success)';
+      vinHint.textContent = '✓ Looks like a valid VIN'; vinHint.style.color = 'var(--success)';
+    } else {
+      this.style.borderColor = '';
+      vinHint.textContent = v.length + ' of 17 characters'; vinHint.style.color = 'var(--text-muted)';
+    }
+  });
+
+  /* ------------------------------------------------------------- drawer */
+  var expand = $('qcExpand'), more = $('qcMore');
+  expand.addEventListener('click', function(){
+    var open = expand.getAttribute('aria-expanded') === 'true';
+    expand.setAttribute('aria-expanded', open ? 'false' : 'true');
+    more.hidden = open;
+  });
+  var carrierField = $('carrierField');
+  root.querySelectorAll('input[name="insurance"]').forEach(function(r){
+    r.addEventListener('change', function(){ carrierField.hidden = r.value !== 'yes'; });
+  });
+
+  /* --------------------------------------------------------- validation */
+  var RULES = [
+    { el:'nm',  err:'nm-err',  msg:'Enter your name so we know who to ask for.',
+      ok:function(v){ return v.trim().length >= 2; } },
+    { el:'ph',  err:'ph-err',  msg:'Enter a 10-digit mobile number so we can call you back.',
+      ok:function(v){ return phDigits(v).length === 10; } },
+    { el:'em',  err:'em-err',  msg:'Enter a valid email address.',
+      ok:function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); } },
+    { el:'zip', err:'zip-err', msg:'Enter the 5-digit ZIP where the vehicle is.',
+      ok:function(v){ return /^\d{5}$/.test(v.trim()); } },
+    { el:'svc', err:'svc-err', msg:'Tell us which glass you need.',
+      ok:function(v){ return !!v; } },
+    /* Year make model. Two words minimum, so "car" and "." do not pass — a
+       vehicle we cannot identify is a vehicle we cannot quote. */
+    { el:'veh', err:'veh-err', msg:'Add the year, make and model, e.g. 2021 Toyota RAV4.',
+      ok:function(v){ return v.trim().replace(/\s+/g,' ').split(' ').length >= 2 && v.trim().length >= 6; } }
+  ];
+
+  function setErr(rule, show){
+    var el = $(rule.el), box = $(rule.err);
+    if(!el || !box) return;
+    if(show){
+      el.setAttribute('aria-invalid','true');
+      el.setAttribute('aria-describedby', rule.err);
+      box.textContent = rule.msg; box.classList.add('on');
+    } else {
+      el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby');
+      box.textContent = ''; box.classList.remove('on');
+    }
+  }
+
+  /* Validate on blur, never on keydown — premature errors read as hostile.
+     Once a field is already in error, re-validate on input so it clears as soon
+     as they fix it. */
+  RULES.forEach(function(rule){
+    var el = $(rule.el);
+    if(!el) return;
+    el.addEventListener('blur', function(){ if(el.value.trim()) setErr(rule, !rule.ok(el.value)); });
+    el.addEventListener('input', function(){
+      if(el.getAttribute('aria-invalid') === 'true' && rule.ok(el.value)) setErr(rule, false);
+    });
+  });
+
+  /* ------------------------------------------------------------- panels */
+  function showSuccess(first){
+    var echo = $('echoName');
+    if(echo) echo.textContent = first;
+    form.style.display = 'none';
+    var ok = $('quoteSuccess');
+    ok.classList.add('on');
+    var head = $('okHead');
+    if(head) head.focus();
+    /* Scroll the HOST, not the panel. A shadow-root node's scrollIntoView is
+       fine, but the mount point is what the WordPress page's own layout knows
+       about, and sticky headers on their theme measure against it. */
+    try{ MOUNT.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){}
+  }
+  function showError(){
+    submitting = false;
+    submitBtn.removeAttribute('aria-disabled');
+    submitBtn.disabled = false;
+    submitBtn.style.pointerEvents = '';
+    if(btnLabel) btnLabel.textContent = origLabel;
+    form.removeAttribute('aria-busy');
+    /* Clear the polite live region, or a screen reader is left with
+       "Sending your request…" contradicting the alert box. */
+    if(statusEl) statusEl.textContent = '';
+    errBox.innerHTML = 'Sorry &mdash; that didn’t go through. Please call ' +
+      (callLink || 'us') + ' and we’ll take the details over the phone.';
+    errBox.classList.add('on');
+  }
+
+  /* A real re-entrancy guard. aria-disabled is advisory and pointer-events:none
+     only blocks mouse and touch, so pressing Enter three times in any field
+     posts three times — three CRM contacts, three workflow triggers, three
+     outbound calls to one impatient person. */
+  var submitting = false;
+
+  /* Bot signal: a human cannot submit without generating a trusted pointerdown
+     or keydown inside the form. A script that sets .value and calls click()
+     generates neither. Deliberately NOT a time threshold — browser autofill can
+     populate the whole form in one tap, and dropping that visitor would lose a
+     real lead and show them a success screen that lied. A false negative costs
+     one junk row in the CRM; a false positive costs a customer. */
+  var interacted = false;
+  function sawUser(e){ if(e.isTrusted) interacted = true; }
+  form.addEventListener('pointerdown', sawUser, true);
+  form.addEventListener('keydown', sawUser, true);
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(submitting) return;
+    errBox.classList.remove('on');
+
+    var nm = $('nm'), em = $('em'), ph = $('ph'), zip = $('zip');
+    var fullName = (nm.value || '').trim();
+    var first = fullName.split(/\s+/)[0] || 'there';
+
+    /* Show the normal success screen rather than an error — telling a bot why it
+       failed is how it learns to pass. Nothing is POSTed. */
+    var hp = $('hp_check');
+    if((hp && hp.value) || !interacted){
+      try{ console.info('[cag] not sent — submit failed the bot check (honeypot=' +
+           !!(hp && hp.value) + ', trusted interaction=' + interacted + ')'); }catch(err){}
+      showSuccess(first);
+      return;
+    }
+
+    var bad = [];
+    RULES.forEach(function(rule){
+      var el = $(rule.el);
+      var invalid = !el || !rule.ok(el.value);
+      setErr(rule, invalid);
+      if(invalid) bad.push(rule);
+    });
+    if(bad.length){
+      statusEl.textContent = bad.length + (bad.length === 1 ? ' field needs' : ' fields need') + ' attention.';
+      var firstBad = $(bad[0].el);
+      if(firstBad) firstBad.focus();
+      /* Naming the field turns "the form does not work" into something
+         answerable without reproducing it. */
+      try{ console.info('[cag] not sent — validation stopped the submit: ' +
+           bad.map(function(b){ return b.el; }).join(', ')); }catch(err){}
+      return;
+    }
+
+    var parts = fullName.split(/\s+/);
+    var insEl = root.querySelector('input[name="insurance"]:checked');
+    var payload = {
+      full_name: fullName,
+      first_name: parts[0] || fullName,
+      last_name: parts.slice(1).join(' '),
+      email: (em.value || '').trim(),
+      phone: phE164(ph.value),
+      phone_formatted: (ph.value || '').trim(),
+      postal_code: (zip.value || '').trim(),
+      vehicle: ($('veh').value || '').trim(),
+      vin: (vinEl.value || '').trim(),
+      service: $('svc').value,
+      insurance: insEl ? insEl.value : '',
+      carrier: $('carrier').value || '',
+      source: SOURCE_TAG,
+      /* CRM standard field — becomes the contact's Source. */
+      contact_source: CONTACT_SOURCE,
+      /* contact_source says what this SITE is for; paid_click says whether this
+         particular visitor actually arrived on an ad click. They disagree for a
+         visitor who clicked an ad and then navigated here, and only this one
+         can tell you so. */
+      paid_click: (attribution.gclid || attribution.gbraid || attribution.wbraid) ? 'yes' : 'no',
+      page_path: location.pathname,
+      page: location.href,
+      submitted_at: new Date().toISOString()
+    };
+    ATTR_KEYS.concat(['landing_page','referrer']).forEach(function(k){
+      payload[k] = attribution[k] || '';
+    });
+
+    submitting = true;
+    submitBtn.setAttribute('aria-disabled','true');
+    submitBtn.disabled = true;
+    submitBtn.style.pointerEvents = 'none';
+    if(btnLabel) btnLabel.textContent = 'Sending…';
+    form.setAttribute('aria-busy','true');
+    statusEl.textContent = 'Sending your request…';
+
+    /* Bound the wait. A bare fetch has no timeout, so a webhook that accepts the
+       connection and never answers leaves the button reading "Sending…" forever
+       with no error and no delivered lead. On abort we fall through to
+       showError, which tells them to call instead. */
+    var ctrl = ('AbortController' in window) ? new AbortController() : null;
+    var timer = setTimeout(function(){ if(ctrl) ctrl.abort(); }, 10000);
+
+    /* ---- additive copy to the leads app ----
+       Started here so both requests are in flight together. Not awaited, not
+       chained: the CRM alone decides what the visitor sees.
+
+       Its own AbortController. Sharing the one above would mean this request's
+       timeout aborts the CRM request too, turning a best-effort extra into a way
+       to lose the lead that matters.
+
+       The catch swallows everything. It must never call showError, never block
+       showSuccess, never touch the button, aria-busy or the status text. */
+    if(LEAD_APP_WEBHOOK){
+      (function(){
+        var appCtrl = ('AbortController' in window) ? new AbortController() : null;
+        var appTimer = setTimeout(function(){ if(appCtrl) appCtrl.abort(); }, 10000);
+        fetch(LEAD_APP_WEBHOOK, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload),
+          keepalive: true,
+          signal: appCtrl ? appCtrl.signal : undefined
+        })
+        .then(function(res){
+          if(!res.ok) try{ console.warn('[cag] leads-app HTTP ' + res.status); }catch(err){}
+        })
+        .catch(function(err){ try{ console.warn('[cag] leads-app post failed', err); }catch(e2){} })
+        .then(function(){ clearTimeout(appTimer); });
+      })();
+    }
+
+    if(!LEAD_WEBHOOK){ clearTimeout(timer); showSuccess(first); return; }
+
+    fetch(LEAD_WEBHOOK, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+      signal: ctrl ? ctrl.signal : undefined
+    })
+    .then(function(res){
+      clearTimeout(timer);
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      statusEl.textContent = 'Request sent.';
+      showSuccess(first);
+    })
+    .catch(function(){
+      clearTimeout(timer);
+      showError();
+    });
+  });
+})();
+</script>

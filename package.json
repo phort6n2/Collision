@@ -11,10 +11,11 @@
     "verify": "node landing/preflight.cjs && node landing/verify.cjs",
     "qa:render": "node qa/render-check.cjs",
     "qa:tracking": "node qa/tracking-check.cjs",
-    "qa": "npm run build:landing && npm run verify && npm run qa:render && npm run qa:tracking",
+    "qa": "npm run build:landing && npm run verify && npm run qa:render && npm run qa:tracking && npm run qa:embed",
     "build:adsheet": "node landing/ads-sheet.cjs",
     "check:urls": "node landing/check-urls.cjs",
-    "make:icons": "node tools/make-icons.cjs"
+    "make:icons": "node tools/make-icons.cjs",
+    "qa:embed": "node qa/embed-check.cjs"
   },
   "license": "UNLICENSED",
   "devDependencies": {
