@@ -55,7 +55,12 @@ const SUBS = [
   [/leadValue:\s*\d+/, "leadValue: 125"],
   [/webhook:\s*'[^']*'/, "webhook: 'https://services.leadconnectorhq.com/hooks/TESTLOC/webhook-trigger/test-id'"],
   [/locationId:\s*'[^']*'/, "locationId: 'TESTLOC'"],
-  [/poolId:\s*'[^']*'/, "poolId: 'TESTPOOL'"]
+  [/poolId:\s*'[^']*'/, "poolId: 'TESTPOOL'"],
+  /* Not for safety — the broad stub below intercepts every off-localhost
+     request, so nothing reaches the real app either way. It is so the URL
+     assertion has a known value to look for, and so a run cannot be read as
+     evidence that the LIVE slug is correct. Only the app can tell you that. */
+  [/clientSlug:\s*'[^']*'/, "clientSlug: 'TESTCLIENT'"]
 ];
 let patched = orig;
 for (const [re, to] of SUBS) {
@@ -108,6 +113,20 @@ const server = http.createServer((req,res)=>{
   await ctx.route('**fraudblocker.com/**', route => {
     if (route.request().url().includes('ctrack')) ctrackHits++; else fbtHits++;
     return route.fulfill({ status:200, contentType:'application/javascript', body:'/* stub */' });
+  });
+  /* The leads-app copy. Counted and captured separately from the CRM post
+     because the whole point of it is that the two carry the SAME payload by a
+     different route — HighLevel strips gclid on the way through, so the app's
+     copy of a lead is the only one that still knows which click paid for it. */
+  let appBody = null, appCalls = 0, appUrl = '';
+  await ctx.route('**glassleads.app/**', route => {
+    if (route.request().method() === 'OPTIONS')
+      return route.fulfill({ status:204, headers:{'access-control-allow-origin':'*','access-control-allow-headers':'content-type'} });
+    appCalls++;
+    appUrl = route.request().url();
+    try { appBody = JSON.parse(route.request().postData() || '{}'); } catch(e){}
+    return route.fulfill({ status:200, contentType:'application/json',
+      headers:{'access-control-allow-origin':'*'}, body:'{"ok":true}' });
   });
 
   const page = await ctx.newPage();
@@ -192,6 +211,21 @@ const server = http.createServer((req,res)=>{
   const bad = Object.entries(need).filter(([k,v]) => (webhookBody||{})[k] !== v);
   if (!bad.length) pass('webhook payload carries gclid, all 5 UTMs, E.164 phone, ZIP, carrier, service, page_path');
   else fail('webhook payload wrong: ' + JSON.stringify(bad) + ' got ' + JSON.stringify(webhookBody));
+  if (appCalls === 1) pass('leads-app POSTed exactly once');
+  else fail('leads-app called ' + appCalls + ' times');
+  if (/[?&]client=TESTCLIENT\b/.test(appUrl)) pass('leads-app URL carries the client slug');
+  else fail('leads-app URL has no client slug: ' + appUrl);
+  /* Same object, not a reshaped one. The app reads every field from the payload
+     root, so a rename or an extra nesting level here is a silent data loss. */
+  if (appBody && JSON.stringify(appBody) === JSON.stringify(webhookBody))
+    pass('leads-app got the identical payload, not a reshaped copy');
+  else fail('leads-app payload differs from the CRM payload');
+  /* The two fields the app cannot work without. gclid is the reason this post
+     exists at all; landing_page is how the app tells "genuinely organic" from
+     "attribution went missing" instead of guessing. */
+  if (appBody && appBody.gclid === 'TEST123' && appBody.landing_page)
+    pass('leads-app copy carries gclid and landing_page');
+  else fail('leads-app copy is missing gclid or landing_page');
   if (webhookBody && webhookBody.landing_page && webhookBody.referrer !== undefined) pass('webhook carries landing_page + referrer');
   else fail('webhook missing landing_page/referrer');
 
@@ -284,6 +318,57 @@ const server = http.createServer((req,res)=>{
     pass('CRM outage still shows the error state, not a false success');
   else fail('showed success despite the webhook failing');
   await ctx3.close();
+
+  /* ---- the leads app is down, the CRM is fine ----
+     This is the assertion the whole additive design exists for. The app post
+     swallows its own errors by construction, so if it could ever reach the
+     visible form the symptom would be an intermittent form failure with no
+     trace of a cause — the form would break for a reason nobody would think to
+     look for. Prove instead that a hard failure changes nothing: success panel,
+     conversion, and CRM delivery all exactly as in the healthy case.
+
+     route.abort() rather than a 500, deliberately. A rejected CORS preflight or
+     a DNS failure surfaces as a rejected promise, which is the harsher of the
+     two paths and the one a status-code stub would not exercise. */
+  const ctx5 = await browser.newContext({ viewport:{width:1280,height:900} });
+  await ctx5.route('**/*', route => {
+    const u = route.request().url();
+    if (u.startsWith('http://localhost:8098')) return route.continue();
+    return route.fulfill({ status:200, contentType:'application/javascript', body:'/* stub */' });
+  });
+  let crmCalls5 = 0;
+  await ctx5.route('**services.leadconnectorhq.com/**', route => {
+    crmCalls5++;
+    return route.fulfill({ status:200, contentType:'application/json', body:'{"ok":true}' });
+  });
+  await ctx5.route('**googletagmanager.com/**', route =>
+    route.fulfill({ status:200, contentType:'application/javascript', body:'window.__gtagLoaded=true;' }));
+  await ctx5.route('**glassleads.app/**', route => route.abort('failed'));
+  const page5 = await ctx5.newPage();
+  const errs5 = [];
+  page5.on('pageerror', e => errs5.push(e.message));
+  await page5.goto('http://localhost:8098/?gclid=TEST555', {waitUntil:'load'});
+  await page5.fill('#nm','Sam Okafor');
+  await page5.fill('#ph','7145550199');
+  await page5.fill('#em','sam@example.com');
+  await page5.fill('#zip','92614');
+  await page5.fill('#veh','2020 Subaru Outback');
+  await page5.click('.qc-submit');
+  await page5.waitForTimeout(900);
+
+  if (await page5.locator('#quoteSuccess.on').count()) pass('leads-app down — success panel still shown');
+  else fail('leads-app failure broke the success screen');
+  if (crmCalls5 === 1) pass('leads-app down — CRM still received the lead');
+  else fail('leads-app failure changed CRM delivery: ' + crmCalls5 + ' call(s)');
+  const dl5 = await page5.evaluate(() => (window.dataLayer||[]).map(a=>Array.from(a)));
+  if (dl5.filter(a => a[0]==='event' && a[1]==='conversion').length === 1)
+    pass('leads-app down — conversion still reported exactly once');
+  else fail('leads-app failure changed conversion reporting');
+  /* An unhandled rejection here would surface in the console as an error and,
+     on a page with error reporting wired up, as a false alarm every submit. */
+  if (!errs5.length) pass('leads-app failure raised no page error');
+  else fail('leads-app failure raised page errors: ' + errs5.join('; '));
+  await ctx5.close();
 
   if (!errs.length) pass('no page errors'); else fail('page errors: ' + errs.join('; '));
   await browser.close(); server.close();

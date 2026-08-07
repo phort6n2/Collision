@@ -362,6 +362,27 @@ function realId(v) {
 }
 
 /**
+ * URL for the additive leads-app post, or '' when it is not configured.
+ *
+ * Both halves must be real. A placeholder slug would build a URL that returns
+ * 404 {"error":"Client not found"} on every submit — the one failure mode this
+ * integration has, and the page cannot tell the difference between that and a
+ * working post because the response is swallowed by design. Emitting nothing is
+ * the honest state for an unconfigured client.
+ *
+ * The slug is encoded rather than concatenated: it comes from a human reading it
+ * out of another system, and a stray space or slash would otherwise change which
+ * endpoint is being called.
+ */
+function leadsAppUrl() {
+  const la = site.leadsApp || {};
+  const endpoint = realId(la.endpoint);
+  const slug = realId(la.clientSlug);
+  if (!endpoint || !slug) return '';
+  return endpoint + '?client=' + encodeURIComponent(slug);
+}
+
+/**
  * Fraud Blocker, split deliberately across two regions.
  *
  * The vendor snippet puts the <script> and a <noscript> fallback pixel together
@@ -1368,6 +1389,7 @@ function renderPage(page) {
     .replace(/\{\{GHL_LOCATION_ID\}\}/g, esc(site.ghl.locationId))
     .replace(/\{\{GHL_POOL_ID\}\}/g, esc(site.ghl.poolId))
     .replace(/\{\{LEAD_WEBHOOK\}\}/g, site.ghl.webhook)
+    .replace(/\{\{LEAD_APP_WEBHOOK\}\}/g, leadsAppUrl())
     .replace(/\{\{ADS_ID\}\}/g, esc(site.ads.conversionId))
     .replace(/\{\{ADS_LABEL\}\}/g, esc(site.ads.conversionLabel))
     .replace(/\{\{CALL_LABEL\}\}/g, esc(site.ads.callConversionLabel || ''))

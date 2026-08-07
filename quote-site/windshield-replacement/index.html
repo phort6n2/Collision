@@ -2224,6 +2224,14 @@ Professional, flexible, and they even have a really sweet dog greeting customers
      can call it, so keep spam filtering on in GHL. */
   var LEAD_WEBHOOK = "https://services.leadconnectorhq.com/hooks/x7zUDmT8SJyJMQoyGE9p/webhook-trigger/8xbolhw6xFlfBZtbkcMD";
 
+  /* Second destination for the same lead: the leads app, posted direct.
+     HighLevel's workflow strips gclid on the way through, so the copy the app
+     receives via HighLevel has no ad attribution and every lead reads as
+     untracked. This copy carries the click IDs the page already collected.
+
+     Empty when site.leadsApp is not configured — the block below no-ops. */
+  var LEAD_APP_WEBHOOK = "https://glassleads.app/api/webhooks/highlevel/lead?client=collision-auto-glass-and-calibration";
+
   /* phone: format as they type, normalise to E.164 for GHL and Google
      (both match E.164 far more reliably than "(503) 555-0142") */
   function phDigits(v){
@@ -2507,6 +2515,40 @@ Professional, flexible, and they even have a really sweet dog greeting customers
          not the ad signal. */
       var ctrl = ('AbortController' in window) ? new AbortController() : null;
       var timer = setTimeout(function(){ if(ctrl) ctrl.abort(); }, 10000);
+
+      /* ---- additive copy to the leads app ----
+         Started here so both requests are in flight together. Deliberately NOT
+         awaited and deliberately not chained: HighLevel alone decides what the
+         visitor sees and whether showError runs, exactly as before.
+
+         Its own AbortController, not the one above. Sharing it would mean this
+         request's timeout aborts the HighLevel request too — turning a
+         best-effort extra into a way to lose the lead that matters.
+
+         keepalive because the success panel may re-render before this settles.
+
+         The catch swallows everything. It must never call showError, never
+         block showSuccess, never touch the button, aria-busy or the status
+         text. A console warning is the entire failure behaviour by design: a
+         broken second post is not the visitor's problem. */
+      if(LEAD_APP_WEBHOOK){
+        (function(){
+          var appCtrl = ('AbortController' in window) ? new AbortController() : null;
+          var appTimer = setTimeout(function(){ if(appCtrl) appCtrl.abort(); }, 10000);
+          fetch(LEAD_APP_WEBHOOK, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload),
+            keepalive: true,
+            signal: appCtrl ? appCtrl.signal : undefined
+          })
+          .then(function(res){
+            if(!res.ok) try{ console.warn('[leads-app] HTTP ' + res.status); }catch(e){}
+          })
+          .catch(function(err){ try{ console.warn('[leads-app] post failed', err); }catch(e){} })
+          .then(function(){ clearTimeout(appTimer); });
+        })();
+      }
 
       fetch(LEAD_WEBHOOK, {
         method:'POST',

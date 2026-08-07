@@ -280,6 +280,31 @@ module.exports = {
       poolId: 'KxTryNob1lTv1nAFRiiv'
     },
 
+    /* ------------------------------------------------------------------
+     * Second, independent copy of the lead, posted straight to the leads app.
+     *
+     * HighLevel's workflow strips gclid before it forwards a lead onward, so
+     * every form submission reaches the app with no ad attribution and is
+     * reported to the client as untracked. Posting from the page skips
+     * HighLevel for this copy, and the click IDs the page already holds arrive
+     * intact.
+     *
+     * HighLevel remains the source of truth. This post is fire-and-forget: it
+     * has its OWN AbortController, and its failure can never reach the visitor
+     * or the conversion. See the block above the fetch in template.html.
+     *
+     * clientSlug is the same value the HighLevel outbound webhook already uses
+     * in its ?client= parameter. GET IT FROM THE APP, DO NOT GUESS — a wrong
+     * slug returns 404 {"error":"Client not found"} and the lead is silently
+     * lost, with nothing on the page looking wrong.
+     *
+     * Either field empty (or still REPLACE__) emits no second post at all.
+     * ---------------------------------------------------------------- */
+    leadsApp: {
+      endpoint: 'https://glassleads.app/api/webhooks/highlevel/lead',
+      clientSlug: 'collision-auto-glass-and-calibration'
+    },
+
     compliance: {
       /* Oregon has no auto-glass registration-number-in-advertising rule.
        * California's 16 CCR § 3371.2 is unusual, and Oregon operates no state

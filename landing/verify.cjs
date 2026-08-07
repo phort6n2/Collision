@@ -351,10 +351,10 @@ if (home) {
      fireAdsConversion has to appear BEFORE the webhook fetch, and must not
      appear after it.
 
-     GHL reports phone calls from the number pool and nothing else. If form
-     submissions are ever re-enabled as a GHL conversion action, every lead
-     counts twice — that is the failure this pairing guards against, and it is
-     invisible in the ad account until the numbers are already wrong. */
+     Google reports phone calls and nothing else. If form submissions are ever
+     re-enabled as a GHL conversion action, every lead counts twice — that is
+     the failure this pairing guards against, and it is invisible in the ad
+     account until the numbers are already wrong. */
   const submitIdx = home.html.indexOf('fetch(LEAD_WEBHOOK');
   const beforeIdx = home.html.lastIndexOf('fireAdsConversion(leadInfo)', submitIdx);
   const afterIdx = submitIdx === -1 ? -1 : home.html.indexOf('fireAdsConversion(', submitIdx);
@@ -362,6 +362,44 @@ if (home) {
   else if (beforeIdx === -1) fail('conversion is not reported before the webhook POST — a CRM outage would lose it');
   else if (afterIdx !== -1) fail('conversion also fires after the webhook resolves — it would be double-counted');
   else pass('conversion reported on submit, independent of CRM delivery');
+
+  /* The leads-app post is ADDITIVE. Every assertion here exists because the
+     failure it guards is silent: the post's whole design is to swallow its own
+     errors, so anything that makes it reach back into the visible form would
+     look like an intermittent form bug with no obvious cause. */
+  const appIdx = home.html.indexOf('fetch(LEAD_APP_WEBHOOK');
+  if (appIdx === -1) {
+    /* Not configured is a legitimate state, but "configured and not emitted" is
+       not — that would mean leads silently stop reaching the app. */
+    if (/var LEAD_APP_WEBHOOK = "[^"]+"/.test(home.html))
+      fail('LEAD_APP_WEBHOOK has a value but nothing posts to it');
+    else pass('no leads-app post — not configured');
+  } else {
+    if (appIdx < submitIdx) pass('leads-app post starts before the CRM post, so both are in flight together');
+    else fail('leads-app post starts after the CRM post — it would be chained, not parallel');
+
+    /* The block between the two fetches is the whole leads-app call. */
+    const appBlock = home.html.slice(appIdx, submitIdx);
+    if (/signal:\s*appCtrl/.test(appBlock) && !/\bctrl\.abort\(\)/.test(appBlock))
+      pass('leads-app post has its own AbortController');
+    else fail('leads-app post shares the CRM AbortController — its timeout would abort the CRM post too');
+
+    if (/keepalive:\s*true/.test(appBlock)) pass('leads-app post is keepalive');
+    else fail('leads-app post is not keepalive — it can be cancelled when the success panel re-renders');
+
+    if (/showError\(|showSuccess\(|aria-busy|statusEl|submitBtn/.test(appBlock))
+      fail('leads-app post touches the visible form — its failure must be invisible to the visitor');
+    else pass('leads-app failure cannot reach the visitor');
+
+    /* The endpoint takes no secret, and the page is public. A key in the URL
+       here would be readable by anyone who views source. */
+    const appUrl = /var LEAD_APP_WEBHOOK = "([^"]*)"/.exec(home.html);
+    if (appUrl && /[?&]key=/.test(appUrl[1]))
+      fail('leads-app URL carries a key parameter — the page is public, nothing secret belongs in it');
+    else if (appUrl && appUrl[1] && !/[?&]client=[^&]+/.test(appUrl[1]))
+      fail('leads-app URL has no client parameter — the endpoint would 404 and every lead would be lost silently');
+    else pass('leads-app URL carries a client slug and no secret');
+  }
 
   /* Every submission counts, repeats included. Two dedupes had to go for that
      to be true, and only one of them is visible in this file — Google Ads
