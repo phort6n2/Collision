@@ -415,6 +415,91 @@ Naive fill-everything bots are still caught. Anything clever enough to skip
 of the two signals and — unlike the honeypot — has no false-positive mode. When
 those two disagree about a real customer, the honeypot is the one that is wrong.
 
+## The form posts the lead straight into the CRM
+
+**The landing page form must POST directly into the client's HighLevel
+subaccount — `glassleads.app` — and nothing may sit between it and the CRM.**
+
+Not an email notification, not a form service, not a Zap, not a spreadsheet
+someone checks. The lead record IS the deliverable. A form that emails a shop
+owner produces a lead that is lost the first busy afternoon, and there is no
+record to follow up from, no contact for a workflow to act on, and nothing to
+compare against ad spend later.
+
+Mechanism: a browser-side POST to `site.ghl.webhook`, an Inbound Webhook trigger
+in the subaccount. The URL is visible in page source — unavoidable for any
+browser-side post — so keep spam filtering on in HighLevel. It is write-only.
+
+### An Inbound Webhook does NOT create a contact
+
+This costs an afternoon every time it is met fresh. The trigger starts a
+workflow with the payload available as reference data; it does **not** create a
+contact by itself. You have to add **Actions → Contact → Create/Update Contact**
+and map the fields.
+
+The symptom is genuinely misleading: **notifications work, because they read the
+payload directly, but no contact appears.** Everything looks like the webhook is
+broken when the webhook is fine and the workflow is incomplete. Use
+*Create/Update*, never plain Create, or a returning customer splits into two
+records.
+
+**Never delete and recreate the webhook trigger to "reset" it.** HighLevel issues
+a new URL, and the old one is baked into every built page — lead delivery stops
+dead until the config is changed and the site redeployed.
+
+### Name fields the way HighLevel names them
+
+Seven of the payload keys map to HighLevel **standard** contact fields with no
+custom field to create first:
+
+```
+full_name · first_name · last_name · email · phone · postal_code · gclid
+```
+
+`gclid` as a standard field is the one that matters — it is what ties a CRM
+record back to the ad click, and it is how you eventually answer "which campaign
+produced jobs" rather than "which campaign produced form fills". Split the name
+into first/last in the payload rather than making HighLevel do it, and send the
+phone in E.164; both match far more reliably.
+
+Everything else — vehicle, VIN, service, insurance, carrier, the remaining click
+IDs and UTMs — becomes a custom field.
+
+### Send one fully-populated sample BEFORE mapping
+
+HighLevel builds its variable picker from the **last sample request it
+captured**, and routinely omits keys whose value was empty. A sample captured
+from a plain visit — no `?gclid=…&utm_…` — means the click ID and UTM keys never
+become mappable, and every lead after it shows them blank. The lead is fine; the
+schema is what is wrong.
+
+Send one POST with every key non-empty, then map. See `docs/ghl-field-mapping.md`
+in the client repo. Re-send it whenever the payload gains a key, or the new one
+will not appear in the picker.
+
+### When a client runs more than one lead path
+
+Set `site.leadSource`, which ships as the standard `contact_source` field and
+becomes the contact's Source in the app. This client runs two:
+
+| Path | Property | Source |
+|---|---|---|
+| This landing form | ads-only domain | `Google Ads` |
+| A HighLevel survey | main website | `Organic` |
+
+Add a tag as well as the Source — HighLevel filters and workflow triggers key off
+tags far more easily, and tags render on the row in the contacts list where
+Source does not. And note that a contact's Source is not an **opportunity's**
+source; if the client works leads in a pipeline, the *Create Opportunity* action
+has its own Source field that must be set separately.
+
+### Do not let HighLevel report the form conversion
+
+The page reports form conversions itself. If a HighLevel workflow also reports
+them, every lead counts twice and nothing in the ad account looks wrong until
+the numbers already are. Calls are HighLevel's to report, or Google's — see
+Tracking below. One reporter per conversion type, always.
+
 ## Tracking
 
 Report form conversions **from the page**, calls from GHL. Never both — GHL's
