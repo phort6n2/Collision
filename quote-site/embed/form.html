@@ -101,6 +101,17 @@
     /* all:initial on :host resets inheritance INTO the root, so everything
        inside has to be re-established rather than inherited. */
     '*,*::before,*::after{ box-sizing:border-box; }',
+    /* The `hidden` attribute is only enforced by the UA stylesheet's
+       [hidden]{display:none}, and ANY author rule that sets display beats it —
+       specificity is irrelevant, author beats UA outright. Both disclosures here
+       were broken by exactly that: `#qcMore{display:grid}` and, for the carrier
+       field, the shared `.field{display:grid}`. The drawer rendered open on load
+       and could not be closed.
+       !important rather than a per-element `#x[hidden]` rule, because the
+       per-element version has to be remembered every time someone adds a
+       display rule — and forgetting it fails silently, looking like a stuck
+       control rather than a stylesheet bug. */
+    '[hidden]{ display:none !important; }',
     '.wrap{',
     '  font-family:var(--font); font-size:16px; line-height:1.5; color:var(--text);',
     '  background:var(--paper); border:1px solid var(--line-card); border-radius:var(--r-lg);',

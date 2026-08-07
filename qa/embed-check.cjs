@@ -148,15 +148,41 @@ async function fillValid(p, over) {
   if (await p.inputValue('#zip') === '97229') pass('ZIP strips non-digits');
   else fail('ZIP did not filter: ' + await p.inputValue('#zip'));
 
+  /* Assert CLOSED first. The previous version of this only checked the drawer
+     was visible AFTER a click, which passes just as happily when the drawer is
+     stuck open and cannot be closed at all — which is exactly what shipped.
+     A disclosure test that never asserts the collapsed state is not a test. */
+  if (!(await p.isVisible('#qcMore'))) pass('optional drawer starts closed');
+  else fail('optional drawer is open on load — the hidden attribute is being overridden');
+  if (await p.getAttribute('#qcExpand', 'aria-expanded') === 'false') pass('drawer reports aria-expanded=false when closed');
+  else fail('aria-expanded is not false on load');
+
   await p.click('#qcExpand');
   if (await p.isVisible('#qcMore')) pass('optional drawer opens');
   else fail('optional drawer did not open');
+
+  /* And closes again. A disclosure that only opens is a worse control than no
+     disclosure, because the affordance says it toggles. */
+  await p.click('#qcExpand');
+  if (!(await p.isVisible('#qcMore'))) pass('optional drawer closes again');
+  else fail('optional drawer cannot be closed once opened');
+  if (await p.getAttribute('#qcExpand', 'aria-expanded') === 'false') pass('aria-expanded returns to false');
+  else fail('aria-expanded stuck true after closing');
+  await p.click('#qcExpand');
   await p.fill('#vin', 'jtmrfrev7hd0000i0');
   if (await p.inputValue('#vin') === 'JTMRFREV7HD00000') pass('VIN uppercases and drops I/O/Q');
   else fail('VIN filter wrong: ' + await p.inputValue('#vin'));
+  /* Same shape of bug, same blind spot: .field{display:grid} also beats the UA's
+     [hidden] rule, so this field was permanently visible too. */
+  if (!(await p.isVisible('#carrierField'))) pass('carrier field starts hidden');
+  else fail('carrier field is visible before insurance=yes is chosen');
   await p.check('input[name="insurance"][value="yes"]');
   if (await p.isVisible('#carrierField')) pass('carrier field reveals on insurance=yes');
   else fail('carrier field stayed hidden');
+  await p.check('input[name="insurance"][value="no"]');
+  if (!(await p.isVisible('#carrierField'))) pass('carrier field hides again on insurance=no');
+  else fail('carrier field cannot be hidden once shown');
+  await p.check('input[name="insurance"][value="yes"]');
   await p.selectOption('#carrier', 'GEICO');
 
   /* Validation must stop the submit BEFORE anything is POSTed — a half-valid
