@@ -51,7 +51,18 @@ const orig = fs.readFileSync(cfgPath, 'utf8');
    would post test leads into the client's live CRM. */
 const SUBS = [
   [/conversionId:\s*'[^']*'/, "conversionId: 'AW-TEST12345'"],
-  [/conversionLabel:\s*'[^']*'/, "conversionLabel: 'TestLabel_abc'"],
+  /* Lookbehind, not a bare key: "conversionLabel" is a SUFFIX of
+     "callConversionLabel", so an unanchored pattern rewrites whichever of the
+     two appears first in the file and leaves the other holding a live value.
+     Today conversionLabel happens to come first; that is a source-order
+     accident, not a guarantee. */
+  [/(?<![A-Za-z])conversionLabel:\s*'[^']*'/, "conversionLabel: 'TestLabel_abc'"],
+  /* Both of these are asserted further down, so leaving the live values in
+     place makes the run depend on the client's account already being
+     configured — and means a green run is not evidence the code works, only
+     that this client happens to have them set. */
+  [/callConversionLabel:\s*'[^']*'/, "callConversionLabel: 'TestCallLabel_xyz'"],
+  [/fraudBlockerId:\s*'[^']*'/, "fraudBlockerId: 'TESTFBSID'"],
   [/leadValue:\s*\d+/, "leadValue: 125"],
   [/webhook:\s*'[^']*'/, "webhook: 'https://services.leadconnectorhq.com/hooks/TESTLOC/webhook-trigger/test-id'"],
   [/locationId:\s*'[^']*'/, "locationId: 'TESTLOC'"],
@@ -226,6 +237,28 @@ const server = http.createServer((req,res)=>{
   if (appBody && appBody.gclid === 'TEST123' && appBody.landing_page)
     pass('leads-app copy carries gclid and landing_page');
   else fail('leads-app copy is missing gclid or landing_page');
+  /* ---- readable labels ----
+     The CRM renders its lead-notification email from whatever it is handed, so
+     a raw value here is a shop owner reading "Service: door-side-glass" at 7am.
+     Nothing errors when these are wrong; they are only visible in an email. */
+  const w = webhookBody || {};
+  if (w.service_label && w.service_label !== w.service && !/-/.test(w.service_label))
+    pass('service_label is the option text, not the value: "' + w.service_label + '"');
+  else fail('service_label wrong: ' + JSON.stringify(w.service_label));
+  if (w.insurance_label && / /.test(w.insurance_label)) pass('insurance_label is an English phrase');
+  else fail('insurance_label wrong: ' + JSON.stringify(w.insurance_label));
+  if (w.source_label && / /.test(w.source_label) && !/:/.test(w.source_label))
+    pass('source_label reads as prose, not an identifier');
+  else fail('source_label looks like a slug or is empty: ' + JSON.stringify(w.source_label));
+  /* Additive means additive — the app reports on the raw values. */
+  if (w.service && w.insurance && w.source) pass('raw values unchanged alongside the labels');
+  else fail('a raw value went missing when the labels were added');
+  const sum = w.lead_summary || '';
+  console.log('  SUMMARY: ' + sum);
+  if (sum && /^[A-Z]/.test(sum) && sum.endsWith('.') && !/\s{2,}/.test(sum) &&
+      !/undefined|null|\(\)/.test(sum)) pass('lead_summary reads as a clean sentence');
+  else fail('lead_summary is malformed: ' + JSON.stringify(sum));
+
   if (webhookBody && webhookBody.landing_page && webhookBody.referrer !== undefined) pass('webhook carries landing_page + referrer');
   else fail('webhook missing landing_page/referrer');
 

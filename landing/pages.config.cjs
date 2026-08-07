@@ -86,6 +86,12 @@ module.exports = {
 
     sourceTag: 'landing:collision-portland-metro',
 
+    /* Plain-English companion to sourceTag, for the CRM's lead-notification
+     * email. sourceTag is an identifier and reads like one; this is what a
+     * technician sees at 7am. Names the PLACE the lead came from —
+     * contact_source already names the channel. */
+    sourceLabel: 'Portland landing page',
+
     /* Goes into GHL's STANDARD `contact_source` field, which is what the CRM
      * shows as a contact's Source. This client runs two lead paths into one
      * CRM and needs to tell them apart at a glance:
@@ -333,6 +339,7 @@ module.exports = {
        * which is which at a glance. */
       leadSource: 'Organic',
       sourceTag: 'website:collisionautoglass.com',
+      sourceLabel: 'Main website',
 
       /* Number shown in the embed's error and success states.
        *

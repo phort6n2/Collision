@@ -2270,6 +2270,60 @@ Professional, flexible, and they even have a really sweet dog greeting customers
   }
   function phE164(v){ var d = phDigits(v); return d.length === 10 ? '+1' + d : ''; }
 
+  /* ---- human-readable labels for the CRM ----
+     The payload carries the raw control values because reporting depends on
+     them being stable. It ALSO carries labels, because the CRM renders the
+     lead-notification email from whatever it is handed, and "Service:
+     door-side-glass" is what the shop reads at 7am.
+
+     Read the label off the CONTROL, never from a second lookup table. A table
+     has to be updated every time an <option> is added, and forgetting produces
+     a blank label rather than an error — silent, and only visible in an email
+     nobody is diffing. */
+  function labelOf(sel){
+    return (sel && sel.selectedIndex >= 0) ? (sel.options[sel.selectedIndex].text || '').trim() : '';
+  }
+
+  /* Radios have no options collection, so this one has to be explicit. Phrased
+     as a statement rather than an echo of the button — "Not sure yet about
+     insurance" reads in an email; "not-sure" does not. */
+  var INSURANCE_LABEL = {
+    'yes':      'Filing through insurance',
+    'no':       'Paying out of pocket',
+    'not-sure': 'Not sure yet about insurance'
+  };
+
+  /* Lowercasing a whole label mangles any acronym in it — "ADAS camera
+     recalibration" must not become "adas camera recalibration". Only the first
+     character moves, and only when the first word is not an initialism. */
+  function lowerFirst(s){
+    if(!s) return '';
+    var first = s.split(' ')[0];
+    if(first.length > 1 && first === first.toUpperCase() && /[A-Z]/.test(first)) return s;
+    return s.charAt(0).toLowerCase() + s.slice(1);
+  }
+
+  /* One option's text is a conversation, not a service: pasting it in produces
+     "needs not sure — help me work it out". That one gets a phrase written for
+     this sentence instead. */
+  function servicePhrase(value, label){
+    if(value === 'not-sure') return 'needs help working out which glass';
+    return 'needs ' + lowerFirst(label || 'auto glass work');
+  }
+
+  /* One English sentence, assembled from whatever is present. Every optional
+     clause drops out cleanly, so a submission carrying only the required fields
+     still reads as a sentence rather than trailing a dangling "VIN:". */
+  function leadSummary(d){
+    return [
+      d.name,
+      servicePhrase(d.service, d.serviceLabel),
+      d.vehicle ? 'on a ' + d.vehicle : '',
+      d.vin     ? '(VIN ' + d.vin + ')' : '',
+      d.carrier ? '\u2014 insured with ' + d.carrier : ''
+    ].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim() + '.';
+  }
+
   /* Session context, set once. Campaign and service make replay filterable by
      the two questions worth asking: which ad group is sending traffic that
      struggles, and which service page is doing the struggling. `paid` records
@@ -2489,6 +2543,15 @@ Professional, flexible, and they even have a really sweet dog greeting customers
       if(!LEAD_WEBHOOK){ showSuccess(first); return; }
 
       var insEl = document.querySelector('input[name="insurance"]:checked');
+      /* Hoisted so the literal below and the summary read the SAME values —
+         re-querying for the summary is how the two drift apart. */
+      var svcEl   = document.getElementById('svc');
+      var svcVal  = svcEl.value;
+      var svcText = labelOf(svcEl);
+      var vehVal  = (document.getElementById('veh').value || '').trim();
+      var vinVal  = (document.getElementById('vin').value || '').trim();
+      var carVal  = document.getElementById('carrier').value || '';
+      var insVal  = insEl ? insEl.value : '';
       var payload = {
         full_name: fullName,
         first_name: parts[0] || fullName,
@@ -2497,11 +2560,22 @@ Professional, flexible, and they even have a really sweet dog greeting customers
         phone: phE164(ph.value) || ph.value.trim(),
         phone_formatted: ph.value.trim(),
         postal_code: zip.value.trim(),
-        vehicle: (document.getElementById('veh').value || '').trim(),
-        vin: (document.getElementById('vin').value || '').trim(),
-        service: document.getElementById('svc').value,
-        insurance: insEl ? insEl.value : '',
-        carrier: document.getElementById('carrier').value || '',
+        vehicle: vehVal,
+        vin: vinVal,
+        service: svcVal,
+        insurance: insVal,
+        carrier: carVal,
+        /* ---- readable companions to the four raw values above ----
+           ADDITIVE. Every raw key keeps its exact value; downstream reporting
+           depends on them being stable, and the app stores them. These exist so
+           the CRM's email template needs no conditionals to render English. */
+        service_label: svcText,
+        insurance_label: INSURANCE_LABEL[insVal] || '',
+        source_label: 'Portland landing page',
+        lead_summary: leadSummary({
+          name: fullName, service: svcVal, serviceLabel: svcText,
+          vehicle: vehVal, vin: vinVal, carrier: carVal
+        }),
         source: 'landing:collision-portland-metro',
         /* GHL standard field — becomes the contact's Source in the CRM. */
         contact_source: 'Google Ads',

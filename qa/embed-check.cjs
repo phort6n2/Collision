@@ -208,6 +208,9 @@ async function fillValid(p, over) {
   else fail('carrier field cannot be hidden once shown');
   await p.check('input[name="insurance"][value="yes"]');
   await p.selectOption('#carrier', 'GEICO');
+  /* Change the service away from the default, so service_label is proven to
+     track the SELECTION rather than happening to match the first option. */
+  await p.selectOption('#svc', 'door-side-glass');
 
   /* Validation must stop the submit BEFORE anything is POSTed — a half-valid
      lead in the CRM is worse than none, because it looks like a real one. */
@@ -234,7 +237,7 @@ async function fillValid(p, over) {
   else fail('the two payloads differ');
 
   const want = { contact_source: EMBED_SOURCE, gclid: 'EMBEDTEST', paid_click: 'yes',
-    phone: '+15035550142', postal_code: '97229', service: 'windshield-replacement',
+    phone: '+15035550142', postal_code: '97229', service: 'door-side-glass',
     carrier: 'GEICO', insurance: 'yes', vehicle: '2021 Toyota RAV4',
     vin: 'JTMRFREV7HD00000', utm_campaign: 'organic-test' };
   const wrong = Object.entries(want).filter(([k, v]) => (a.state.crm || {})[k] !== v);
@@ -254,8 +257,30 @@ async function fillValid(p, over) {
      captured sample of them. A key that silently stops being sent does not
      error — it just arrives blank on every contact from then on. */
   const keys = Object.keys(a.state.crm || {});
-  if (keys.length === 33) pass('payload carries all 33 keys');
-  else fail('payload has ' + keys.length + ' keys, expected 33: ' + keys.join(','));
+  if (keys.length === 37) pass('payload carries all 37 keys');
+  else fail('payload has ' + keys.length + ' keys, expected 37: ' + keys.join(','));
+
+  /* ---- readable labels ----
+     These exist so the CRM's notification email needs no conditionals. The
+     failure mode is not an error, it is an email that reads "Service:
+     door-side-glass" — invisible from here unless it is asserted. */
+  const lead = a.state.crm || {};
+  if (lead.service_label === 'Door or side window glass') pass('service_label is the option text, not the value');
+  else fail('service_label wrong: ' + JSON.stringify(lead.service_label));
+  if (lead.insurance_label === 'Filing through insurance') pass('insurance_label is an English phrase');
+  else fail('insurance_label wrong: ' + JSON.stringify(lead.insurance_label));
+  if (lead.source_label && / /.test(lead.source_label) && !/:/.test(lead.source_label))
+    pass('source_label reads as prose, not an identifier');
+  else fail('source_label looks like a slug or is empty: ' + JSON.stringify(lead.source_label));
+  /* The raw values must be untouched — the app reports on them. */
+  if (lead.service === 'door-side-glass' && lead.insurance === 'yes') pass('raw values unchanged alongside the labels');
+  else fail('a raw value changed: service=' + lead.service + ' insurance=' + lead.insurance);
+  /* No stringified undefined/null anywhere. One of these in a lead email is
+     the kind of thing a client forwards back with a question mark. */
+  const junk = Object.entries(lead).filter(([, v]) => v === 'undefined' || v === 'null' || /\bundefined\b/.test(String(v)));
+  if (!junk.length) pass('no "undefined" or "null" strings in the payload');
+  else fail('payload carries literal undefined/null: ' + JSON.stringify(junk));
+  console.log('  SUMMARY (full):    ' + lead.lead_summary);
 
   if (await p.isVisible('#quoteSuccess')) pass('success panel shown');
   else fail('no success panel after a valid submit');
@@ -288,6 +313,35 @@ async function fillValid(p, over) {
 
   if (!errs.length) pass('no page errors'); else fail('page errors: ' + errs.join('; '));
   await a.ctx.close();
+
+  /* ---------------- 1b. the minimal form ----------------
+     Only the required fields: no VIN, no carrier, insurance left at its default.
+     This is the COMMON submission, not the edge case, and it is where a naively
+     concatenated summary produces "Riley needs  on a  ()." */
+  const m = await makeCtx(browser);
+  const pm = await m.ctx.newPage();
+  await pm.goto(URL_BASE, { waitUntil: 'load' });
+  await pm.fill('#nm', 'Dana Alvarez');
+  await pm.fill('#ph', '5035550177');
+  await pm.fill('#em', 'dana@example.com');
+  await pm.fill('#zip', '97229');
+  await pm.fill('#veh', '2018 Subaru Forester');
+  await pm.selectOption('#svc', 'adas-calibration');
+  await pm.click('.qc-submit');
+  await pm.waitForTimeout(900);
+  const mc = m.state.crm || {};
+  const sum = mc.lead_summary || '';
+  console.log('  SUMMARY (minimal): ' + sum);
+  if (sum && /^[A-Z]/.test(sum) && sum.endsWith('.')) pass('minimal-form summary is a sentence');
+  else fail('minimal-form summary is malformed: ' + JSON.stringify(sum));
+  if (!/\s{2,}/.test(sum)) pass('summary has no double spaces');
+  else fail('summary has collapsed whitespace: ' + JSON.stringify(sum));
+  if (!/undefined|null|\(\)|VIN \)|insured with\s*$/.test(sum)) pass('summary has no dangling empty clauses');
+  else fail('summary has a dangling clause: ' + JSON.stringify(sum));
+  /* An acronym in the option text must survive the sentence-casing. */
+  if (/ADAS/.test(sum)) pass('acronym in the service label is not lowercased');
+  else fail('acronym was mangled by sentence-casing: ' + JSON.stringify(sum));
+  await m.ctx.close();
 
   /* ---------------- 2. leads app down, CRM fine ----------------
      The app post swallows its own errors by construction, so if it could reach

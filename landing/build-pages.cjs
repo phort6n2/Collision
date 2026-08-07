@@ -1399,6 +1399,7 @@ function renderPage(page) {
     .replace(/\{\{PAGE_KIND\}\}/g, esc(page.kind))
     .replace(/\{\{PAGE_PATH\}\}/g, esc(page.slug === '/' ? '/' : '/' + page.slug))
     .replace(/\{\{SOURCE_TAG\}\}/g, esc(site.sourceTag))
+    .replace(/\{\{SOURCE_LABEL\}\}/g, esc(site.sourceLabel || site.sourceTag))
     .replace(/\{\{LEAD_SOURCE\}\}/g, esc(site.leadSource || ''));
 
   /* ---- GHL number pool: only emit the DNI scripts once configured ---- */
@@ -1602,6 +1603,7 @@ function build() {
       .replace(/\{\{LEAD_APP_WEBHOOK\}\}/g, leadsAppUrl())
       .replace(/\{\{EMBED_LEAD_SOURCE\}\}/g, esc(em.leadSource || ''))
       .replace(/\{\{EMBED_SOURCE_TAG\}\}/g, esc(em.sourceTag || site.sourceTag))
+      .replace(/\{\{EMBED_SOURCE_LABEL\}\}/g, esc(em.sourceLabel || site.sourceLabel || ''))
       .replace(/\{\{EMBED_PHONE_E164\}\}/g, esc(em.phoneE164 || site.phoneE164))
       .replace(/\{\{EMBED_PHONE\}\}/g, esc(em.phoneFormatted || site.phoneFormatted))
       .replace(/\{\{EMBED_PRIVACY_URL\}\}/g, esc(em.privacyUrl || absUrl('privacy')))

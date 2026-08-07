@@ -434,10 +434,26 @@ if (home) {
     /* Payload keys. A key that quietly stops being sent does not error — it
        arrives blank on every contact from then on, and the CRM mapping was
        built from a sample that had it. */
+    /* Depth-aware, not indentation-aware. The first version matched keys by
+       leading whitespace, which silently pulled in the keys of a NESTED object
+       literal as soon as one appeared at the same indent — and did so in one of
+       the two files and not the other, so it read as a real divergence. Walk
+       the braces and take only what sits at depth 1. */
     const payloadKeys = (t) => {
-      const m = /var payload = \{([\s\S]*?)\n    \};|var payload = \{([\s\S]*?)\n      \};/.exec(t);
-      if (!m) return '';
-      return (m[0].match(/^\s{6,8}([a-z_]+):/gm) || []).map((x) => x.trim().slice(0, -1)).sort().join(',');
+      const start = t.indexOf('var payload = {');
+      if (start === -1) return '';
+      let depth = 0, i = t.indexOf('{', start), out = [], buf = '';
+      for (; i < t.length; i++) {
+        const ch = t[i];
+        if (ch === '{') { depth++; buf = ''; continue; }
+        if (ch === '}') { depth--; if (!depth) break; buf = ''; continue; }
+        if (depth === 1) {
+          if (ch === ',' || ch === '\n') { buf = ''; continue; }
+          if (ch === ':') { const k = buf.trim(); if (/^[a-z_][a-z0-9_]*$/.test(k)) out.push(k); buf = ''; continue; }
+          buf += ch;
+        }
+      }
+      return [...new Set(out)].sort().join(',');
     };
     const a = payloadKeys(home.html), b = payloadKeys(embed);
     if (a && b && a === b) pass('embed posts the same payload keys as the landing form');
