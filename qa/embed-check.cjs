@@ -39,6 +39,12 @@ const results = [];
 const fail = (m) => results.push('FAIL  ' + m);
 const pass = (m) => results.push('ok    ' + m);
 
+/* Read BEFORE the config is patched. Hardcoding the expected Source here would
+   make the gate pass only for the client it was written against. */
+const siteCfg = require(path.join(__dirname, '..', 'landing', 'pages.config.cjs')).site;
+const EMBED_SOURCE = (siteCfg.embed && siteCfg.embed.leadSource) || '';
+const LANDING_SOURCE = siteCfg.leadSource || '';
+
 const cfgPath = path.join(__dirname, '..', 'landing', 'pages.config.cjs');
 const orig = fs.readFileSync(cfgPath, 'utf8');
 
@@ -177,13 +183,22 @@ async function fillValid(p, over) {
     pass('both destinations got the identical payload');
   else fail('the two payloads differ');
 
-  const want = { contact_source: 'Organic', gclid: 'EMBEDTEST', paid_click: 'yes',
+  const want = { contact_source: EMBED_SOURCE, gclid: 'EMBEDTEST', paid_click: 'yes',
     phone: '+15035550142', postal_code: '97229', service: 'windshield-replacement',
     carrier: 'GEICO', insurance: 'yes', vehicle: '2021 Toyota RAV4',
     vin: 'JTMRFREV7HD00000', utm_campaign: 'organic-test' };
   const wrong = Object.entries(want).filter(([k, v]) => (a.state.crm || {})[k] !== v);
-  if (!wrong.length) pass('payload correct, contact_source is Organic');
+  if (!wrong.length) pass('payload correct, contact_source is "' + EMBED_SOURCE + '"');
   else fail('payload wrong: ' + JSON.stringify(wrong));
+
+  /* The assertion that actually matters. Equal to the config value only proves
+     the token substituted; DIFFERENT from the landing form's is the whole
+     reason the embed exists — it is what lets the client see, in the contact
+     list, which leads came from ads and which came from their own site. Two
+     paths writing the same Source makes the split invisible. */
+  if (EMBED_SOURCE && LANDING_SOURCE && EMBED_SOURCE !== LANDING_SOURCE)
+    pass('embed Source differs from the landing form\'s, so the two paths stay distinguishable');
+  else fail('embed and landing form both write Source "' + EMBED_SOURCE + '" — the split would be invisible in the CRM');
 
   /* The landing form sends 33 keys and the CRM's field mapping is built from a
      captured sample of them. A key that silently stops being sent does not

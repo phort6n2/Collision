@@ -1597,7 +1597,7 @@ function build() {
     /* Stamped so the pasted copy can be identified. A paste-in snippet drifts by
      * construction — this is the only way to tell whether what is live in
      * WordPress is what is in this repo. */
-    const stamp = '<!-- Collision quote form embed · built ' +
+    const stamp = '<!-- ' + (site.brandShort || site.legalName) + ' quote form embed · built ' +
       new Date().toISOString().slice(0, 10) + ' · source: landing/embed-form.html\n' +
       '     Paste this ENTIRE file into a WordPress "Custom HTML" block.\n' +
       '     Re-paste after any change to the source, or WordPress keeps the old copy. -->\n';
