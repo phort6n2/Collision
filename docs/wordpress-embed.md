@@ -86,7 +86,7 @@ stack, set one property on the mount point — no other change:
 
 ## What it sends
 
-The identical 33-key payload the landing form sends, with two fields deliberately
+The identical 37-key payload the landing form sends, with two fields deliberately
 different:
 
 | Field | Landing pages | This embed |

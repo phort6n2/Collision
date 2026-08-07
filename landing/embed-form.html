@@ -420,7 +420,6 @@
     ].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim() + '.';
   }
 
-
   var phEl = $('ph');
   phEl.setAttribute('maxlength','14');
   phEl.addEventListener('input', function(){ this.value = phFormat(phDigits(this.value)); });

@@ -49,7 +49,7 @@ which is the number that actually says whether these pages earn their spend.
 Read this before mapping anything. It is the one step that silently breaks the rest.
 
 The Inbound Webhook trigger builds its list of mappable variables from the **sample
-request** it captured. The form always sends all 33 keys, but a submission made from a
+request** it captured. The form always sends all 37 keys, but a submission made from a
 direct visit — no `?gclid=…&utm_…` in the URL — sends the click-ID and UTM keys as
 **empty strings**, because the payload builder does `payload[k] = attribution[k] || ''`.
 GHL routinely omits empty-valued keys from the mapping picker, so if the captured sample
@@ -137,6 +137,48 @@ keeps the mapping obvious a year from now.
 >
 > The page sends all 31 keys regardless. Unmapped keys are discarded silently; no code
 > change is needed to start using one later.
+
+### Tier 0 — readable labels. Two minutes, and the one the shop owner notices.
+
+The form sends the raw control values because reporting depends on them being
+stable — but a raw value is what the CRM prints in the lead-notification email,
+and `Service: door-side-glass` is what somebody reads at 7am. These four carry
+the English alongside it, so the email template needs no conditionals.
+
+| JSON key | Field name | Type | What it holds |
+|---|---|---|---|
+| `lead_summary` | Lead Summary | **Multi-line text** | One composed sentence: *"Dana Alvarez needs ADAS camera recalibration on a 2018 Subaru Forester."* Every optional clause drops out when empty, so a minimal submission still reads as English. |
+| `service_label` | Service Label | Text | The dropdown's display text, e.g. `Door or side window glass` |
+| `insurance_label` | Insurance Label | Text | `Filing through insurance` / `Paying out of pocket` / `Not sure yet about insurance` |
+| `source_label` | Source Label | Text | Plain-English name for the site, e.g. `Portland landing page`. `source` stays the identifier. |
+
+**Multi-line for `lead_summary`.** It is a full sentence and a single-line field
+clips it on longer vehicles — silently, in the field the email leans on most.
+
+**These are additive.** `service`, `insurance` and `source` keep their exact raw
+values. Do not swap one for the other: the app reports on the raw values, and a
+label is display text that can be reworded at any time.
+
+Once mapped, the notification email becomes:
+
+```
+{{contact.lead_summary}}
+
+Phone:     {{contact.phone}}
+Email:     {{contact.email}}
+ZIP:       {{contact.postal_code}}
+Service:   {{contact.service_label}}
+Insurance: {{contact.insurance_label}}
+Came from: {{contact.source_label}}
+```
+
+Drop any standalone `VIN:` and `Carrier:` lines — the summary includes them when
+present and omits them when not, which is the dangling-empty-line problem those
+lines create.
+
+> **Check the merge tag GHL actually generated.** It derives the tag from the
+> field key it creates, which is not always the name you typed. Read it off the
+> field's detail view rather than assuming `{{contact.lead_summary}}`.
 
 ### Tier 1 — attribution. Create these first; without them ad spend is unattributable.
 
