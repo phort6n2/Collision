@@ -66,6 +66,7 @@
   var PHONE_E164 = "{{EMBED_PHONE_E164}}";
   var PHONE_DISP = "{{EMBED_PHONE}}";
   var PRIVACY_URL = "{{EMBED_PRIVACY_URL}}";
+  var TERMS_URL   = "{{EMBED_TERMS_URL}}";
   var BRAND_SHORT = "{{BRAND_SHORT}}";
 
   /* ---------------------------------------------------------------- styles
@@ -203,6 +204,17 @@
   function esc(s){
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+  /* Both links are optional and independent. Each is emitted only when its URL
+     is configured, so a client with a privacy policy and no terms page gets a
+     sentence that still reads correctly rather than a dangling "and". */
+  function legalLine(){
+    var parts = [];
+    if(PRIVACY_URL) parts.push('<a href="' + esc(PRIVACY_URL) + '">Privacy Policy</a>');
+    if(TERMS_URL)   parts.push('<a href="' + esc(TERMS_URL)   + '">Terms</a>');
+    if(!parts.length) return '';
+    return ' See our ' + parts.join(' and ') + '.';
+  }
+
   var callLink = PHONE_E164
     ? '<a href="tel:' + esc(PHONE_E164) + '">' + esc(PHONE_DISP) + '</a>'
     : '';
@@ -284,7 +296,7 @@
         '<button type="submit" class="btn btn-primary qc-submit"><span class="btn-label">Get my free quote</span></button>' +
         '<p class="qc-micro">No obligation &middot; We confirm your coverage before dispatch</p>' +
         '<p class="qc-consent">By submitting this form you agree we may contact you by phone, text or email about your quote. ' +
-          'Message rates may apply.' + (PRIVACY_URL ? ' See our <a href="' + esc(PRIVACY_URL) + '">Privacy Policy</a>.' : '') + '</p>' +
+          'Message rates may apply.' + legalLine() + '</p>' +
         '<p class="sr-only" role="status" aria-live="polite" id="qcStatus"></p>' +
       '</form>' +
       '<div class="qc-ok" id="quoteSuccess" role="status" aria-live="polite">' +

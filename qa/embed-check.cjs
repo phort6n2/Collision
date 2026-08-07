@@ -43,6 +43,7 @@ const pass = (m) => results.push('ok    ' + m);
    make the gate pass only for the client it was written against. */
 const siteCfg = require(path.join(__dirname, '..', 'landing', 'pages.config.cjs')).site;
 const EMBED_SOURCE = (siteCfg.embed && siteCfg.embed.leadSource) || '';
+const EMBED_TERMS = (siteCfg.embed && siteCfg.embed.termsUrl) || '';
 const LANDING_SOURCE = siteCfg.leadSource || '';
 
 const cfgPath = path.join(__dirname, '..', 'landing', 'pages.config.cjs');
@@ -156,6 +157,24 @@ async function fillValid(p, over) {
   else fail('optional drawer is open on load — the hidden attribute is being overridden');
   if (await p.getAttribute('#qcExpand', 'aria-expanded') === 'false') pass('drawer reports aria-expanded=false when closed');
   else fail('aria-expanded is not false on load');
+
+  /* Consent links are assembled at RUNTIME from config, so the source-level
+     "every URL is absolute" guard in verify cannot see them — it only sees the
+     token. A root-relative value in config would resolve against the client's
+     own site and 404, on the one line of the form that carries a legal promise.
+     Check what the browser actually rendered. */
+  const legal = await p.$$eval('.qc-consent a', (as) =>
+    as.map((a) => ({ text: a.textContent.trim(), href: a.getAttribute('href') })));
+  const privacy = legal.find((l) => /privacy/i.test(l.text));
+  if (privacy && /^https?:\/\//.test(privacy.href)) pass('consent line links an absolute Privacy Policy URL');
+  else fail('consent Privacy Policy link missing or not absolute: ' + JSON.stringify(privacy || null));
+  if (EMBED_TERMS) {
+    const terms = legal.find((l) => /terms/i.test(l.text));
+    if (terms && /^https?:\/\//.test(terms.href)) pass('consent line links an absolute Terms URL');
+    else fail('termsUrl is configured but the consent line has no absolute Terms link');
+  } else if (legal.some((l) => /terms/i.test(l.text))) {
+    fail('a Terms link is rendered with no termsUrl configured');
+  } else pass('no termsUrl configured, and no Terms link rendered');
 
   await p.click('#qcExpand');
   if (await p.isVisible('#qcMore')) pass('optional drawer opens');

@@ -343,10 +343,18 @@ module.exports = {
       phoneFormatted: '',
       phoneE164: '',
 
-      /* Absolute, because a root-relative path would resolve against the main
-       * site. Points at this site's policy by default; swap it for the main
-       * site's own if that is the one the client maintains. */
-      privacyUrl: ''
+      /* Absolute, because a root-relative path resolves against the host site.
+       * These point at the MAIN site's own policies, which is the right choice
+       * whenever it maintains them: a consent line on collisionautoglass.com
+       * linking to a policy on a different domain reads as a mismatch to the
+       * visitor and is weaker if it is ever relied on.
+       *
+       * Empty privacyUrl falls back to this site's /privacy. Empty termsUrl
+       * emits no terms link at all — most clients have no terms page, and the
+       * sentence is written to read correctly with either link, both, or
+       * neither. Verified 200 with no redirect on 2026-08-07. */
+      privacyUrl: 'https://collisionautoglass.com/privacy/',
+      termsUrl: 'https://collisionautoglass.com/terms/'
     },
 
     compliance: {

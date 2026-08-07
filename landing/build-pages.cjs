@@ -1597,11 +1597,7 @@ function build() {
     /* Stamped so the pasted copy can be identified. A paste-in snippet drifts by
      * construction — this is the only way to tell whether what is live in
      * WordPress is what is in this repo. */
-    const stamp = '<!-- ' + (site.brandShort || site.legalName) + ' quote form embed · built ' +
-      new Date().toISOString().slice(0, 10) + ' · source: landing/embed-form.html\n' +
-      '     Paste this ENTIRE file into a WordPress "Custom HTML" block.\n' +
-      '     Re-paste after any change to the source, or WordPress keeps the old copy. -->\n';
-    const s = stamp + fs.readFileSync(embedSrc, 'utf8')
+    const body = fs.readFileSync(embedSrc, 'utf8')
       .replace(/\{\{LEAD_WEBHOOK\}\}/g, site.ghl.webhook)
       .replace(/\{\{LEAD_APP_WEBHOOK\}\}/g, leadsAppUrl())
       .replace(/\{\{EMBED_LEAD_SOURCE\}\}/g, esc(em.leadSource || ''))
@@ -1609,8 +1605,21 @@ function build() {
       .replace(/\{\{EMBED_PHONE_E164\}\}/g, esc(em.phoneE164 || site.phoneE164))
       .replace(/\{\{EMBED_PHONE\}\}/g, esc(em.phoneFormatted || site.phoneFormatted))
       .replace(/\{\{EMBED_PRIVACY_URL\}\}/g, esc(em.privacyUrl || absUrl('privacy')))
+      .replace(/\{\{EMBED_TERMS_URL\}\}/g, esc(em.termsUrl || ''))
       .replace(/\{\{BRAND_SHORT\}\}/g, esc(site.brandShort || site.legalName));
-    writeFile('embed/form.html', s);
+    /* Content hash, not just a date. The snippet is pasted by hand, so the only
+     * question that ever matters is "is what is in WordPress the current build?"
+     * — and a date cannot answer it, because a fix and its follow-up land on the
+     * same day. rev changes if and only if a single byte of the snippet changed,
+     * so comparing line 1 against the deployed file is a real answer. */
+    const rev = crypto.createHash('md5').update(body).digest('hex').slice(0, 8);
+    const stamp = '<!-- ' + (site.brandShort || site.legalName) + ' quote form embed\n' +
+      '     rev ' + rev + ' · built ' + new Date().toISOString().slice(0, 10) +
+      ' · source: landing/embed-form.html\n' +
+      '     Paste this ENTIRE file into a WordPress "Custom HTML" block.\n' +
+      '     Re-paste after any change to the source, or WordPress keeps the old copy.\n' +
+      '     Current rev is always the first lines of /embed/form.html on the live site. -->\n';
+    writeFile('embed/form.html', stamp + body);
     console.log('[build] embed form → ' + (leadsAppUrl() ? 'CRM + leads app' : 'CRM only'));
   }
 
