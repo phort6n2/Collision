@@ -229,6 +229,39 @@ const groupPages = (id) =>
 const footerAreaA = linkList(groupPages(GROUPS[0].id));
 const footerAreaB = linkList(groupPages(GROUPS[1].id));
 
+/**
+ * The same groups again, for the coverage band — but as a heading plus the
+ * CITIES only.
+ *
+ * The footer list above is flat and starts with the hub page, which is right in
+ * a footer. In the coverage band it read as a mistake: the group's <h3> already
+ * said "Portland & the Westside" and the first link underneath said "Portland
+ * and the Westside" — the same place twice, styled identically, with the real
+ * hierarchy invisible. Here the heading IS the hub link and the list is the
+ * cities inside it, which is what the two things actually are.
+ *
+ * Falls back to a plain heading when a group has no hub page, so a client whose
+ * areas are flat still renders.
+ */
+function coverGroupHtml(group) {
+  const hub = hubPages.find((p) => p.area === group.id);
+  const cities = cityPages.filter((p) => p.area === group.id);
+  /* group.label is an HTML field — the config header says so, and this one is
+     literally "Portland &amp; the Westside". Running it through esc() a second
+     time renders "&amp;amp;", which is what shipped for one build. */
+  const heading = hub
+    ? '<a class="cover-hub" href="' + url(hub.slug) + '">' + group.label + '</a>'
+    : group.label;
+  return (
+    '<h3 class="cover-h">' + heading + '</h3>' +
+    (cities.length
+      ? '<ul class="areas">\n              ' + linkList(cities) + '\n            </ul>'
+      : '')
+  );
+}
+const coverGroupA = coverGroupHtml(GROUPS[0]);
+const coverGroupB = coverGroupHtml(GROUPS[1]);
+
 /* ------------------------------------------------------------- review block */
 
 /** 1110 → "1,110". Used everywhere a review count is shown to a human. */
@@ -1293,6 +1326,10 @@ function renderPage(page) {
   s = region(s, 'FOOTER_SERVICES', footerServices);
   s = region(s, 'FOOTER_AREA_A', footerAreaA);
   s = region(s, 'FOOTER_AREA_B', footerAreaB);
+  /* Content pages only — the legal pages carry the footer, not the coverage
+     band, and filling a region that is not there throws. */
+  s = region(s, 'COVER_A', coverGroupA);
+  s = region(s, 'COVER_B', coverGroupB);
   s = section(s, 'INSURANCE', insCards.length > 0);
   s = section(s, 'INS_DISCLAIMER', Boolean(ins.disclaimer));
   /* Computed once: a page whose body uses every gallery photo has nothing left

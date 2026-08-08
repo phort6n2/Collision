@@ -899,19 +899,23 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
    section defines in full directly beside it. It is not styled to imitate a
    third-party certification and must not be — an invented credential costs
    more trust than the decoration buys. */
-/* Heading and badge stay on one row at every width. They used to wrap, which
-   dropped the badge onto its own line where margin-left:auto stranded it against
-   the right edge with dead space above and below. The heading takes whatever is
-   left and wraps instead — a three-line heading beside the badge reads as a
-   composition; a floating badge reads as a mistake. */
-.promise-row{ display:flex; align-items:center; gap:20px; flex-wrap:nowrap; }
-.promise-row h2{ margin:0; flex:1 1 auto; min-width:0; }
-.seal{ flex:0 0 auto; width:150px; height:auto; display:block; }
-@media (max-width:719px){
-  .promise-row{ gap:14px; }
-  .seal{ width:96px; }
+/* The badge sits beside the WHOLE head, not inside it. Its first version put it
+   in a flex row with the h2 alone, which split the heading from the sentence
+   explaining it and — because .sec-head is capped at 60ch — left the badge
+   floating mid-band with the right half of the section empty either side of it.
+   A mark about the section belongs against the section, at the edge of the
+   container the section actually occupies. */
+.promise{ display:grid; grid-template-columns:minmax(0,1fr); gap:20px; align-items:center; }
+.promise-copy{ margin-bottom:0; }
+.promise-seal{ justify-self:start; }
+.seal{ display:block; width:112px; height:auto; }
+@media (min-width:760px){
+  .promise{ grid-template-columns:minmax(0,1fr) auto; gap:48px; }
+  /* End-aligned, so the badge lands on the same right edge as the cards below
+     it. Anything else and it reads as floating again, just higher up. */
+  .promise-seal{ justify-self:end; }
+  .seal{ width:150px; }
 }
-@media (max-width:359px){ .seal{ width:78px; } }
 
 /* ---- step cards ------------------------------------------------------
    A large, very low-contrast icon behind each step. Texture, not information:
@@ -1011,6 +1015,43 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 .areas{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 18px; list-style:none; padding:0; margin:0; }
 .areas a{ color:var(--accent-light); font-size:.9375rem; text-decoration:none; }
 .areas a:hover{ color:#fff; text-decoration:underline; }
+
+/* ---- coverage band ---------------------------------------------------
+   Copy on the left at its reading measure, the area lists in the width that
+   measure was leaving empty. Before this the whole band was one 60ch column
+   with the lists strung underneath it as a flat four-across row, so the right
+   half of a dark full-bleed section was void and the group headings had no
+   visible relationship to the links beneath them. */
+.cover{ display:grid; grid-template-columns:minmax(0,1fr); gap:32px; }
+.cover-copy{ margin-bottom:0; }
+.cover-lists{ display:grid; grid-template-columns:minmax(0,1fr); gap:28px; }
+/* Group heading. Doubles as the link to that area's hub page, so the heading
+   and the list underneath are the parent and its children rather than two
+   near-identical links sitting side by side. */
+.cover-h{
+  font-size:.8125rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--text-on-dark-2); margin:0 0 14px; padding-bottom:6px;
+  border-bottom:1px solid var(--line-on-dark);
+}
+/* The padding is the tap target, not decoration. A 13px uppercase line is 15px
+   tall, and turning this heading into a link made it a 15px touch target —
+   under the 24px floor, and qa:render failed the build for it. The h3's own
+   bottom padding drops by the same amount the link gains, so the rule below
+   sits exactly where it did. */
+.cover-h .cover-hub{
+  display:inline-block; padding:6px 0; color:inherit; text-decoration:none;
+}
+.cover-h .cover-hub:hover{ color:#fff; }
+/* One place per line inside a group. The two-across grid is right in the footer,
+   where space is tight and the reader is scanning; here it turned four short
+   place names into an unreadable strip. */
+.cover-lists .areas{ grid-template-columns:minmax(0,1fr); gap:2px; }
+@media (min-width:600px){
+  .cover-lists{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:36px; }
+}
+@media (min-width:960px){
+  .cover{ grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr); gap:64px; align-items:start; }
+}
 
 /* ---------------------------------------------------------------- FAQ */
 /* Same treatment as .prose: 80ch column centred in the container, answers still
@@ -1824,24 +1865,25 @@ Professional, flexible, and they even have a really sweet dog greeting customers
 <!-- ============ SERVICE AREA ============ -->
 <section class="sec sec-dark">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">Where we go</span>
-      <h2>Portland, the Westside &amp; the South Metro coverage</h2>
-      <p class="lead" style="color:var(--text-on-dark-2)">Two shops, Cedar Mill and Tualatin, and mobile vans working out of both. If your town is not named below, call and ask — the honest answer is sometimes no, and you should get it before you book rather than after.</p>
-    </div>
-    <div class="grid grid-2">
-      <div>
-        <h3 style="font-size:1rem;margin-bottom:14px">Portland &amp; the Westside</h3>
-        <ul class="areas"><!--PAGE:FOOTER_AREA_A--><li><a href="/portland-westside-auto-glass">Portland and the Westside</a></li>
+    <!-- Two real columns. The copy keeps its reading measure and the lists take
+         the width that measure was leaving empty, which is what made this band
+         read as half-finished. -->
+    <div class="cover">
+      <div class="sec-head cover-copy">
+        <span class="eyebrow">Where we go</span>
+        <h2>Portland, the Westside &amp; the South Metro coverage</h2>
+        <p class="lead" style="color:var(--text-on-dark-2)">Two shops, Cedar Mill and Tualatin, and mobile vans working out of both. If your town is not named below, call and ask — the honest answer is sometimes no, and you should get it before you book rather than after.</p>
+      </div>
+      <div class="cover-lists">
+        <div class="cover-group"><!--PAGE:COVER_A--><h3 class="cover-h"><a class="cover-hub" href="/portland-westside-auto-glass">Portland &amp; the Westside</a></h3><ul class="areas">
               <li><a href="/auto-glass-repair-portland">Portland</a></li>
               <li><a href="/auto-glass-repair-beaverton">Beaverton</a></li>
-              <li><a href="/auto-glass-repair-hillsboro">Hillsboro</a></li><!--/PAGE:FOOTER_AREA_A--></ul>
-      </div>
-      <div>
-        <h3 style="font-size:1rem;margin-bottom:14px">the South Metro</h3>
-        <ul class="areas"><!--PAGE:FOOTER_AREA_B--><li><a href="/south-metro-auto-glass">The South Metro</a></li>
+              <li><a href="/auto-glass-repair-hillsboro">Hillsboro</a></li>
+            </ul><!--/PAGE:COVER_A--></div>
+        <div class="cover-group"><!--PAGE:COVER_B--><h3 class="cover-h"><a class="cover-hub" href="/south-metro-auto-glass">the South Metro</a></h3><ul class="areas">
               <li><a href="/auto-glass-repair-tualatin">Tualatin</a></li>
-              <li><a href="/auto-glass-repair-lake-oswego">Lake Oswego</a></li><!--/PAGE:FOOTER_AREA_B--></ul>
+              <li><a href="/auto-glass-repair-lake-oswego">Lake Oswego</a></li>
+            </ul><!--/PAGE:COVER_B--></div>
       </div>
     </div>
   </div>
@@ -1850,13 +1892,17 @@ Professional, flexible, and they even have a really sweet dog greeting customers
 <!-- ============ WARRANTY ============ -->
 <section class="sec sec-accent">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">Our promise</span>
-      <div class="promise-row">
+    <!-- The seal sat INSIDE the head, between the h2 and the lead, which broke
+         the heading away from the sentence explaining it and left the badge
+         floating in the middle of the band. It is a mark about the whole
+         section, so it sits beside the whole head. -->
+    <div class="promise">
+      <div class="sec-head promise-copy">
+        <span class="eyebrow">Our promise</span>
         <h2>What the warranty actually covers</h2>
-        <!--PAGE:SEAL--><img class="seal" src="/img/warranty-badge.ce96bc90.png" width="160" height="139" loading="lazy" decoding="async" alt="Collision Auto Glass &amp; Calibration lifetime workmanship warranty"><!--/PAGE:SEAL-->
+        <p class="lead">"Lifetime warranty" is meaningless unless somebody writes down what it includes. Here's ours.</p>
       </div>
-      <p class="lead">"Lifetime warranty" is meaningless unless somebody writes down what it includes. Here's ours.</p>
+      <div class="promise-seal"><!--PAGE:SEAL--><img class="seal" src="/img/warranty-badge.ce96bc90.png" width="160" height="139" loading="lazy" decoding="async" alt="Collision Auto Glass &amp; Calibration lifetime workmanship warranty"><!--/PAGE:SEAL--></div>
     </div>
     <div class="grid grid-2">
       <div class="card">
