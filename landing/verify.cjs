@@ -630,12 +630,13 @@ head('10. One un-swapped instance of the real number on every page');
 
 /* Google verifies the call asset by crawling the site for the number the asset
  * is configured with — which is now the main line, the same number the CTAs
- * display. Every CTA carries .gcall and is replaced client-side with a
+ * display. Every CTA contains a .gcall span and is replaced client-side with a
  * forwarding number, so if EVERY instance were swapped a rendering crawler
  * would find no real number anywhere and verification would fail. Nothing on
  * the page would look broken; the ad's call button would simply stop serving.
  *
- * So: at least one tel: link to the real number, without .gcall, on every page.
+ * So: at least one tel: link to the real number containing NO .gcall element,
+ * on every page.
  * The footer identity line is that instance by design.
  *
  * This replaces a check that asserted a SEPARATE call-asset number carrying
@@ -645,13 +646,21 @@ const cfgSite = require('./pages.config.cjs').site;
 const mainDigits = String(cfgSite.phoneE164).replace(/\D/g, '');
 let unswappedOk = true;
 for (const p of pages) {
-  const links = p.html.match(new RegExp('<a[^>]*href="tel:\\+?' + mainDigits + '"[^>]*>', 'gi')) || [];
+  /* Match the whole element, not just its opening tag. The class used to sit on
+     the <a> itself, so testing the tag was enough; it now sits on a <span>
+     INSIDE the link, because Google's css-class mode deletes every child of the
+     matched element and a class on the link wiped the icon and the wording.
+     Left as a tag test this check would have gone quietly vacuous — no <a>
+     carries the class any more, so every link would have counted as un-swapped
+     and the guard would have passed while measuring nothing. */
+  const links = p.html.match(
+    new RegExp('<a[^>]*href="tel:\\+?' + mainDigits + '"[^>]*>[\\s\\S]*?</a>', 'gi')) || [];
   if (!links.length) {
     fail(p.slug + ' does not display the real number ' + cfgSite.phoneFormatted + ' at all');
     unswappedOk = false;
     continue;
   }
-  const unswapped = links.filter((a) => !/class="[^"]*\bgcall\b/.test(a));
+  const unswapped = links.filter((a) => !/\bgcall\b/.test(a));
   if (!unswapped.length) {
     fail(p.slug + ' shows the real number only on .gcall links — Google would swap every instance and call-asset verification would find no real number');
     unswappedOk = false;

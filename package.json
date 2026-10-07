@@ -15,7 +15,8 @@
     "build:adsheet": "node landing/ads-sheet.cjs",
     "check:urls": "node landing/check-urls.cjs",
     "make:icons": "node tools/make-icons.cjs",
-    "qa:embed": "node qa/embed-check.cjs"
+    "qa:embed": "node qa/embed-check.cjs",
+    "qa:callswap": "node qa/call-swap-check.cjs"
   },
   "license": "UNLICENSED",
   "devDependencies": {
