@@ -1448,7 +1448,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
          phone, and the second line is what used to push the phone number into a
          mid-number break. The short form still says mobile + we come to you. -->
     <span class="util-note">{{UTIL_NOTE}}<span class="util-more"> {{UTIL_NOTE_MORE}}</span></span>
-    <span class="util-call"><span class="util-call-lbl">Call</span> <a class="gcall" href="tel:{{PHONE_E164}}">{{PHONE}}</a></span>
+    <span class="util-call"><span class="util-call-lbl">Call</span> <a href="tel:{{PHONE_E164}}"><span class="gcall">{{PHONE}}</span></a></span>
   </div>
 </div>
 
@@ -1464,9 +1464,9 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
          see reviewsSectionHtml() and section() in build-pages.cjs. -->
     <!--SECTION:HDRRATING--><!--PAGE:HDRRATING--><!--/PAGE:HDRRATING--><!--/SECTION:HDRRATING-->
     <div class="hdr-cta">
-      <a class="gcall callbtn" href="tel:{{PHONE_E164}}" aria-label="Call {{LEGAL_NAME}} at {{PHONE}}">
+      <a class="callbtn" href="tel:{{PHONE_E164}}" aria-label="Call {{LEGAL_NAME}} at {{PHONE}}">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
-        <span class="cb-num">{{PHONE}}</span><span class="sr-only">Call us</span>
+        <span class="cb-num gcall">{{PHONE}}</span><span class="sr-only">Call us</span>
       </a>
     </div>
   </div>
@@ -1492,9 +1492,9 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
         <!--/PAGE:HEROBULLETS--></ul>
 
         <div class="hero-actions">
-          <a class="gcall btn btn-call" href="tel:{{PHONE_E164}}">
+          <a class="btn btn-call" href="tel:{{PHONE_E164}}">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
-            Call {{PHONE}}
+            Call <span class="gcall">{{PHONE}}</span>
           </a>
         </div>
       </div>
@@ -1523,7 +1523,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
                someone fill in six fields and lose them. -->
           <noscript>
             <p class="qc-noscript">This form needs JavaScript to send. Call
-              <a class="gcall" href="tel:{{PHONE_E164}}">{{PHONE}}</a> and we'll take the details
+              <a href="tel:{{PHONE_E164}}"><span class="gcall">{{PHONE}}</span></a> and we'll take the details
               over the phone.</p>
           </noscript>
 
@@ -1647,7 +1647,15 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
             </div>
           </div>
 
-          <div class="form-error" id="quoteError" role="alert"></div>
+          <!-- The message is STATIC, not injected on failure. It used to be
+               written with innerHTML inside showError(), which meant the tel:
+               link did not exist when Google's swap ran — the swap fires once
+               after load — so the one link offered to somebody whose form just
+               failed was the only call button on the page Google never counted.
+               Mounted here, it is swapped with everything else and simply
+               revealed by .on. -->
+          <div class="form-error" id="quoteError" role="alert">Sorry — that didn’t go through. Please call
+            <a href="tel:{{PHONE_E164}}" style="color:var(--error);font-weight:800"><span class="gcall">{{PHONE}}</span></a> and we’ll take the details over the phone.</div>
           <button type="submit" class="btn btn-primary qc-submit">
             <span class="btn-label">Get my free quote</span>
           </button>
@@ -1662,7 +1670,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
           </div>
           <h3 tabindex="-1" id="okHead">You're all set, <span id="echoName">there</span>.</h3>
           <p>We've got your request. A {{BRAND_SHORT}} tech will call you shortly to confirm the glass, your coverage and a time that works.</p>
-          <p style="margin-top:16px"><a class="gcall btn btn-primary btn-block" href="tel:{{PHONE_E164}}">Call us now — {{PHONE}}</a></p>
+          <p style="margin-top:16px"><a class="btn btn-primary btn-block" href="tel:{{PHONE_E164}}">Call us now — <span class="gcall">{{PHONE}}</span></a></p>
         </div>
       </div>
     </div>
@@ -1866,7 +1874,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
       <p class="lead" style="color:var(--text-on-dark-2)">Send the form and we'll confirm your glass, your coverage and a time — or just call and talk to somebody now.</p>
       <div class="final-actions">
         <a class="btn btn-primary" href="#quote">Get my free quote</a>
-        <a class="gcall btn btn-call" href="tel:{{PHONE_E164}}">Call {{PHONE}}</a>
+        <a class="btn btn-call" href="tel:{{PHONE_E164}}">Call <span class="gcall">{{PHONE}}</span></a>
       </div>
     </div>
   </div>
@@ -1881,7 +1889,7 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
         <img src="/ASSET/img/{{LOGO}}" width="234" height="96" alt="{{LEGAL_NAME}}" loading="lazy" decoding="async">
         <p>{{FOOTER_BLURB}}</p>
         <p style="margin-top:12px">
-          <a class="gcall ftr-tel" href="tel:{{PHONE_E164}}">{{PHONE}}</a><br>
+          <a class="ftr-tel" href="tel:{{PHONE_E164}}"><span class="gcall">{{PHONE}}</span></a><br>
           <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>
         </p>
       </div>
@@ -1957,9 +1965,9 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
 
 <!-- sticky mobile action bar -->
 <div class="sticky" id="stickybar" aria-hidden="true">
-  <a class="gcall btn btn-primary" href="tel:{{PHONE_E164}}">
+  <a class="btn btn-primary" href="tel:{{PHONE_E164}}">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg>
-    Call now
+    Call now<span class="gcall sr-only">{{PHONE}}</span>
   </a>
   <a class="btn btn-ghost" href="#quote">Get quote</a>
 </div>
@@ -2365,11 +2373,13 @@ a.card:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--paper),0 0 0 5px 
       }
       if(btnLabel) btnLabel.textContent = origLabel;
       form.removeAttribute('aria-busy');
-      /* Clear the polite live region, or a screen reader is left with
-         "Sending your request…" contradicting the alert box. */
-      if(statusEl) statusEl.textContent = '';
-      errBox.innerHTML = 'Sorry — that didn’t go through. Please call ' +
-        '<a class="gcall" href="tel:{{PHONE_E164}}" style="color:var(--error);font-weight:800">{{PHONE}}</a> and we’ll take the details over the phone.';
+      /* The polite region carried "Sending your request…", which would otherwise
+         sit there contradicting the alert box. It now carries the failure
+         instead of being emptied: the alert box's text is static, and an alert
+         region whose content does not change is announced inconsistently across
+         screen readers when it is merely un-hidden. This one sentence is
+         guaranteed to be read either way. */
+      if(statusEl) statusEl.textContent = 'That didn’t go through. Please call us instead.';
       errBox.classList.add('on');
     }
 
